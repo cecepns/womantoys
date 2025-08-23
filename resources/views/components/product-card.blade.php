@@ -1,4 +1,4 @@
-<a href="#" class="block">
+<a href="/product-detail" class="block">
     <div class="border border-gray-200 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 bg-white">
         <!-- Product Image -->
         <div class="w-full h-48 overflow-hidden">

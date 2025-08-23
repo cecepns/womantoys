@@ -10,3 +10,7 @@ Route::get('/catalog', function () {
     return view('catalog');
 });
 
+Route::get('/product-detail', function () {
+    return view('product-detail');
+});
+
