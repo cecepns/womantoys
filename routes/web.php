@@ -22,3 +22,7 @@ Route::get('/payment-instruction', function () {
     return view('payment-instruction');
 });
 
+Route::get('/admin/login', function () {
+    return view('admin.login');
+});
+
