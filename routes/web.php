@@ -42,3 +42,7 @@ Route::get('/admin/products/{id}/edit', function ($id) {
     return view('admin.products.edit');
 });
 
+Route::get('/admin/carousel', function () {
+    return view('admin.carousel.index');
+});
+
