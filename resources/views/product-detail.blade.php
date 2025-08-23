@@ -105,9 +105,11 @@
             </div>
             
             <!-- Buy Now Button -->
-            <button class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
-                Buy Now
-            </button>
+            <a href="/checkout" class="block">
+                <button class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
+                    Buy Now
+                </button>
+            </a>
         </div>
     </div>
 
