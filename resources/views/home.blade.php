@@ -25,7 +25,7 @@
             <p class="text-xl md:text-2xl mb-8 opacity-90">
                 Premium adult toys and intimate products for enhanced satisfaction
             </p>
-            <a href="/products" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-4 px-8 rounded-lg transition-colors duration-200 text-lg">
+            <a href="/catalog" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-4 px-8 rounded-lg transition-colors duration-200 text-lg">
                 View Collection
             </a>
         </div>
@@ -97,7 +97,7 @@
         </div>
         
         <div class="text-center mt-12">
-            <a href="/products" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
+            <a href="/catalog" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
                 View All Products
             </a>
         </div>

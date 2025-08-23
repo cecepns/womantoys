@@ -19,7 +19,7 @@
                 
                 <!-- Navigation Links -->
                 <div class="hidden md:flex space-x-8">
-                    <a href="/products" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Collection</a>
+                    <a href="/catalog" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Collection</a>
                     <a href="#" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">About Us</a>
                     <a href="#" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Contact</a>
                 </div>
