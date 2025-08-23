@@ -46,3 +46,11 @@ Route::get('/admin/carousel', function () {
     return view('admin.carousel.index');
 });
 
+Route::get('/admin/carousel/create', function () {
+    return view('admin.carousel.create');
+});
+
+Route::get('/admin/carousel/{id}/edit', function ($id) {
+    return view('admin.carousel.edit');
+});
+
