@@ -30,3 +30,11 @@ Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 });
 
+Route::get('/admin/products', function () {
+    return view('admin.products.index');
+});
+
+Route::get('/admin/products/create', function () {
+    return view('admin.products.create');
+});
+
