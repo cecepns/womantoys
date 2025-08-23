@@ -183,9 +183,11 @@
 
     <!-- Action Button -->
     <div class="mt-12">
-        <button class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
-            Place Order
-        </button>
+        <a href="/payment-instruction" class="block">
+            <button class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
+                Place Order
+            </button>
+        </a>
     </div>
 </div>
 @endsection
