@@ -53,6 +53,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/carousel/{carouselSlide}/move-up', [App\Http\Controllers\Admin\CarouselController::class, 'moveUp'])->name('carousel.move-up');
         Route::post('/carousel/{carouselSlide}/move-down', [App\Http\Controllers\Admin\CarouselController::class, 'moveDown'])->name('carousel.move-down');
         
+        // Category routes
+        Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class);
+        
         Route::get('/orders', function () {
             return view('admin.orders.index');
         })->name('orders.index');
