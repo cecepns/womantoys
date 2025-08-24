@@ -15,6 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('image_path');
             $table->string('title')->nullable();
+            $table->text('description')->nullable();
             $table->string('cta_text')->nullable();
             $table->string('cta_link')->nullable();
             $table->integer('order');
