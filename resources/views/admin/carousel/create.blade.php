@@ -14,9 +14,6 @@
             <p class="text-gray-600 mt-2">Buat slide carousel baru untuk ditampilkan di homepage</p>
         </div>
         <a href="/admin/carousel" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-            </svg>
             Kembali ke Daftar
         </a>
     </div>
@@ -27,39 +24,41 @@
     @csrf
     <!-- Image Upload Section -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-6">Gambar Slide</h2>
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Gambar Slide</h2>
         
         <div class="space-y-4">
             <!-- Image Preview Area -->
             <div id="image_preview_container" class="hidden">
                 <p class="text-sm text-gray-600 mb-2">Preview Gambar:</p>
-                <div class="w-full max-w-md">
-                    <img id="image_preview" src="" alt="Preview" class="w-full h-48 object-cover rounded-lg border-2 border-gray-300">
+                <div class="relative w-full max-w-md">
+                    <img id="image_preview" src="" alt="Preview" class="w-full object-cover rounded-lg border border-gray-300">
+                    <!-- Remove Preview Button -->
+                    <button type="button" id="remove_preview_btn" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full transition-colors duration-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
-            <!-- File Upload Area -->
-            <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-pink-400 transition-colors duration-200">
-                <div id="upload_area">
-                    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                    </svg>
-                    <p class="text-gray-600 mb-2">Klik untuk upload gambar slide</p>
-                    <p class="text-sm text-gray-500 mb-4">PNG, JPG, JPEG up to 5MB</p>
-                    <p class="text-xs text-gray-400">Rekomendasi ukuran: 1920x600px untuk hasil terbaik</p>
-                </div>
+            <!-- File Input -->
+            <div>
+                <label for="image_path" class="block text-sm font-medium text-gray-700 mb-2">
+                    Pilih Gambar <span class="text-red-500">*</span>
+                </label>
                 <input
                     type="file"
                     id="image_path"
                     name="image_path"
                     accept=".png,.jpg,.jpeg"
-                    class="hidden"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('image_path') border-red-500 @enderror"
                     required
                 >
+                <p class="text-sm text-gray-500 mt-1">PNG, JPG, JPEG (max 5MB) - Rekomendasi: 1920x600px</p>
+                @error('image_path')
+                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                @enderror
             </div>
-            @error('image_path')
-                <p class="text-red-500 text-sm">{{ $message }}</p>
-            @enderror
         </div>
     </div>
 
@@ -67,70 +66,45 @@
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-6">Konten Slide</h2>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Left Column -->
-            <div class="space-y-6">
-                <!-- Title -->
-                <div>
-                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
-                        Judul / Title
-                    </label>
-                    <input
-                        type="text"
-                        id="title"
-                        name="title"
-                        value="{{ old('title') }}"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('title') border-red-500 @enderror"
-                        placeholder="Masukkan judul slide"
-                    >
-                    <p class="text-sm text-gray-500 mt-1">Judul utama yang akan ditampilkan di slide</p>
-                    @error('title')
-                        <p class="text-red-500 text-sm">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Description -->
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                        Deskripsi / Description
-                    </label>
-                    <textarea
-                        id="description"
-                        name="description"
-                        rows="3"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror"
-                        placeholder="Masukkan deskripsi slide (opsional)"
-                    >{{ old('description') }}</textarea>
-                    <p class="text-sm text-gray-500 mt-1">Deskripsi singkat di bawah judul</p>
-                    @error('description')
-                        <p class="text-red-500 text-sm">{{ $message }}</p>
-                    @enderror
-                </div>
+        <div class="space-y-6">
+            <!-- Title -->
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                    Judul / Title
+                </label>
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value="{{ old('title') }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('title') border-red-500 @enderror"
+                    placeholder="Masukkan judul slide"
+                >
+                <p class="text-sm text-gray-500 mt-1">Judul utama yang akan ditampilkan di slide</p>
+                @error('title')
+                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                @enderror
             </div>
 
-            <!-- Right Column -->
-            <div class="space-y-6">
-                <!-- Display Order -->
-                <div>
-                    <label for="order" class="block text-sm font-medium text-gray-700 mb-2">
-                        Urutan Tampil <span class="text-red-500">*</span>
-                    </label>
-                    <input
-                        type="number"
-                        id="order"
-                        name="order"
-                        min="1"
-                        value="{{ old('order', 1) }}"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('order') border-red-500 @enderror"
-                        required
-                    >
-                    <p class="text-sm text-gray-500 mt-1">Urutan tampilan slide (1 = pertama)</p>
-                    @error('order')
-                        <p class="text-red-500 text-sm">{{ $message }}</p>
-                    @enderror
-                </div>
+            <!-- Description -->
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                    Deskripsi / Description
+                </label>
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="3"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror"
+                    placeholder="Masukkan deskripsi slide (opsional)"
+                >{{ old('description') }}</textarea>
+                <p class="text-sm text-gray-500 mt-1">Deskripsi singkat di bawah judul</p>
+                @error('description')
+                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                @enderror
             </div>
         </div>
+
     </div>
 
     <!-- CTA Button Section -->
@@ -177,13 +151,7 @@
             </div>
         </div>
 
-        <!-- CTA Button Preview -->
-        <div id="cta_preview" class="hidden mt-6 p-4 bg-gray-50 rounded-lg">
-            <p class="text-sm text-gray-600 mb-2">Preview Tombol:</p>
-            <button type="button" id="preview_button" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                Lihat Koleksi
-            </button>
-        </div>
+
     </div>
 
     <!-- Action Buttons -->
@@ -217,37 +185,11 @@ document.getElementById('image_path').addEventListener('change', function(e) {
     }
 });
 
-// CTA button preview functionality
-function updateCTAPreview() {
-    const ctaText = document.getElementById('cta_text').value.trim();
-    const ctaLink = document.getElementById('cta_link').value.trim();
-    const previewContainer = document.getElementById('cta_preview');
-    const previewButton = document.getElementById('preview_button');
-    
-    if (ctaText) {
-        previewButton.textContent = ctaText;
-        previewContainer.classList.remove('hidden');
-        
-        if (ctaLink) {
-            previewButton.onclick = function() {
-                alert(`Link akan mengarah ke: ${ctaLink}`);
-            };
-        } else {
-            previewButton.onclick = function() {
-                alert('Link belum diisi');
-            };
-        }
-    } else {
-        previewContainer.classList.add('hidden');
-    }
-}
-
-document.getElementById('cta_text').addEventListener('input', updateCTAPreview);
-document.getElementById('cta_link').addEventListener('input', updateCTAPreview);
-
-// Click to upload functionality
-document.querySelector('.border-dashed').addEventListener('click', function() {
-    document.getElementById('image_path').click();
+// Remove preview functionality
+document.getElementById('remove_preview_btn').addEventListener('click', function() {
+    document.getElementById('image_preview_container').classList.add('hidden');
+    document.getElementById('image_path').value = '';
 });
+
 </script>
 @endsection

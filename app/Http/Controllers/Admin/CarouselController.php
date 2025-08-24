@@ -37,15 +37,11 @@ class CarouselController extends Controller
             'description' => 'nullable|string',
             'cta_text' => 'nullable|string|max:255',
             'cta_link' => 'nullable|string|max:255',
-            'order' => 'required|integer|min:1',
         ], [
             'image_path.required' => 'Gambar slide wajib diupload.',
             'image_path.image' => 'File harus berupa gambar.',
             'image_path.mimes' => 'Format gambar harus JPEG, PNG, atau JPG.',
             'image_path.max' => 'Ukuran gambar maksimal 5MB.',
-            'order.required' => 'Urutan tampil wajib diisi.',
-            'order.integer' => 'Urutan tampil harus berupa angka.',
-            'order.min' => 'Urutan tampil minimal 1.',
         ]);
 
         // Validate CTA consistency
@@ -62,6 +58,9 @@ class CarouselController extends Controller
             $imagePath = $request->file('image_path')->store('carousel', 'public');
         }
 
+        // Calculate next order number
+        $nextOrder = CarouselSlide::max('order') + 1;
+
         // Create carousel slide
         CarouselSlide::create([
             'image_path' => $imagePath,
@@ -69,7 +68,7 @@ class CarouselController extends Controller
             'description' => $request->description,
             'cta_text' => $request->cta_text,
             'cta_link' => $request->cta_link,
-            'order' => $request->order,
+            'order' => $nextOrder,
         ]);
 
         return redirect()->route('admin.carousel.index')
@@ -103,25 +102,15 @@ class CarouselController extends Controller
             'description' => 'nullable|string',
             'cta_text' => 'nullable|string|max:255',
             'cta_link' => 'nullable|string|max:255',
-            'order' => 'required|integer|min:1',
         ], [
             'image_path.image' => 'File harus berupa gambar.',
             'image_path.mimes' => 'Format gambar harus JPEG, PNG, atau JPG.',
             'image_path.max' => 'Ukuran gambar maksimal 5MB.',
-            'order.required' => 'Urutan tampil wajib diisi.',
-            'order.integer' => 'Urutan tampil harus berupa angka.',
-            'order.min' => 'Urutan tampil minimal 1.',
         ]);
 
-        // Check if order is being changed and if it conflicts with existing slides
-        if ($request->order != $carousel->order) {
-            $existingSlide = CarouselSlide::where('order', $request->order)
-                ->where('id', '!=', $carousel->id)
-                ->first();
-            
-            if ($existingSlide) {
-                return back()->withErrors(['order' => 'Urutan ' . $request->order . ' sudah digunakan oleh slide lain.'])->withInput();
-            }
+        // Ensure carousel has an image (either existing or new)
+        if (!$request->hasFile('image_path') && !$carousel->image_path) {
+            return back()->withErrors(['image_path' => 'Carousel slide harus memiliki gambar.'])->withInput();
         }
 
         // Validate CTA consistency
@@ -138,26 +127,9 @@ class CarouselController extends Controller
             'description' => $request->description,
             'cta_text' => $request->cta_text,
             'cta_link' => $request->cta_link,
-            'order' => $request->order,
         ];
 
-        // Handle image removal
-        if ($request->has('remove_image') && $request->remove_image == '1') {
-            // Delete old image if it exists
-            if ($carousel->image_path) {
-                try {
-                    if (Storage::disk('public')->exists($carousel->image_path)) {
-                        Storage::disk('public')->delete($carousel->image_path);
-                    }
-                } catch (\Exception $e) {
-                    \Log::warning('Failed to delete carousel image during removal: ' . $carousel->image_path, [
-                        'error' => $e->getMessage(),
-                        'slide_id' => $carousel->id
-                    ]);
-                }
-            }
-            $data['image_path'] = null;
-        }
+
 
         // Handle image upload if new image is provided
         if ($request->hasFile('image_path')) {
