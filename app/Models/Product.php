@@ -22,6 +22,8 @@ class Product extends Model
         'care_instructions',
         'price',
         'main_image',
+        'status',
+        'stock',
     ];
 
     /**
@@ -88,6 +90,52 @@ class Product extends Model
     public function getFormattedPriceAttribute()
     {
         return 'Rp ' . number_format($this->price, 0, ',', '.');
+    }
+
+    /**
+     * Get the status label for display.
+     *
+     * @return string
+     */
+    public function getStatusLabelAttribute()
+    {
+        return match($this->status) {
+            'active' => 'Aktif',
+            'draft' => 'Draft',
+            'out_of_stock' => 'Stok Habis',
+            default => 'Unknown'
+        };
+    }
+
+    /**
+     * Get the status badge class for display.
+     *
+     * @return string
+     */
+    public function getStatusBadgeClassAttribute()
+    {
+        return match($this->status) {
+            'active' => 'bg-green-100 text-green-800',
+            'draft' => 'bg-yellow-100 text-yellow-800',
+            'out_of_stock' => 'bg-red-100 text-red-800',
+            default => 'bg-gray-100 text-gray-800'
+        };
+    }
+
+    /**
+     * Scope a query to only include active products.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    /**
+     * Scope a query to only include products with stock.
+     */
+    public function scopeInStock($query)
+    {
+        return $query->where('stock', '>', 0);
     }
 
     /**
