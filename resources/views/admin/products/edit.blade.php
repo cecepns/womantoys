@@ -131,11 +131,37 @@
                     <div class="mb-3">
                         <p class="text-sm text-gray-600 mb-2">Gambar saat ini:</p>
                         <div class="relative inline-block">
-                            <img 
-                                src="{{ $product->main_image_url ?? 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80' }}" 
-                                alt="Current Main Image" 
-                                class="w-32 h-32 object-cover rounded-lg border border-gray-300"
-                            >
+                            @if($product->hasValidMainImage())
+                                <img 
+                                    src="{{ $product->main_image_url }}" 
+                                    alt="Current Main Image" 
+                                    class="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                                    onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                >
+                                <!-- Fallback placeholder when image fails to load -->
+                                <div class="w-32 h-32 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300 hidden">
+                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <div class="absolute top-1 right-1">
+                                        <span class="bg-red-100 text-red-800 text-xs px-1 py-0.5 rounded-full">
+                                            Error
+                                        </span>
+                                    </div>
+                                </div>
+                            @else
+                                <!-- No image placeholder -->
+                                <div class="w-32 h-32 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300">
+                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <div class="absolute top-1 right-1">
+                                        <span class="bg-gray-100 text-gray-600 text-xs px-1 py-0.5 rounded-full">
+                                            No Image
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     </div>
                     
@@ -184,11 +210,39 @@
                             <p class="text-sm text-gray-600 mb-2">Gambar galeri saat ini:</p>
                             <div class="grid grid-cols-3 gap-3">
                                 @foreach($product->images->take(3) as $image)
-                                    <img 
-                                        src="{{ $image->image_url }}" 
-                                        alt="Gallery Image" 
-                                        class="w-full h-24 object-cover rounded-lg border border-gray-300"
-                                    >
+                                    <div class="relative">
+                                        @if($image->hasValidImage())
+                                            <img 
+                                                src="{{ $image->image_url }}" 
+                                                alt="Gallery Image" 
+                                                class="w-full h-24 object-cover rounded-lg border border-gray-300"
+                                                onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                            >
+                                            <!-- Fallback placeholder when image fails to load -->
+                                            <div class="w-full h-24 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300 hidden">
+                                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                                <div class="absolute top-1 right-1">
+                                                    <span class="bg-red-100 text-red-800 text-xs px-1 py-0.5 rounded-full">
+                                                        Error
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <!-- No image placeholder -->
+                                            <div class="w-full h-24 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300">
+                                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                                <div class="absolute top-1 right-1">
+                                                    <span class="bg-gray-100 text-gray-600 text-xs px-1 py-0.5 rounded-full">
+                                                        No Image
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
                                 @endforeach
                             </div>
                         </div>
@@ -461,6 +515,25 @@ function removeGalleryImage(index) {
     // Update preview
     updateGalleryPreview();
 }
+
+// Handle image loading errors
+document.addEventListener('DOMContentLoaded', function() {
+    const productImages = document.querySelectorAll('img[src*="storage"]');
+    
+    productImages.forEach(function(img) {
+        img.addEventListener('error', function() {
+            // Hide the failed image
+            this.style.display = 'none';
+            
+            // Show the fallback placeholder
+            const fallback = this.nextElementSibling;
+            if (fallback && fallback.classList.contains('hidden')) {
+                fallback.classList.remove('hidden');
+                fallback.style.display = 'flex';
+            }
+        });
+    });
+});
 
 // Simple form validation
 document.querySelector('form').addEventListener('submit', function(e) {

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class ProductImage extends Model
 {
@@ -51,5 +52,25 @@ class ProductImage extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('order', 'asc');
+    }
+
+    /**
+     * Check if the image exists and is accessible.
+     *
+     * @return bool
+     */
+    public function hasValidImage()
+    {
+        if (empty($this->image_path)) {
+            return false;
+        }
+
+        // If it's a full URL, we can't easily check if it exists
+        if (filter_var($this->image_path, FILTER_VALIDATE_URL)) {
+            return true;
+        }
+
+        // Check if file exists in storage
+        return Storage::disk('public')->exists($this->image_path);
     }
 }
