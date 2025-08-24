@@ -10,7 +10,7 @@
 <div class="mb-8">
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Edit Produk: Lelo Sona Cruise 2</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Edit Produk: {{ $product->name ?? 'Lelo Sona Cruise 2' }}</h1>
             <p class="text-gray-600 mt-2">Ubah detail produk sesuai kebutuhan</p>
         </div>
         <a href="/admin/products" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
@@ -23,7 +23,10 @@
 </div>
 
 <!-- Product Form -->
-<form class="space-y-8">
+<form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-8">
+    @csrf
+    @method('PUT')
+    
     <!-- Basic Information Section -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-6">Informasi Dasar Produk</h2>
@@ -33,39 +36,44 @@
             <div class="space-y-6">
                 <!-- Product Name -->
                 <div>
-                    <label for="product_name" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
                         Nama Produk <span class="text-red-500">*</span>
                     </label>
                     <input
                         type="text"
-                        id="product_name"
-                        name="product_name"
-                        value="Lelo Sona Cruise 2"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        id="name"
+                        name="name"
+                        value="{{ old('name', $product->name ?? 'Lelo Sona Cruise 2') }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('name') border-red-500 @enderror"
                         placeholder="Masukkan nama produk"
                         required
                     >
+                    @error('name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Category -->
                 <div>
-                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">
                         Kategori <span class="text-red-500">*</span>
                     </label>
                     <select
-                        id="category"
-                        name="category"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        id="category_id"
+                        name="category_id"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('category_id') border-red-500 @enderror"
                         required
                     >
                         <option value="">Pilih kategori</option>
-                        <option value="women" selected>Untuk Wanita</option>
-                        <option value="men">Untuk Pria</option>
-                        <option value="couples">Untuk Pasangan</option>
-                        <option value="bdsm">BDSM</option>
-                        <option value="lubricants">Pelumas</option>
-                        <option value="accessories">Aksesoris</option>
+                        @foreach($categories ?? [] as $category)
+                            <option value="{{ $category->id }}" {{ old('category_id', $product->category_id ?? '') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
                     </select>
+                    @error('category_id')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Price -->
@@ -79,14 +87,17 @@
                             type="number"
                             id="price"
                             name="price"
-                            value="1500000"
-                            class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                            value="{{ old('price', $product->price ?? 1500000) }}"
+                            class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('price') border-red-500 @enderror"
                             placeholder="0"
                             min="0"
                             step="1000"
                             required
                         >
                     </div>
+                    @error('price')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Short Description -->
@@ -98,10 +109,13 @@
                         id="short_description"
                         name="short_description"
                         rows="3"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('short_description') border-red-500 @enderror"
                         placeholder="Deskripsi singkat produk (akan ditampilkan di katalog)"
                         required
-                    >Premium sonic wave massager dengan teknologi terdepan untuk kenikmatan maksimal. Desain elegan dan waterproof untuk penggunaan yang aman dan nyaman.</textarea>
+                    >{{ old('short_description', $product->short_description ?? 'Premium sonic wave massager dengan teknologi terdepan untuk kenikmatan maksimal. Desain elegan dan waterproof untuk penggunaan yang aman dan nyaman.') }}</textarea>
+                    @error('short_description')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
@@ -116,7 +130,7 @@
                     <div class="mb-4">
                         <p class="text-sm text-gray-600 mb-2">Gambar saat ini:</p>
                         <img 
-                            src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
+                            src="{{ $product->main_image_url ?? 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80' }}" 
                             alt="Current Main Image" 
                             class="w-32 h-32 object-cover rounded-lg border-2 border-gray-300"
                         >
@@ -138,6 +152,9 @@
                             class="hidden"
                         >
                     </div>
+                    @error('main_image')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Gallery Images -->
@@ -149,21 +166,31 @@
                     <div class="mb-4">
                         <p class="text-sm text-gray-600 mb-2">Gambar galeri saat ini:</p>
                         <div class="grid grid-cols-3 gap-2">
-                            <img 
-                                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
-                                alt="Gallery Image 1" 
-                                class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
-                            >
-                            <img 
-                                src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
-                                alt="Gallery Image 2" 
-                                class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
-                            >
-                            <img 
-                                src="https://images.unsplash.com/photo-1573461160327-b450ce3d8e7f?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
-                                alt="Gallery Image 3" 
-                                class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
-                            >
+                            @if(isset($product) && $product->images->count() > 0)
+                                @foreach($product->images->take(3) as $image)
+                                    <img 
+                                        src="{{ $image->image_url }}" 
+                                        alt="Gallery Image" 
+                                        class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
+                                    >
+                                @endforeach
+                            @else
+                                <img 
+                                    src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
+                                    alt="Gallery Image 1" 
+                                    class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
+                                >
+                                <img 
+                                    src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
+                                    alt="Gallery Image 2" 
+                                    class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
+                                >
+                                <img 
+                                    src="https://images.unsplash.com/photo-1573461160327-b450ce3d8e7f?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
+                                    alt="Gallery Image 3" 
+                                    class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
+                                >
+                            @endif
                         </div>
                     </div>
                     <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-pink-400 transition-colors duration-200">
@@ -184,6 +211,9 @@
                             class="hidden"
                         >
                     </div>
+                    @error('gallery_images')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
         </div>
@@ -196,22 +226,25 @@
         <div class="space-y-6">
             <!-- Full Description -->
             <div>
-                <label for="full_description" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
                     Deskripsi Lengkap <span class="text-red-500">*</span>
                 </label>
                 <textarea
-                    id="full_description"
-                    name="full_description"
+                    id="description"
+                    name="description"
                     rows="6"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror"
                     placeholder="Deskripsi lengkap produk dengan detail fitur dan manfaat"
                     required
-                >Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. 
+                >{{ old('description', $product->description ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. 
 
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. 
 
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.</textarea>
+Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.') }}</textarea>
                 <p class="text-sm text-gray-500 mt-1">Gunakan HTML tags untuk formatting jika diperlukan</p>
+                @error('description')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Specifications -->
@@ -223,15 +256,18 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
                     id="specifications"
                     name="specifications"
                     rows="4"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('specifications') border-red-500 @enderror"
                     placeholder="Spesifikasi teknis produk (bahan, ukuran, daya, dll)"
-                >• Bahan: Medical grade silicone
+                >{{ old('specifications', $product->specifications ?? '• Bahan: Medical grade silicone
 • Ukuran: 9.6 x 5.4 x 4.3 cm
 • Berat: 163 gram
 • Waterproof: IPX7
 • Charging: Magnetic USB
 • Battery life: 2 jam penggunaan
-• Warranty: 1 tahun garansi resmi</textarea>
+• Warranty: 1 tahun garansi resmi') }}</textarea>
+                @error('specifications')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Care Instructions -->
@@ -243,14 +279,17 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
                     id="care_instructions"
                     name="care_instructions"
                     rows="4"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('care_instructions') border-red-500 @enderror"
                     placeholder="Cara merawat dan membersihkan produk"
-                >1. Bersihkan sebelum dan sesudah digunakan dengan air hangat dan sabun lembut
+                >{{ old('care_instructions', $product->care_instructions ?? '1. Bersihkan sebelum dan sesudah digunakan dengan air hangat dan sabun lembut
 2. Gunakan pembersih khusus toy cleaner untuk hasil optimal
 3. Keringkan sepenuhnya sebelum disimpan
 4. Simpan di tempat yang kering dan sejuk
 5. Hindari kontak dengan produk berbahan latex
-6. Charge secara teratur untuk menjaga daya tahan baterai</textarea>
+6. Charge secara teratur untuk menjaga daya tahan baterai') }}</textarea>
+                @error('care_instructions')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
         </div>
     </div>
@@ -260,65 +299,42 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
         <h2 class="text-xl font-semibold text-gray-800 mb-6">Pengaturan Tambahan</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Stock Status -->
+            <!-- Stock Quantity -->
             <div>
-                <label for="stock_status" class="block text-sm font-medium text-gray-700 mb-2">
-                    Status Stok
+                <label for="stock" class="block text-sm font-medium text-gray-700 mb-2">
+                    Jumlah Stok
                 </label>
-                <select
-                    id="stock_status"
-                    name="stock_status"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                <input
+                    type="number"
+                    id="stock"
+                    name="stock"
+                    value="{{ old('stock', $product->stock ?? 0) }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('stock') border-red-500 @enderror"
+                    placeholder="0"
+                    min="0"
                 >
-                    <option value="in_stock" selected>Tersedia</option>
-                    <option value="low_stock">Stok Terbatas</option>
-                    <option value="out_of_stock">Stok Habis</option>
-                    <option value="pre_order">Pre-Order</option>
-                </select>
+                @error('stock')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Product Status -->
             <div>
-                <label for="product_status" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
                     Status Produk
                 </label>
                 <select
-                    id="product_status"
-                    name="product_status"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    id="status"
+                    name="status"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('status') border-red-500 @enderror"
                 >
-                    <option value="active" selected>Aktif (Tampilkan di Katalog)</option>
-                    <option value="draft">Draft (Simpan Saja)</option>
-                    <option value="inactive">Nonaktif (Sembunyikan)</option>
+                    <option value="active" {{ old('status', $product->status ?? 'active') == 'active' ? 'selected' : '' }}>Aktif (Tampilkan di Katalog)</option>
+                    <option value="draft" {{ old('status', $product->status ?? 'active') == 'draft' ? 'selected' : '' }}>Draft (Simpan Saja)</option>
+                    <option value="out_of_stock" {{ old('status', $product->status ?? 'active') == 'out_of_stock' ? 'selected' : '' }}>Stok Habis</option>
                 </select>
-            </div>
-
-            <!-- Featured Product -->
-            <div class="flex items-center">
-                <input
-                    type="checkbox"
-                    id="featured"
-                    name="featured"
-                    class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
-                    checked
-                >
-                <label for="featured" class="ml-2 text-sm text-gray-700">
-                    Tampilkan sebagai Produk Unggulan
-                </label>
-            </div>
-
-            <!-- Discreet Packaging -->
-            <div class="flex items-center">
-                <input
-                    type="checkbox"
-                    id="discreet_packaging"
-                    name="discreet_packaging"
-                    class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
-                    checked
-                >
-                <label for="discreet_packaging" class="ml-2 text-sm text-gray-700">
-                    Kemasan Rahasia (Default)
-                </label>
+                @error('status')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
         </div>
     </div>
@@ -386,10 +402,8 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
 
 // Form submission handling
 document.querySelector('form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
     // Basic validation
-    const requiredFields = ['product_name', 'category', 'price', 'short_description', 'full_description'];
+    const requiredFields = ['name', 'category_id', 'price', 'short_description', 'description'];
     let isValid = true;
     
     requiredFields.forEach(fieldId => {
@@ -402,12 +416,8 @@ document.querySelector('form').addEventListener('submit', function(e) {
         }
     });
     
-    if (isValid) {
-        // Show success message (in real app, this would submit to server)
-        alert('Produk berhasil diupdate!');
-        // Redirect to products list
-        window.location.href = '/admin/products';
-    } else {
+    if (!isValid) {
+        e.preventDefault();
         alert('Mohon lengkapi semua field yang wajib diisi.');
     }
 });
