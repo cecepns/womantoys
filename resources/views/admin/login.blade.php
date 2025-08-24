@@ -21,7 +21,20 @@
         </div>
 
         <!-- Login Form -->
-        <form class="space-y-6">
+        <form method="POST" action="{{ route('admin.login') }}" class="space-y-6">
+            @csrf
+            
+            <!-- Error Messages -->
+            @if ($errors->any())
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                    <ul class="list-disc list-inside text-sm">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+            
             <!-- Email Field -->
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
@@ -31,10 +44,14 @@
                     type="email" 
                     id="email" 
                     name="email" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    value="{{ old('email') }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('email') border-red-500 @enderror"
                     placeholder="Enter your email"
                     required
                 >
+                @error('email')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Password Field -->
@@ -46,10 +63,13 @@
                     type="password" 
                     id="password" 
                     name="password" 
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('password') border-red-500 @enderror"
                     placeholder="Enter your password"
                     required
                 >
+                @error('password')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Remember Me Checkbox -->
@@ -85,23 +105,6 @@
         </div>
     </div>
 
-    <script>
-        // Simple form handling (for demonstration purposes)
-        document.querySelector('form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            // For now, just show an alert (no actual authentication)
-            if (email && password) {
-                alert('Login attempt recorded. This is a demo - no actual authentication is implemented.');
-                // In a real application, you would send this data to your backend
-                console.log('Login attempt:', { email, password });
-            } else {
-                alert('Please fill in all fields.');
-            }
-        });
-    </script>
+
 </body>
 </html>
