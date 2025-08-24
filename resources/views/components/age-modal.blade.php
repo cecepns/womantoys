@@ -59,11 +59,11 @@
 </div>
 
 <script>
+    document.getElementById('ageModal').style.display = 'none';
 // Check if user has already confirmed age
 document.addEventListener('DOMContentLoaded', function() {
     const ageConfirmed = localStorage.getItem('ageConfirmed');
     if (ageConfirmed === 'true') {
-        document.getElementById('ageModal').style.display = 'none';
     }
 });
 

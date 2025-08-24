@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('home');
+    $carouselSlides = App\Models\CarouselSlide::orderBy('order', 'asc')->get();
+    return view('home', compact('carouselSlides'));
 });
 
 Route::get('/catalog', function () {
