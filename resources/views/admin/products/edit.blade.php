@@ -201,13 +201,25 @@
                         Gambar Galeri (Maksimal 5 gambar)
                     </label>
                     
-                    <!-- Current Gallery Images -->
-                    @if(isset($product) && $product->images->count() > 0)
-                        <div class="mb-3">
-                            <p class="text-sm text-gray-600 mb-2">Gambar galeri saat ini:</p>
-                            <div class="grid grid-cols-3 gap-3">
-                                @foreach($product->images->take(3) as $image)
-                                    <div class="relative">
+                    <!-- File Input -->
+                    <div class="mb-3">
+                        <input
+                            type="file"
+                            id="gallery_images"
+                            name="gallery_images[]"
+                            accept=".png,.jpg,.jpeg"
+                            multiple
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                        >
+                    </div>
+                    
+                    <!-- Gallery Images Container -->
+                    <div class="mb-3">
+                        <p class="text-sm text-gray-600 mb-2">Gambar galeri ({{ $product->images->count() }}/5):</p>
+                        <div id="gallery_container" class="grid grid-cols-3 gap-3">
+                            @if(isset($product) && $product->images->count() > 0)
+                                @foreach($product->images as $index => $image)
+                                    <div class="relative gallery-item" data-image-id="{{ $image->id }}">
                                         @if($image->hasValidImage())
                                             <img 
                                                 src="{{ $image->image_url }}" 
@@ -239,31 +251,25 @@
                                                 </div>
                                             </div>
                                         @endif
+                                        
+                                        <!-- Remove button for existing images -->
+                                        <button 
+                                            type="button" 
+                                            onclick="removeExistingGalleryImage({{ $image->id }})" 
+                                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                                            title="Hapus gambar"
+                                        >
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
                                     </div>
                                 @endforeach
-                            </div>
+                            @endif
                         </div>
-                    @endif
-                    
-                    <!-- File Input -->
-                    <div class="mb-3">
-                        <input
-                            type="file"
-                            id="gallery_images"
-                            name="gallery_images[]"
-                            accept=".png,.jpg,.jpeg"
-                            multiple
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
-                        >
                     </div>
                     
-                    <!-- Preview Section -->
-                    <div id="gallery_preview" class="hidden">
-                        <div class="mb-2">
-                            <p class="text-sm text-gray-600 mb-2">Gambar yang dipilih:</p>
-                        </div>
-                        <div id="gallery_images_container" class="grid grid-cols-3 gap-3"></div>
-                    </div>
+
                     
                     @error('gallery_images')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -461,16 +467,19 @@ function removeMainImage() {
     container.insertBefore(placeholder, removeBtn);
 }
 
-// Gallery preview with individual remove
+// Gallery management with 5 image limit
 let selectedGalleryFiles = [];
+let removedExistingImages = [];
 
 document.getElementById('gallery_images').addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
     const maxFiles = 5;
+    const currentImages = document.querySelectorAll('.gallery-item').length;
+    const availableSlots = maxFiles - currentImages + removedExistingImages.length;
     
     // Check if adding new files would exceed limit
-    if (selectedGalleryFiles.length + files.length > maxFiles) {
-        alert(`Maksimal ${maxFiles} gambar. Anda sudah memilih ${selectedGalleryFiles.length} gambar.`);
+    if (files.length > availableSlots) {
+        alert(`Maksimal ${maxFiles} gambar. Anda hanya bisa menambahkan ${availableSlots} gambar lagi. Hapus beberapa gambar yang ada terlebih dahulu.`);
         return;
     }
     
@@ -487,51 +496,47 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
 });
 
 function updateGalleryPreview() {
-    const container = document.getElementById('gallery_images_container');
-    const preview = document.getElementById('gallery_preview');
+    const container = document.getElementById('gallery_container');
     
-    container.innerHTML = '';
-    
-    if (selectedGalleryFiles.length > 0) {
-        preview.classList.remove('hidden');
+    // Add new preview images
+    selectedGalleryFiles.forEach((file, index) => {
+        const reader = new FileReader();
         
-        selectedGalleryFiles.forEach((file, index) => {
-            const reader = new FileReader();
+        reader.onload = function(e) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'relative gallery-item new-image';
+            wrapper.setAttribute('data-file-index', index);
             
-            reader.onload = function(e) {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'relative';
-                
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = 'Gallery Preview';
-                img.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
-                
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors';
-                removeBtn.title = 'Hapus gambar';
-                removeBtn.onclick = () => removeGalleryImage(index);
-                
-                removeBtn.innerHTML = `
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                `;
-                
-                wrapper.appendChild(img);
-                wrapper.appendChild(removeBtn);
-                container.appendChild(wrapper);
-            };
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = 'Gallery Preview';
+            img.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
             
-            reader.readAsDataURL(file);
-        });
-    } else {
-        preview.classList.add('hidden');
-    }
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors';
+            removeBtn.title = 'Hapus gambar';
+            removeBtn.onclick = () => removeNewGalleryImage(index);
+            
+            removeBtn.innerHTML = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            `;
+            
+            wrapper.appendChild(img);
+            wrapper.appendChild(removeBtn);
+            container.appendChild(wrapper);
+        };
+        
+        reader.readAsDataURL(file);
+    });
+    
+    // Update counter
+    updateGalleryCounter();
 }
 
-function removeGalleryImage(index) {
+function removeNewGalleryImage(index) {
     selectedGalleryFiles.splice(index, 1);
     
     // Update the file input
@@ -540,8 +545,45 @@ function removeGalleryImage(index) {
     selectedGalleryFiles.forEach(file => dt.items.add(file));
     input.files = dt.files;
     
-    // Update preview
-    updateGalleryPreview();
+    // Remove the preview element
+    const previewElement = document.querySelector(`[data-file-index="${index}"]`);
+    if (previewElement) {
+        previewElement.remove();
+    }
+    
+    // Update counter
+    updateGalleryCounter();
+}
+
+function removeExistingGalleryImage(imageId) {
+    if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
+        // Add to removed images list
+        removedExistingImages.push(imageId);
+        
+        // Hide the image element
+        const imageElement = document.querySelector(`[data-image-id="${imageId}"]`);
+        if (imageElement) {
+            imageElement.style.display = 'none';
+        }
+        
+        // Add hidden input to track removed images
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'removed_gallery_images[]';
+        hiddenInput.value = imageId;
+        document.querySelector('form').appendChild(hiddenInput);
+        
+        // Update counter
+        updateGalleryCounter();
+    }
+}
+
+function updateGalleryCounter() {
+    const currentImages = document.querySelectorAll('.gallery-item:not([style*="display: none"])').length;
+    const counterElement = document.querySelector('p.text-sm.text-gray-600.mb-2');
+    if (counterElement) {
+        counterElement.textContent = `Gambar galeri (${currentImages}/5):`;
+    }
 }
 
 // Handle image loading errors
