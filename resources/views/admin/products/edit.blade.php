@@ -10,7 +10,7 @@
 <div class="mb-8">
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Edit Produk: {{ $product->name ?? 'Lelo Sona Cruise 2' }}</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Edit Produk: {{ $product->name }}</h1>
             <p class="text-gray-600 mt-2">Ubah detail produk sesuai kebutuhan</p>
         </div>
         <a href="/admin/products" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
@@ -43,7 +43,7 @@
                         type="text"
                         id="name"
                         name="name"
-                        value="{{ old('name', $product->name ?? 'Lelo Sona Cruise 2') }}"
+                        value="{{ old('name', $product->name) }}"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('name') border-red-500 @enderror"
                         placeholder="Masukkan nama produk"
                         required
@@ -66,7 +66,7 @@
                     >
                         <option value="">Pilih kategori</option>
                         @foreach($categories ?? [] as $category)
-                            <option value="{{ $category->id }}" {{ old('category_id', $product->category_id ?? '') == $category->id ? 'selected' : '' }}>
+                            <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
                                 {{ $category->name }}
                             </option>
                         @endforeach
@@ -87,7 +87,7 @@
                             type="number"
                             id="price"
                             name="price"
-                            value="{{ old('price', $product->price ?? 1500000) }}"
+                            value="{{ old('price', $product->price) }}"
                             class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('price') border-red-500 @enderror"
                             placeholder="0"
                             min="0"
@@ -112,7 +112,7 @@
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('short_description') border-red-500 @enderror"
                         placeholder="Deskripsi singkat produk (akan ditampilkan di katalog)"
                         required
-                    >{{ old('short_description', $product->short_description ?? 'Premium sonic wave massager dengan teknologi terdepan untuk kenikmatan maksimal. Desain elegan dan waterproof untuk penggunaan yang aman dan nyaman.') }}</textarea>
+                    >{{ old('short_description', $product->short_description) }}</textarea>
                     @error('short_description')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -290,12 +290,7 @@
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror"
                     placeholder="Deskripsi lengkap produk dengan detail fitur dan manfaat"
                     required
-                >{{ old('description', $product->description ?? 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris. 
-
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. 
-
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.') }}</textarea>
-                <p class="text-sm text-gray-500 mt-1">Gunakan HTML tags untuk formatting jika diperlukan</p>
+                >{{ old('description', $product->description) }}</textarea>
                 @error('description')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -312,13 +307,7 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
                     rows="4"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('specifications') border-red-500 @enderror"
                     placeholder="Spesifikasi teknis produk (bahan, ukuran, daya, dll)"
-                >{{ old('specifications', $product->specifications ?? '• Bahan: Medical grade silicone
-• Ukuran: 9.6 x 5.4 x 4.3 cm
-• Berat: 163 gram
-• Waterproof: IPX7
-• Charging: Magnetic USB
-• Battery life: 2 jam penggunaan
-• Warranty: 1 tahun garansi resmi') }}</textarea>
+                >{{ old('specifications', $product->specifications) }}</textarea>
                 @error('specifications')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -335,12 +324,7 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
                     rows="4"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('care_instructions') border-red-500 @enderror"
                     placeholder="Cara merawat dan membersihkan produk"
-                >{{ old('care_instructions', $product->care_instructions ?? '1. Bersihkan sebelum dan sesudah digunakan dengan air hangat dan sabun lembut
-2. Gunakan pembersih khusus toy cleaner untuk hasil optimal
-3. Keringkan sepenuhnya sebelum disimpan
-4. Simpan di tempat yang kering dan sejuk
-5. Hindari kontak dengan produk berbahan latex
-6. Charge secara teratur untuk menjaga daya tahan baterai') }}</textarea>
+                >{{ old('care_instructions', $product->care_instructions) }}</textarea>
                 @error('care_instructions')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
@@ -362,7 +346,7 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
                     type="number"
                     id="stock"
                     name="stock"
-                    value="{{ old('stock', $product->stock ?? 0) }}"
+                    value="{{ old('stock', $product->stock) }}"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('stock') border-red-500 @enderror"
                     placeholder="0"
                     min="0"
@@ -382,9 +366,9 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
                     name="status"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('status') border-red-500 @enderror"
                 >
-                    <option value="active" {{ old('status', $product->status ?? 'active') == 'active' ? 'selected' : '' }}>Aktif (Tampilkan di Katalog)</option>
-                    <option value="draft" {{ old('status', $product->status ?? 'active') == 'draft' ? 'selected' : '' }}>Draft (Simpan Saja)</option>
-                    <option value="out_of_stock" {{ old('status', $product->status ?? 'active') == 'out_of_stock' ? 'selected' : '' }}>Stok Habis</option>
+                    <option value="active" {{ old('status', $product->status) == 'active' ? 'selected' : '' }}>Aktif (Tampilkan di Katalog)</option>
+                    <option value="draft" {{ old('status', $product->status) == 'draft' ? 'selected' : '' }}>Draft (Simpan Saja)</option>
+                    <option value="out_of_stock" {{ old('status', $product->status) == 'out_of_stock' ? 'selected' : '' }}>Stok Habis</option>
                 </select>
                 @error('status')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
