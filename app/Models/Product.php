@@ -155,4 +155,28 @@ class Product extends Model
                     ->orWhere('short_description', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
     }
+
+    /**
+     * Check if the product has a valid main image.
+     *
+     * @return bool
+     */
+    public function hasValidMainImage()
+    {
+        return !empty($this->main_image) && file_exists(storage_path('app/public/' . $this->main_image));
+    }
+
+    /**
+     * Get the main image URL with fallback.
+     *
+     * @return string
+     */
+    public function getMainImageUrlAttribute()
+    {
+        if ($this->hasValidMainImage()) {
+            return asset('storage/' . $this->main_image);
+        }
+        
+        return asset('images/default-product.jpg');
+    }
 }
