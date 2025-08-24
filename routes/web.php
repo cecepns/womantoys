@@ -62,3 +62,15 @@ Route::get('/admin/orders/{id}', function ($id) {
     return view('admin.orders.show');
 });
 
+Route::get('/admin/accounts', function () {
+    return view('admin.accounts.index');
+});
+
+Route::get('/admin/accounts/create', function () {
+    return view('admin.accounts.create');
+});
+
+Route::get('/admin/accounts/{id}/edit', function ($id) {
+    return view('admin.accounts.edit');
+});
+
