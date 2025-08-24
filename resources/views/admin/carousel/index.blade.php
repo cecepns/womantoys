@@ -55,33 +55,7 @@
 
                         <!-- Slide Information -->
                         <div class="flex-1">
-                            <div class="flex items-center space-x-4 mb-2">
-                                @if($slide->hasValidImage())
-                                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                                        Aktif
-                                    </span>
-                                @elseif($slide->image_path)
-                                    <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
-                                        Gambar Rusak
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
-                                        Tidak Aktif
-                                    </span>
-                                @endif
-                                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                                    Urutan: {{ $slide->order }}
-                                </span>
-                                @if($slide->hasCompleteContent())
-                                    <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                                        Lengkap
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
-                                        Parsial
-                                    </span>
-                                @endif
-                            </div>
+
                             <h3 class="text-lg font-semibold text-gray-800 mb-1">
                                 {{ $slide->title ?: 'Tanpa Judul' }}
                             </h3>

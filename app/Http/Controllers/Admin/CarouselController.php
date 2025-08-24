@@ -14,7 +14,7 @@ class CarouselController extends Controller
      */
     public function index()
     {
-        $slides = CarouselSlide::ordered()->get();
+        $slides = CarouselSlide::orderBy('order', 'asc')->get();
         return view('admin.carousel.index', compact('slides'));
     }
 
@@ -87,15 +87,15 @@ class CarouselController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(CarouselSlide $carouselSlide)
+    public function edit(CarouselSlide $carousel)
     {
-        return view('admin.carousel.edit', compact('carouselSlide'));
+        return view('admin.carousel.edit', compact('carousel'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, CarouselSlide $carouselSlide)
+    public function update(Request $request, CarouselSlide $carousel)
     {
         $request->validate([
             'image_path' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
@@ -112,6 +112,17 @@ class CarouselController extends Controller
             'order.integer' => 'Urutan tampil harus berupa angka.',
             'order.min' => 'Urutan tampil minimal 1.',
         ]);
+
+        // Check if order is being changed and if it conflicts with existing slides
+        if ($request->order != $carousel->order) {
+            $existingSlide = CarouselSlide::where('order', $request->order)
+                ->where('id', '!=', $carousel->id)
+                ->first();
+            
+            if ($existingSlide) {
+                return back()->withErrors(['order' => 'Urutan ' . $request->order . ' sudah digunakan oleh slide lain.'])->withInput();
+            }
+        }
 
         // Validate CTA consistency
         if ($request->filled('cta_text') && !$request->filled('cta_link')) {
@@ -130,19 +141,37 @@ class CarouselController extends Controller
             'order' => $request->order,
         ];
 
+        // Handle image removal
+        if ($request->has('remove_image') && $request->remove_image == '1') {
+            // Delete old image if it exists
+            if ($carousel->image_path) {
+                try {
+                    if (Storage::disk('public')->exists($carousel->image_path)) {
+                        Storage::disk('public')->delete($carousel->image_path);
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to delete carousel image during removal: ' . $carousel->image_path, [
+                        'error' => $e->getMessage(),
+                        'slide_id' => $carousel->id
+                    ]);
+                }
+            }
+            $data['image_path'] = null;
+        }
+
         // Handle image upload if new image is provided
         if ($request->hasFile('image_path')) {
             // Delete old image if it exists
-            if ($carouselSlide->image_path) {
+            if ($carousel->image_path) {
                 try {
-                    if (Storage::disk('public')->exists($carouselSlide->image_path)) {
-                        Storage::disk('public')->delete($carouselSlide->image_path);
+                    if (Storage::disk('public')->exists($carousel->image_path)) {
+                        Storage::disk('public')->delete($carousel->image_path);
                     }
                 } catch (\Exception $e) {
                     // Log error but continue with update
-                    \Log::warning('Failed to delete old carousel image: ' . $carouselSlide->image_path, [
+                    \Log::warning('Failed to delete old carousel image: ' . $carousel->image_path, [
                         'error' => $e->getMessage(),
-                        'slide_id' => $carouselSlide->id
+                        'slide_id' => $carousel->id
                     ]);
                 }
             }
@@ -151,7 +180,7 @@ class CarouselController extends Controller
             $data['image_path'] = $request->file('image_path')->store('carousel', 'public');
         }
 
-        $carouselSlide->update($data);
+        $carousel->update($data);
 
         return redirect()->route('admin.carousel.index')
             ->with('success', 'Slide carousel berhasil diupdate!');

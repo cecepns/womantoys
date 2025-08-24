@@ -7,6 +7,25 @@
 
 @section('content')
 <!-- Header Section -->
+<div class="mb-6">
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <h3 class="text-sm font-medium text-blue-800">Informasi Slide</h3>
+                <p class="text-sm text-blue-600">
+                    ID: {{ $carousel->id }} | 
+                    Dibuat: {{ $carousel->created_at ? $carousel->created_at->format('d M Y H:i') : 'N/A' }} | 
+                    Terakhir Update: {{ $carousel->updated_at ? $carousel->updated_at->format('d M Y H:i') : 'N/A' }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Header Section -->
 <div class="mb-8">
     <div class="flex items-center justify-between">
         <div>
@@ -23,7 +42,7 @@
 </div>
 
 <!-- Carousel Slide Form -->
-<form action="{{ route('admin.carousel.update', $carouselSlide) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+<form action="{{ route('admin.carousel.update', $carousel) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
     @csrf
     @method('PUT')
     
@@ -33,12 +52,12 @@
         
         <div class="space-y-4">
             <!-- Current Image Preview -->
-            @if($carouselSlide->image_path)
+            @if($carousel->image_path)
                 <div class="mb-4">
                     <p class="text-sm text-gray-600 mb-2">Gambar Saat Ini:</p>
                     <div class="w-full max-w-md relative">
-                        @if($carouselSlide->hasValidImage())
-                            <img src="{{ $carouselSlide->image_url }}" alt="Current Image" class="w-full h-48 object-cover rounded-lg border-2 border-gray-300">
+                        @if($carousel->hasValidImage())
+                            <img src="{{ $carousel->image_url }}" alt="Current Image" class="w-full h-48 object-cover rounded-lg border-2 border-gray-300">
                         @else
                             <div class="w-full h-48 bg-gray-200 rounded-lg border-2 border-red-300 flex items-center justify-center relative">
                                 <div class="text-center">
@@ -46,7 +65,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                                     </svg>
                                     <p class="text-sm text-gray-600">Gambar tidak ditemukan</p>
-                                    <p class="text-xs text-gray-500">Path: {{ $carouselSlide->image_path }}</p>
+                                    <p class="text-xs text-gray-500">Path: {{ $carousel->image_path }}</p>
                                 </div>
                                 <div class="absolute top-2 right-2">
                                     <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
@@ -55,6 +74,16 @@
                                 </div>
                             </div>
                         @endif
+                        
+                        <!-- Remove Image Button -->
+                        <div class="mt-2 flex justify-center">
+                            <button type="button" id="remove_image_btn" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors duration-200">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Hapus Gambar
+                            </button>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -84,6 +113,12 @@
                     accept=".png,.jpg,.jpeg"
                     class="hidden"
                 >
+                <input
+                    type="hidden"
+                    id="remove_image"
+                    name="remove_image"
+                    value="0"
+                >
             </div>
             @error('image_path')
                 <p class="text-red-500 text-sm">{{ $message }}</p>
@@ -107,7 +142,7 @@
                         type="text"
                         id="title"
                         name="title"
-                        value="{{ old('title', $carouselSlide->title) }}"
+                        value="{{ old('title', $carousel->title) }}"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('title') border-red-500 @enderror"
                         placeholder="Masukkan judul slide"
                     >
@@ -128,7 +163,7 @@
                         rows="3"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror"
                         placeholder="Masukkan deskripsi slide (opsional)"
-                    >{{ old('description', $carouselSlide->description) }}</textarea>
+                    >{{ old('description', $carousel->description) }}</textarea>
                     <p class="text-sm text-gray-500 mt-1">Deskripsi singkat di bawah judul</p>
                     @error('description')
                         <p class="text-red-500 text-sm">{{ $message }}</p>
@@ -148,7 +183,7 @@
                         id="order"
                         name="order"
                         min="1"
-                        value="{{ old('order', $carouselSlide->order) }}"
+                        value="{{ old('order', $carousel->order) }}"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('order') border-red-500 @enderror"
                         required
                     >
@@ -175,7 +210,7 @@
                     type="text"
                     id="cta_text"
                     name="cta_text"
-                    value="{{ old('cta_text', $carouselSlide->cta_text) }}"
+                                            value="{{ old('cta_text', $carousel->cta_text) }}"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('cta_text') border-red-500 @enderror"
                     placeholder="Contoh: Lihat Koleksi"
                 >
@@ -194,7 +229,7 @@
                     type="text"
                     id="cta_link"
                     name="cta_link"
-                    value="{{ old('cta_link', $carouselSlide->cta_link) }}"
+                                            value="{{ old('cta_link', $carousel->cta_link) }}"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('cta_link') border-red-500 @enderror"
                     placeholder="Contoh: /catalog atau https://example.com"
                 >
@@ -213,6 +248,8 @@
             </button>
         </div>
     </div>
+
+
 
     <!-- Action Buttons -->
     <div class="flex justify-end space-x-4">
@@ -277,6 +314,22 @@ document.getElementById('cta_link').addEventListener('input', updateCTAPreview);
 document.querySelector('.border-dashed').addEventListener('click', function() {
     document.getElementById('image_path').click();
 });
+
+// Remove image functionality
+document.getElementById('remove_image_btn').addEventListener('click', function() {
+    if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
+        document.getElementById('remove_image').value = '1';
+        // Hide the current image preview
+        this.closest('.mb-4').style.display = 'none';
+        // Show a message
+        const message = document.createElement('div');
+        message.className = 'mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded';
+        message.innerHTML = '<p class="text-sm">✅ Gambar akan dihapus saat form disubmit</p>';
+        this.closest('.mb-4').parentNode.insertBefore(message, this.closest('.mb-4'));
+    }
+});
+
+
 
 // Initialize CTA preview on page load
 document.addEventListener('DOMContentLoaded', function() {
