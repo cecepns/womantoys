@@ -120,38 +120,53 @@
             </div>
 
             <!-- Right Column - Image Uploads -->
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <!-- Main Image -->
                 <div>
                     <label for="main_image" class="block text-sm font-medium text-gray-700 mb-2">
                         Gambar Utama <span class="text-red-500">*</span>
                     </label>
+                    
                     <!-- Current Image Preview -->
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <p class="text-sm text-gray-600 mb-2">Gambar saat ini:</p>
-                        <img 
-                            src="{{ $product->main_image_url ?? 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80' }}" 
-                            alt="Current Main Image" 
-                            class="w-32 h-32 object-cover rounded-lg border-2 border-gray-300"
-                        >
-                    </div>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-pink-400 transition-colors duration-200">
-                        <div id="main_image_preview" class="hidden mb-4">
-                            <img id="main_preview_img" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg mx-auto">
+                        <div class="relative inline-block">
+                            <img 
+                                src="{{ $product->main_image_url ?? 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80' }}" 
+                                alt="Current Main Image" 
+                                class="w-32 h-32 object-cover rounded-lg border border-gray-300"
+                            >
                         </div>
-                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
-                        <p class="text-gray-600 mb-2">Klik untuk upload gambar baru</p>
-                        <p class="text-sm text-gray-500">PNG, JPG, JPEG up to 5MB</p>
+                    </div>
+                    
+                    <!-- File Input -->
+                    <div class="mb-3">
                         <input
                             type="file"
                             id="main_image"
                             name="main_image"
                             accept=".png,.jpg,.jpeg"
-                            class="hidden"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                         >
                     </div>
+                    
+                    <!-- Preview Section -->
+                    <div id="main_image_preview" class="hidden">
+                        <div class="relative inline-block">
+                            <img id="main_preview_img" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border border-gray-300">
+                            <button 
+                                type="button" 
+                                onclick="removeMainImage()" 
+                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                                title="Hapus gambar"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
                     @error('main_image')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -160,57 +175,45 @@
                 <!-- Gallery Images -->
                 <div>
                     <label for="gallery_images" class="block text-sm font-medium text-gray-700 mb-2">
-                        Gambar Galeri Tambahan
+                        Gambar Galeri (Maksimal 5 gambar)
                     </label>
+                    
                     <!-- Current Gallery Images -->
-                    <div class="mb-4">
-                        <p class="text-sm text-gray-600 mb-2">Gambar galeri saat ini:</p>
-                        <div class="grid grid-cols-3 gap-2">
-                            @if(isset($product) && $product->images->count() > 0)
+                    @if(isset($product) && $product->images->count() > 0)
+                        <div class="mb-3">
+                            <p class="text-sm text-gray-600 mb-2">Gambar galeri saat ini:</p>
+                            <div class="grid grid-cols-3 gap-3">
                                 @foreach($product->images->take(3) as $image)
                                     <img 
                                         src="{{ $image->image_url }}" 
                                         alt="Gallery Image" 
-                                        class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
+                                        class="w-full h-24 object-cover rounded-lg border border-gray-300"
                                     >
                                 @endforeach
-                            @else
-                                <img 
-                                    src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
-                                    alt="Gallery Image 1" 
-                                    class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
-                                >
-                                <img 
-                                    src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
-                                    alt="Gallery Image 2" 
-                                    class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
-                                >
-                                <img 
-                                    src="https://images.unsplash.com/photo-1573461160327-b450ce3d8e7f?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
-                                    alt="Gallery Image 3" 
-                                    class="w-full h-20 object-cover rounded-lg border-2 border-gray-300"
-                                >
-                            @endif
+                            </div>
                         </div>
-                    </div>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-pink-400 transition-colors duration-200">
-                        <div id="gallery_preview" class="hidden mb-4">
-                            <div id="gallery_images_container" class="grid grid-cols-3 gap-2"></div>
-                        </div>
-                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <p class="text-gray-600 mb-2">Klik untuk upload gambar galeri baru</p>
-                        <p class="text-sm text-gray-500">PNG, JPG, JPEG up to 5MB (maksimal 5 gambar)</p>
+                    @endif
+                    
+                    <!-- File Input -->
+                    <div class="mb-3">
                         <input
                             type="file"
                             id="gallery_images"
                             name="gallery_images[]"
                             accept=".png,.jpg,.jpeg"
                             multiple
-                            class="hidden"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                         >
                     </div>
+                    
+                    <!-- Preview Section -->
+                    <div id="gallery_preview" class="hidden">
+                        <div class="mb-2">
+                            <p class="text-sm text-gray-600 mb-2">Gambar yang dipilih:</p>
+                        </div>
+                        <div id="gallery_images_container" class="grid grid-cols-3 gap-3"></div>
+                    </div>
+                    
                     @error('gallery_images')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -357,7 +360,7 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 </form>
 
 <script>
-// Main image preview
+// Simple image preview
 document.getElementById('main_image').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -370,39 +373,97 @@ document.getElementById('main_image').addEventListener('change', function(e) {
     }
 });
 
-// Gallery images preview
+// Remove main image function
+function removeMainImage() {
+    document.getElementById('main_image').value = '';
+    document.getElementById('main_image_preview').classList.add('hidden');
+}
+
+// Gallery preview with individual remove
+let selectedGalleryFiles = [];
+
 document.getElementById('gallery_images').addEventListener('change', function(e) {
-    const files = e.target.files;
+    const files = Array.from(e.target.files);
+    const maxFiles = 5;
+    
+    // Check if adding new files would exceed limit
+    if (selectedGalleryFiles.length + files.length > maxFiles) {
+        alert(`Maksimal ${maxFiles} gambar. Anda sudah memilih ${selectedGalleryFiles.length} gambar.`);
+        return;
+    }
+    
+    // Add new files to selected files
+    selectedGalleryFiles = selectedGalleryFiles.concat(files);
+    
+    // Update the file input
+    const dt = new DataTransfer();
+    selectedGalleryFiles.forEach(file => dt.items.add(file));
+    e.target.files = dt.files;
+    
+    // Update preview
+    updateGalleryPreview();
+});
+
+function updateGalleryPreview() {
     const container = document.getElementById('gallery_images_container');
     const preview = document.getElementById('gallery_preview');
     
     container.innerHTML = '';
     
-    if (files.length > 0) {
+    if (selectedGalleryFiles.length > 0) {
         preview.classList.remove('hidden');
         
-        for (let i = 0; i < Math.min(files.length, 5); i++) {
-            const file = files[i];
+        selectedGalleryFiles.forEach((file, index) => {
             const reader = new FileReader();
             
             reader.onload = function(e) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'relative';
+                
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.alt = 'Gallery Preview';
-                img.className = 'w-full h-20 object-cover rounded-lg';
-                container.appendChild(img);
+                img.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors';
+                removeBtn.title = 'Hapus gambar';
+                removeBtn.onclick = () => removeGalleryImage(index);
+                
+                removeBtn.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                `;
+                
+                wrapper.appendChild(img);
+                wrapper.appendChild(removeBtn);
+                container.appendChild(wrapper);
             };
             
             reader.readAsDataURL(file);
-        }
+        });
     } else {
         preview.classList.add('hidden');
     }
-});
+}
 
-// Form submission handling
+function removeGalleryImage(index) {
+    selectedGalleryFiles.splice(index, 1);
+    
+    // Update the file input
+    const input = document.getElementById('gallery_images');
+    const dt = new DataTransfer();
+    selectedGalleryFiles.forEach(file => dt.items.add(file));
+    input.files = dt.files;
+    
+    // Update preview
+    updateGalleryPreview();
+}
+
+// Simple form validation
 document.querySelector('form').addEventListener('submit', function(e) {
-    // Basic validation
     const requiredFields = ['name', 'category_id', 'price', 'short_description', 'description'];
     let isValid = true;
     
@@ -423,3 +484,4 @@ document.querySelector('form').addEventListener('submit', function(e) {
 });
 </script>
 @endsection
+

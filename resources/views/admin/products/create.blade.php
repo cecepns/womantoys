@@ -23,7 +23,9 @@
 </div>
 
 <!-- Product Form -->
-<form class="space-y-8">
+<form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" class="space-y-8">
+    @csrf
+    
     <!-- Basic Information Section -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-6">Informasi Dasar Produk</h2>
@@ -33,38 +35,44 @@
             <div class="space-y-6">
                 <!-- Product Name -->
                 <div>
-                    <label for="product_name" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
                         Nama Produk <span class="text-red-500">*</span>
                     </label>
                     <input
                         type="text"
-                        id="product_name"
-                        name="product_name"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        id="name"
+                        name="name"
+                        value="{{ old('name') }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('name') border-red-500 @enderror"
                         placeholder="Masukkan nama produk"
                         required
                     >
+                    @error('name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Category -->
                 <div>
-                    <label for="category" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">
                         Kategori <span class="text-red-500">*</span>
                     </label>
                     <select
-                        id="category"
-                        name="category"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        id="category_id"
+                        name="category_id"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('category_id') border-red-500 @enderror"
                         required
                     >
                         <option value="">Pilih kategori</option>
-                        <option value="women">Untuk Wanita</option>
-                        <option value="men">Untuk Pria</option>
-                        <option value="couples">Untuk Pasangan</option>
-                        <option value="bdsm">BDSM</option>
-                        <option value="lubricants">Pelumas</option>
-                        <option value="accessories">Aksesoris</option>
+                        @foreach($categories ?? [] as $category)
+                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
                     </select>
+                    @error('category_id')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Price -->
@@ -78,13 +86,17 @@
                             type="number"
                             id="price"
                             name="price"
-                            class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                            value="{{ old('price') }}"
+                            class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('price') border-red-500 @enderror"
                             placeholder="0"
                             min="0"
                             step="1000"
                             required
                         >
                     </div>
+                    @error('price')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Short Description -->
@@ -96,63 +108,87 @@
                         id="short_description"
                         name="short_description"
                         rows="3"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('short_description') border-red-500 @enderror"
                         placeholder="Deskripsi singkat produk (akan ditampilkan di katalog)"
                         required
-                    ></textarea>
+                    >{{ old('short_description') }}</textarea>
+                    @error('short_description')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
             <!-- Right Column - Image Uploads -->
-            <div class="space-y-6">
+            <div class="space-y-4">
                 <!-- Main Image -->
                 <div>
                     <label for="main_image" class="block text-sm font-medium text-gray-700 mb-2">
                         Gambar Utama <span class="text-red-500">*</span>
                     </label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-pink-400 transition-colors duration-200">
-                        <div id="main_image_preview" class="hidden mb-4">
-                            <img id="main_preview_img" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg mx-auto">
-                        </div>
-                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
-                        <p class="text-gray-600 mb-2">Klik untuk upload atau drag and drop</p>
-                        <p class="text-sm text-gray-500">PNG, JPG, JPEG up to 5MB</p>
+                    
+                    <!-- File Input -->
+                    <div class="mb-3">
                         <input
                             type="file"
                             id="main_image"
                             name="main_image"
                             accept=".png,.jpg,.jpeg"
-                            class="hidden"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                             required
                         >
                     </div>
+                    
+                    <!-- Preview Section -->
+                    <div id="main_image_preview" class="hidden">
+                        <div class="relative inline-block">
+                            <img id="main_preview_img" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border border-gray-300">
+                            <button 
+                                type="button" 
+                                onclick="removeMainImage()" 
+                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                                title="Hapus gambar"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    @error('main_image')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Gallery Images -->
                 <div>
                     <label for="gallery_images" class="block text-sm font-medium text-gray-700 mb-2">
-                        Gambar Galeri Tambahan
+                        Gambar Galeri (Maksimal 5 gambar)
                     </label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-pink-400 transition-colors duration-200">
-                        <div id="gallery_preview" class="hidden mb-4">
-                            <div id="gallery_images_container" class="grid grid-cols-3 gap-2"></div>
-                        </div>
-                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        <p class="text-gray-600 mb-2">Klik untuk upload atau drag and drop</p>
-                        <p class="text-sm text-gray-500">PNG, JPG, JPEG up to 5MB (maksimal 5 gambar)</p>
+                    
+                    <!-- File Input -->
+                    <div class="mb-3">
                         <input
                             type="file"
                             id="gallery_images"
                             name="gallery_images[]"
                             accept=".png,.jpg,.jpeg"
                             multiple
-                            class="hidden"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
                         >
                     </div>
+                    
+                    <!-- Preview Section -->
+                    <div id="gallery_preview" class="hidden">
+                        <div class="mb-2">
+                            <p class="text-sm text-gray-600 mb-2">Gambar yang dipilih:</p>
+                        </div>
+                        <div id="gallery_images_container" class="grid grid-cols-3 gap-3"></div>
+                    </div>
+                    
+                    @error('gallery_images')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
         </div>
@@ -165,18 +201,21 @@
         <div class="space-y-6">
             <!-- Full Description -->
             <div>
-                <label for="full_description" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
                     Deskripsi Lengkap <span class="text-red-500">*</span>
                 </label>
                 <textarea
-                    id="full_description"
-                    name="full_description"
+                    id="description"
+                    name="description"
                     rows="6"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror"
                     placeholder="Deskripsi lengkap produk dengan detail fitur dan manfaat"
                     required
-                ></textarea>
+                >{{ old('description') }}</textarea>
                 <p class="text-sm text-gray-500 mt-1">Gunakan HTML tags untuk formatting jika diperlukan</p>
+                @error('description')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Specifications -->
@@ -188,9 +227,12 @@
                     id="specifications"
                     name="specifications"
                     rows="4"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('specifications') border-red-500 @enderror"
                     placeholder="Spesifikasi teknis produk (bahan, ukuran, daya, dll)"
-                ></textarea>
+                >{{ old('specifications') }}</textarea>
+                @error('specifications')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Care Instructions -->
@@ -202,9 +244,12 @@
                     id="care_instructions"
                     name="care_instructions"
                     rows="4"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('care_instructions') border-red-500 @enderror"
                     placeholder="Cara merawat dan membersihkan produk"
-                ></textarea>
+                >{{ old('care_instructions') }}</textarea>
+                @error('care_instructions')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
         </div>
     </div>
@@ -214,64 +259,42 @@
         <h2 class="text-xl font-semibold text-gray-800 mb-6">Pengaturan Tambahan</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Stock Status -->
+            <!-- Stock Quantity -->
             <div>
-                <label for="stock_status" class="block text-sm font-medium text-gray-700 mb-2">
-                    Status Stok
+                <label for="stock" class="block text-sm font-medium text-gray-700 mb-2">
+                    Jumlah Stok
                 </label>
-                <select
-                    id="stock_status"
-                    name="stock_status"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                <input
+                    type="number"
+                    id="stock"
+                    name="stock"
+                    value="{{ old('stock', 0) }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('stock') border-red-500 @enderror"
+                    placeholder="0"
+                    min="0"
                 >
-                    <option value="in_stock">Tersedia</option>
-                    <option value="low_stock">Stok Terbatas</option>
-                    <option value="out_of_stock">Stok Habis</option>
-                    <option value="pre_order">Pre-Order</option>
-                </select>
+                @error('stock')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Product Status -->
             <div>
-                <label for="product_status" class="block text-sm font-medium text-gray-700 mb-2">
+                <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
                     Status Produk
                 </label>
                 <select
-                    id="product_status"
-                    name="product_status"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    id="status"
+                    name="status"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('status') border-red-500 @enderror"
                 >
-                    <option value="active">Aktif (Tampilkan di Katalog)</option>
-                    <option value="draft">Draft (Simpan Saja)</option>
-                    <option value="inactive">Nonaktif (Sembunyikan)</option>
+                    <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Aktif (Tampilkan di Katalog)</option>
+                    <option value="draft" {{ old('status', 'active') == 'draft' ? 'selected' : '' }}>Draft (Simpan Saja)</option>
+                    <option value="out_of_stock" {{ old('status', 'active') == 'out_of_stock' ? 'selected' : '' }}>Stok Habis</option>
                 </select>
-            </div>
-
-            <!-- Featured Product -->
-            <div class="flex items-center">
-                <input
-                    type="checkbox"
-                    id="featured"
-                    name="featured"
-                    class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
-                >
-                <label for="featured" class="ml-2 text-sm text-gray-700">
-                    Tampilkan sebagai Produk Unggulan
-                </label>
-            </div>
-
-            <!-- Discreet Packaging -->
-            <div class="flex items-center">
-                <input
-                    type="checkbox"
-                    id="discreet_packaging"
-                    name="discreet_packaging"
-                    class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
-                    checked
-                >
-                <label for="discreet_packaging" class="ml-2 text-sm text-gray-700">
-                    Kemasan Rahasia (Default)
-                </label>
+                @error('status')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
         </div>
     </div>
@@ -294,7 +317,7 @@
 </form>
 
 <script>
-// Main image preview
+// Simple image preview
 document.getElementById('main_image').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
@@ -307,42 +330,98 @@ document.getElementById('main_image').addEventListener('change', function(e) {
     }
 });
 
-// Gallery images preview
+// Remove main image function
+function removeMainImage() {
+    document.getElementById('main_image').value = '';
+    document.getElementById('main_image_preview').classList.add('hidden');
+}
+
+// Gallery preview with individual remove
+let selectedGalleryFiles = [];
+
 document.getElementById('gallery_images').addEventListener('change', function(e) {
-    const files = e.target.files;
+    const files = Array.from(e.target.files);
+    const maxFiles = 5;
+    
+    // Check if adding new files would exceed limit
+    if (selectedGalleryFiles.length + files.length > maxFiles) {
+        alert(`Maksimal ${maxFiles} gambar. Anda sudah memilih ${selectedGalleryFiles.length} gambar.`);
+        return;
+    }
+    
+    // Add new files to selected files
+    selectedGalleryFiles = selectedGalleryFiles.concat(files);
+    
+    // Update the file input
+    const dt = new DataTransfer();
+    selectedGalleryFiles.forEach(file => dt.items.add(file));
+    e.target.files = dt.files;
+    
+    // Update preview
+    updateGalleryPreview();
+});
+
+function updateGalleryPreview() {
     const container = document.getElementById('gallery_images_container');
     const preview = document.getElementById('gallery_preview');
     
     container.innerHTML = '';
     
-    if (files.length > 0) {
+    if (selectedGalleryFiles.length > 0) {
         preview.classList.remove('hidden');
         
-        for (let i = 0; i < Math.min(files.length, 5); i++) {
-            const file = files[i];
+        selectedGalleryFiles.forEach((file, index) => {
             const reader = new FileReader();
             
             reader.onload = function(e) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'relative';
+                
                 const img = document.createElement('img');
                 img.src = e.target.result;
                 img.alt = 'Gallery Preview';
-                img.className = 'w-full h-20 object-cover rounded-lg';
-                container.appendChild(img);
+                img.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors';
+                removeBtn.title = 'Hapus gambar';
+                removeBtn.onclick = () => removeGalleryImage(index);
+                
+                removeBtn.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                `;
+                
+                wrapper.appendChild(img);
+                wrapper.appendChild(removeBtn);
+                container.appendChild(wrapper);
             };
             
             reader.readAsDataURL(file);
-        }
+        });
     } else {
         preview.classList.add('hidden');
     }
-});
+}
 
-// Form submission handling
-document.querySelector('form').addEventListener('submit', function(e) {
-    e.preventDefault();
+function removeGalleryImage(index) {
+    selectedGalleryFiles.splice(index, 1);
     
-    // Basic validation
-    const requiredFields = ['product_name', 'category', 'price', 'short_description', 'full_description', 'main_image'];
+    // Update the file input
+    const input = document.getElementById('gallery_images');
+    const dt = new DataTransfer();
+    selectedGalleryFiles.forEach(file => dt.items.add(file));
+    input.files = dt.files;
+    
+    // Update preview
+    updateGalleryPreview();
+}
+
+// Simple form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const requiredFields = ['name', 'category_id', 'price', 'short_description', 'description', 'main_image'];
     let isValid = true;
     
     requiredFields.forEach(fieldId => {
@@ -355,12 +434,8 @@ document.querySelector('form').addEventListener('submit', function(e) {
         }
     });
     
-    if (isValid) {
-        // Show success message (in real app, this would submit to server)
-        alert('Produk berhasil disimpan!');
-        // Redirect to products list
-        window.location.href = '/admin/products';
-    } else {
+    if (!isValid) {
+        e.preventDefault();
         alert('Mohon lengkapi semua field yang wajib diisi.');
     }
 });
