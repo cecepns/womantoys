@@ -207,7 +207,7 @@
                 <textarea
                     id="description"
                     name="description"
-                    rows="6"
+                    rows="10"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror"
                     placeholder="Deskripsi lengkap produk dengan detail fitur dan manfaat"
                     required
@@ -226,7 +226,7 @@
                 <textarea
                     id="specifications"
                     name="specifications"
-                    rows="4"
+                    rows="10"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('specifications') border-red-500 @enderror"
                     placeholder="Spesifikasi teknis produk (bahan, ukuran, daya, dll)"
                 >{{ old('specifications') }}</textarea>
@@ -243,7 +243,7 @@
                 <textarea
                     id="care_instructions"
                     name="care_instructions"
-                    rows="4"
+                    rows="10"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('care_instructions') border-red-500 @enderror"
                     placeholder="Cara merawat dan membersihkan produk"
                 >{{ old('care_instructions') }}</textarea>
