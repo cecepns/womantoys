@@ -47,17 +47,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             return view('admin.products.edit');
         })->name('products.edit');
         
-        Route::get('/carousel', function () {
-            return view('admin.carousel.index');
-        })->name('carousel.index');
-        
-        Route::get('/carousel/create', function () {
-            return view('admin.carousel.create');
-        })->name('carousel.create');
-        
-        Route::get('/carousel/{id}/edit', function ($id) {
-            return view('admin.carousel.edit');
-        })->name('carousel.edit');
+        // Carousel routes
+        Route::resource('carousel', App\Http\Controllers\Admin\CarouselController::class);
+        Route::post('/carousel/{carouselSlide}/move-up', [App\Http\Controllers\Admin\CarouselController::class, 'moveUp'])->name('carousel.move-up');
+        Route::post('/carousel/{carouselSlide}/move-down', [App\Http\Controllers\Admin\CarouselController::class, 'moveDown'])->name('carousel.move-down');
         
         Route::get('/orders', function () {
             return view('admin.orders.index');

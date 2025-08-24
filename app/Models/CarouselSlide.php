@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class CarouselSlide extends Model
 {
@@ -14,6 +15,7 @@ class CarouselSlide extends Model
     protected $fillable = [
         'image_path',
         'title',
+        'description',
         'cta_text',
         'cta_link',
         'order',
@@ -51,9 +53,33 @@ class CarouselSlide extends Model
     }
 
     /**
+     * Scope a query to only include slides with complete content.
+     */
+    public function scopeComplete($query)
+    {
+        return $query->whereNotNull('title')
+                    ->whereNotNull('description')
+                    ->where('title', '!=', '')
+                    ->where('description', '!=', '');
+    }
+
+    /**
+     * Scope a query to only include slides with partial content.
+     */
+    public function scopePartial($query)
+    {
+        return $query->where(function($q) {
+            $q->whereNull('title')
+              ->orWhere('title', '=', '')
+              ->orWhereNull('description')
+              ->orWhere('description', '=', '');
+        });
+    }
+
+    /**
      * Get the full image URL.
      *
-     * @return string
+     * @return string|null
      */
     public function getImageUrlAttribute()
     {
@@ -71,6 +97,51 @@ class CarouselSlide extends Model
     }
 
     /**
+     * Check if the image exists and is accessible.
+     *
+     * @return bool
+     */
+    public function hasValidImage()
+    {
+        if (empty($this->image_path)) {
+            return false;
+        }
+
+        // If it's a full URL, we can't easily check if it exists
+        if (filter_var($this->image_path, FILTER_VALIDATE_URL)) {
+            return true;
+        }
+
+        // Check if file exists in storage
+        return Storage::disk('public')->exists($this->image_path);
+    }
+
+    /**
+     * Get a fallback image URL when the main image is not available.
+     *
+     * @return string
+     */
+    public function getFallbackImageUrl()
+    {
+        // You can customize this to return a default image
+        return asset('images/default-carousel.jpg');
+    }
+
+    /**
+     * Get the image URL with fallback handling.
+     *
+     * @return string
+     */
+    public function getSafeImageUrlAttribute()
+    {
+        if ($this->hasValidImage()) {
+            return $this->image_url;
+        }
+
+        return $this->getFallbackImageUrl();
+    }
+
+    /**
      * Check if the slide has a call-to-action.
      *
      * @return bool
@@ -78,6 +149,63 @@ class CarouselSlide extends Model
     public function hasCta()
     {
         return !empty($this->cta_text) && !empty($this->cta_link);
+    }
+
+    /**
+     * Check if the slide has a description.
+     *
+     * @return bool
+     */
+    public function hasDescription()
+    {
+        return !empty($this->description);
+    }
+
+    /**
+     * Get truncated description for display.
+     *
+     * @param int $length
+     * @return string
+     */
+    public function getTruncatedDescription($length = 100)
+    {
+        if (empty($this->description)) {
+            return '';
+        }
+
+        if (strlen($this->description) <= $length) {
+            return $this->description;
+        }
+
+        return substr($this->description, 0, $length) . '...';
+    }
+
+    /**
+     * Check if the slide has complete content (title and description).
+     *
+     * @return bool
+     */
+    public function hasCompleteContent()
+    {
+        return !empty($this->title) && !empty($this->description);
+    }
+
+    /**
+     * Get slide status for display.
+     *
+     * @return string
+     */
+    public function getStatusAttribute()
+    {
+        if (empty($this->image_path)) {
+            return 'inactive';
+        }
+
+        if ($this->hasCompleteContent()) {
+            return 'complete';
+        }
+
+        return 'partial';
     }
 
     /**
@@ -128,5 +256,51 @@ class CarouselSlide extends Model
         }
 
         return false;
+    }
+
+    /**
+     * Get the next slide in order.
+     *
+     * @return CarouselSlide|null
+     */
+    public function getNextSlide()
+    {
+        return static::where('order', '>', $this->order)
+            ->orderBy('order', 'asc')
+            ->first();
+    }
+
+    /**
+     * Get the previous slide in order.
+     *
+     * @return CarouselSlide|null
+     */
+    public function getPreviousSlide()
+    {
+        return static::where('order', '<', $this->order)
+            ->orderBy('order', 'desc')
+            ->first();
+    }
+
+    /**
+     * Check if this is the first slide.
+     *
+     * @return bool
+     */
+    public function isFirst()
+    {
+        $minOrder = static::min('order');
+        return $minOrder !== null && $this->order == $minOrder;
+    }
+
+    /**
+     * Check if this is the last slide.
+     *
+     * @return bool
+     */
+    public function isLast()
+    {
+        $maxOrder = static::max('order');
+        return $maxOrder !== null && $this->order == $maxOrder;
     }
 }

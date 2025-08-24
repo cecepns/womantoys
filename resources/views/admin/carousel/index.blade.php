@@ -12,7 +12,7 @@
         <h1 class="text-3xl font-bold text-gray-800">Manajemen Carousel</h1>
         <p class="text-gray-600 mt-2">Kelola slide carousel yang ditampilkan di homepage</p>
     </div>
-    <a href="/admin/carousel/create" class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center">
+    <a href="{{ route('admin.carousel.create') }}" class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 flex items-center">
         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
         </svg>
@@ -21,258 +21,177 @@
 </div>
 
 <!-- Carousel Slides List -->
-<div class="space-y-6">
-    <!-- Slide 1 -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-            <!-- Slide Content -->
-            <div class="flex items-center space-x-6 flex-1">
-                <!-- Thumbnail Image -->
-                <div class="w-32 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                    <img 
-                        src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
-                        alt="Carousel Slide 1" 
-                        class="w-full h-full object-cover"
-                    >
-                </div>
+@if($slides->count() > 0)
+    <div class="space-y-6">
+        @foreach($slides as $slide)
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+                <div class="flex items-center justify-between">
+                    <!-- Slide Content -->
+                    <div class="flex items-center space-x-6 flex-1">
+                        <!-- Thumbnail Image -->
+                        <div class="w-32 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                            @if($slide->hasValidImage())
+                                <img 
+                                    src="{{ $slide->image_url }}" 
+                                    alt="Carousel Slide {{ $slide->id }}" 
+                                    class="w-full h-full object-cover"
+                                    onerror="this.onerror=null; this.src='{{ asset('images/default-carousel.jpg') }}'; this.classList.add('opacity-50');"
+                                >
+                            @else
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center relative">
+                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    @if($slide->image_path)
+                                        <div class="absolute top-1 right-1">
+                                            <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
+                                                Rusak
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
 
-                <!-- Slide Information -->
-                <div class="flex-1">
-                    <div class="flex items-center space-x-4 mb-2">
-                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                            Aktif
-                        </span>
-                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                            Urutan: 1
-                        </span>
+                        <!-- Slide Information -->
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-4 mb-2">
+                                @if($slide->hasValidImage())
+                                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                                        Aktif
+                                    </span>
+                                @elseif($slide->image_path)
+                                    <span class="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
+                                        Gambar Rusak
+                                    </span>
+                                @else
+                                    <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                                        Tidak Aktif
+                                    </span>
+                                @endif
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                                    Urutan: {{ $slide->order }}
+                                </span>
+                                @if($slide->hasCompleteContent())
+                                    <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                                        Lengkap
+                                    </span>
+                                @else
+                                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+                                        Parsial
+                                    </span>
+                                @endif
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-1">
+                                {{ $slide->title ?: 'Tanpa Judul' }}
+                            </h3>
+                            <p class="text-gray-600 text-sm mb-2">
+                                {{ $slide->description ? $slide->getTruncatedDescription(80) : 'Tanpa deskripsi' }}
+                            </p>
+                            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                                @if($slide->hasCta())
+                                    <span class="flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
+                                        </svg>
+                                        CTA: {{ $slide->cta_text }}
+                                    </span>
+                                @endif
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Updated: {{ $slide->updated_at->diffForHumans() }}
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-1">Discover Your Pleasure</h3>
-                    <p class="text-gray-600 text-sm mb-2">Premium collection of adult toys for enhanced intimacy</p>
-                    <div class="flex items-center space-x-4 text-sm text-gray-500">
-                        <span class="flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                            </svg>
-                            CTA Link: /catalog
-                        </span>
-                        <span class="flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            Updated: 2 hours ago
-                        </span>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center space-x-3 ml-6">
+                        <!-- Order Controls -->
+                        <div class="flex flex-col space-y-1">
+                            <form method="POST" action="{{ route('admin.carousel.move-up', $slide) }}" class="inline">
+                                @csrf
+                                <button 
+                                    type="submit" 
+                                    class="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200 {{ $slide->isFirst() ? 'opacity-50 cursor-not-allowed' : '' }}" 
+                                    title="Move Up"
+                                    {{ $slide->isFirst() ? 'disabled' : '' }}
+                                >
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.carousel.move-down', $slide) }}" class="inline">
+                                @csrf
+                                <button 
+                                    type="submit" 
+                                    class="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200 {{ $slide->isLast() ? 'opacity-50 cursor-not-allowed' : '' }}" 
+                                    title="Move Down"
+                                    {{ $slide->isLast() ? 'disabled' : '' }}
+                                >
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Edit Button -->
+                        <a href="{{ route('admin.carousel.edit', $slide) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                            Edit
+                        </a>
+
+                        <!-- Delete Button -->
+                        <form method="POST" action="{{ route('admin.carousel.destroy', $slide) }}" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus slide ini? Tindakan ini tidak dapat dibatalkan.')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                Hapus
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center space-x-3 ml-6">
-                <!-- Order Controls -->
-                <div class="flex flex-col space-y-1">
-                    <button class="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200" title="Move Up">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                        </svg>
-                    </button>
-                    <button class="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200" title="Move Down">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Edit Button -->
-                <a href="/admin/carousel/1/edit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                    Edit
-                </a>
-
-                <!-- Delete Button -->
-                <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                    Hapus
-                </button>
-            </div>
-        </div>
+        @endforeach
     </div>
-
-    <!-- Slide 2 -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-            <!-- Slide Content -->
-            <div class="flex items-center space-x-6 flex-1">
-                <!-- Thumbnail Image -->
-                <div class="w-32 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                    <img 
-                        src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                        alt="Carousel Slide 2" 
-                        class="w-full h-full object-cover"
-                    >
-                </div>
-
-                <!-- Slide Information -->
-                <div class="flex-1">
-                    <div class="flex items-center space-x-4 mb-2">
-                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                            Aktif
-                        </span>
-                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                            Urutan: 2
-                        </span>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-1">Premium Quality Products</h3>
-                    <p class="text-gray-600 text-sm mb-2">Curated selection of high-quality intimate products</p>
-                    <div class="flex items-center space-x-4 text-sm text-gray-500">
-                        <span class="flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                            </svg>
-                            CTA Link: /catalog?category=premium
-                        </span>
-                        <span class="flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            Updated: 1 day ago
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center space-x-3 ml-6">
-                <!-- Order Controls -->
-                <div class="flex flex-col space-y-1">
-                    <button class="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200" title="Move Up">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                        </svg>
-                    </button>
-                    <button class="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200" title="Move Down">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Edit Button -->
-                <a href="/admin/carousel/2/edit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                    Edit
-                </a>
-
-                <!-- Delete Button -->
-                <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                    Hapus
-                </button>
-            </div>
-        </div>
+@else
+    <!-- Empty State -->
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-12 text-center">
+        <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada slide carousel</h3>
+        <p class="text-gray-500 mb-6">Mulai dengan menambahkan slide pertama untuk homepage Anda</p>
+        <a href="{{ route('admin.carousel.create') }}" class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+            Tambah Slide Pertama
+        </a>
     </div>
-
-    <!-- Slide 3 -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-            <!-- Slide Content -->
-            <div class="flex items-center space-x-6 flex-1">
-                <!-- Thumbnail Image -->
-                <div class="w-32 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                    <img 
-                        src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                        alt="Carousel Slide 3" 
-                        class="w-full h-full object-cover"
-                    >
-                </div>
-
-                <!-- Slide Information -->
-                <div class="flex-1">
-                    <div class="flex items-center space-x-4 mb-2">
-                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
-                            Draft
-                        </span>
-                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                            Urutan: 3
-                        </span>
-                    </div>
-                    <h3 class="text-lg font-semibold text-gray-800 mb-1">Special Offers & Discounts</h3>
-                    <p class="text-gray-600 text-sm mb-2">Limited time offers on selected products</p>
-                    <div class="flex items-center space-x-4 text-sm text-gray-500">
-                        <span class="flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                            </svg>
-                            CTA Link: /catalog?sale=true
-                        </span>
-                        <span class="flex items-center">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            Updated: 3 days ago
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center space-x-3 ml-6">
-                <!-- Order Controls -->
-                <div class="flex flex-col space-y-1">
-                    <button class="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200" title="Move Up">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
-                        </svg>
-                    </button>
-                    <button class="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200" title="Move Down">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                </div>
-
-                <!-- Edit Button -->
-                <a href="/admin/carousel/3/edit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                    Edit
-                </a>
-
-                <!-- Delete Button -->
-                <button class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                    Hapus
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Empty State (Hidden by default) -->
-<div class="hidden bg-white rounded-lg shadow-md border border-gray-200 p-12 text-center">
-    <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-    </svg>
-    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada slide carousel</h3>
-    <p class="text-gray-500 mb-6">Mulai dengan menambahkan slide pertama untuk homepage Anda</p>
-    <a href="/admin/carousel/create" class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
-        Tambah Slide Pertama
-    </a>
-</div>
+@endif
 
 <script>
-// Delete confirmation
-document.querySelectorAll('button').forEach(button => {
-    if (button.textContent.trim() === 'Hapus') {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            if (confirm('Apakah Anda yakin ingin menghapus slide ini? Tindakan ini tidak dapat dibatalkan.')) {
-                // In real app, this would send delete request
-                alert('Slide berhasil dihapus!');
-                // Remove the slide element from DOM
-                this.closest('.bg-white').remove();
+// Handle image loading errors
+document.addEventListener('DOMContentLoaded', function() {
+    const images = document.querySelectorAll('img[src*="carousel"]');
+    
+    images.forEach(function(img) {
+        img.addEventListener('error', function() {
+            // Add error styling
+            this.classList.add('opacity-50');
+            this.style.border = '2px solid #ef4444';
+            
+            // Show error indicator
+            const container = this.closest('.w-32');
+            if (container) {
+                const errorBadge = document.createElement('div');
+                errorBadge.className = 'absolute top-1 right-1 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full';
+                errorBadge.textContent = 'Error';
+                container.style.position = 'relative';
+                container.appendChild(errorBadge);
             }
         });
-    }
-});
-
-// Order controls (visual feedback only for demo)
-document.querySelectorAll('button[title="Move Up"], button[title="Move Down"]').forEach(button => {
-    button.addEventListener('click', function(e) {
-        e.preventDefault();
-        const action = this.getAttribute('title') === 'Move Up' ? 'naik' : 'turun';
-        alert(`Slide akan dipindahkan ke ${action}`);
     });
 });
 </script>

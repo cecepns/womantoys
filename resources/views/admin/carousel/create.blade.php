@@ -23,7 +23,8 @@
 </div>
 
 <!-- Carousel Slide Form -->
-<form class="space-y-8">
+<form action="{{ route('admin.carousel.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+    @csrf
     <!-- Image Upload Section -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-6">Gambar Slide</h2>
@@ -49,13 +50,16 @@
                 </div>
                 <input
                     type="file"
-                    id="slide_image"
-                    name="slide_image"
+                    id="image_path"
+                    name="image_path"
                     accept=".png,.jpg,.jpeg"
                     class="hidden"
                     required
                 >
             </div>
+            @error('image_path')
+                <p class="text-red-500 text-sm">{{ $message }}</p>
+            @enderror
         </div>
     </div>
 
@@ -66,35 +70,41 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <!-- Left Column -->
             <div class="space-y-6">
-                <!-- Headline -->
+                <!-- Title -->
                 <div>
-                    <label for="headline" class="block text-sm font-medium text-gray-700 mb-2">
-                        Judul / Headline <span class="text-red-500">*</span>
+                    <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                        Judul / Title
                     </label>
                     <input
                         type="text"
-                        id="headline"
-                        name="headline"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        id="title"
+                        name="title"
+                        value="{{ old('title') }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('title') border-red-500 @enderror"
                         placeholder="Masukkan judul slide"
-                        required
                     >
                     <p class="text-sm text-gray-500 mt-1">Judul utama yang akan ditampilkan di slide</p>
+                    @error('title')
+                        <p class="text-red-500 text-sm">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <!-- Subtitle/Description -->
+                <!-- Description -->
                 <div>
-                    <label for="subtitle" class="block text-sm font-medium text-gray-700 mb-2">
-                        Deskripsi / Subtitle
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        Deskripsi / Description
                     </label>
                     <textarea
-                        id="subtitle"
-                        name="subtitle"
+                        id="description"
+                        name="description"
                         rows="3"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror"
                         placeholder="Masukkan deskripsi slide (opsional)"
-                    ></textarea>
+                    >{{ old('description') }}</textarea>
                     <p class="text-sm text-gray-500 mt-1">Deskripsi singkat di bawah judul</p>
+                    @error('description')
+                        <p class="text-red-500 text-sm">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
 
@@ -102,36 +112,22 @@
             <div class="space-y-6">
                 <!-- Display Order -->
                 <div>
-                    <label for="display_order" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label for="order" class="block text-sm font-medium text-gray-700 mb-2">
                         Urutan Tampil <span class="text-red-500">*</span>
                     </label>
                     <input
                         type="number"
-                        id="display_order"
-                        name="display_order"
+                        id="order"
+                        name="order"
                         min="1"
-                        value="1"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        value="{{ old('order', 1) }}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('order') border-red-500 @enderror"
                         required
                     >
                     <p class="text-sm text-gray-500 mt-1">Urutan tampilan slide (1 = pertama)</p>
-                </div>
-
-                <!-- Status -->
-                <div>
-                    <label for="status" class="block text-sm font-medium text-gray-700 mb-2">
-                        Status Slide
-                    </label>
-                    <select
-                        id="status"
-                        name="status"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                    >
-                        <option value="active">Aktif (Tampilkan)</option>
-                        <option value="draft">Draft (Simpan Saja)</option>
-                        <option value="inactive">Nonaktif (Sembunyikan)</option>
-                    </select>
-                    <p class="text-sm text-gray-500 mt-1">Status tampilan slide</p>
+                    @error('order')
+                        <p class="text-red-500 text-sm">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
         </div>
@@ -151,10 +147,14 @@
                     type="text"
                     id="cta_text"
                     name="cta_text"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    value="{{ old('cta_text') }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('cta_text') border-red-500 @enderror"
                     placeholder="Contoh: Lihat Koleksi"
                 >
                 <p class="text-sm text-gray-500 mt-1">Teks yang akan ditampilkan di tombol (kosongkan jika tidak ingin ada tombol)</p>
+                @error('cta_text')
+                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- CTA Button Link -->
@@ -166,10 +166,14 @@
                     type="text"
                     id="cta_link"
                     name="cta_link"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    value="{{ old('cta_link') }}"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('cta_link') border-red-500 @enderror"
                     placeholder="Contoh: /catalog atau https://example.com"
                 >
                 <p class="text-sm text-gray-500 mt-1">URL tujuan ketika tombol diklik</p>
+                @error('cta_link')
+                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                @enderror
             </div>
         </div>
 
@@ -201,7 +205,7 @@
 
 <script>
 // Image preview functionality
-document.getElementById('slide_image').addEventListener('change', function(e) {
+document.getElementById('image_path').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
@@ -241,49 +245,9 @@ function updateCTAPreview() {
 document.getElementById('cta_text').addEventListener('input', updateCTAPreview);
 document.getElementById('cta_link').addEventListener('input', updateCTAPreview);
 
-// Form submission handling
-document.querySelector('form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Basic validation
-    const requiredFields = ['slide_image', 'headline', 'display_order'];
-    let isValid = true;
-    
-    requiredFields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (!field.value.trim()) {
-            field.classList.add('border-red-500');
-            isValid = false;
-        } else {
-            field.classList.remove('border-red-500');
-        }
-    });
-    
-    // Check if CTA text is provided but link is missing
-    const ctaText = document.getElementById('cta_text').value.trim();
-    const ctaLink = document.getElementById('cta_link').value.trim();
-    
-    if (ctaText && !ctaLink) {
-        document.getElementById('cta_link').classList.add('border-red-500');
-        alert('Jika mengisi teks tombol CTA, link tujuan juga harus diisi.');
-        isValid = false;
-    } else {
-        document.getElementById('cta_link').classList.remove('border-red-500');
-    }
-    
-    if (isValid) {
-        // Show success message (in real app, this would submit to server)
-        alert('Slide carousel berhasil disimpan!');
-        // Redirect to carousel list
-        window.location.href = '/admin/carousel';
-    } else {
-        alert('Mohon lengkapi semua field yang wajib diisi.');
-    }
-});
-
 // Click to upload functionality
 document.querySelector('.border-dashed').addEventListener('click', function() {
-    document.getElementById('slide_image').click();
+    document.getElementById('image_path').click();
 });
 </script>
 @endsection
