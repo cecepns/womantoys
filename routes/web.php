@@ -36,17 +36,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             return view('admin.dashboard');
         })->name('dashboard');
         
-        Route::get('/products', function () {
-            return view('admin.products.index');
-        })->name('products.index');
-        
-        Route::get('/products/create', function () {
-            return view('admin.products.create');
-        })->name('products.create');
-        
-        Route::get('/products/{id}/edit', function ($id) {
-            return view('admin.products.edit');
-        })->name('products.edit');
+        // Product routes
+        Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
         
         // Carousel routes
         Route::resource('carousel', App\Http\Controllers\Admin\CarouselController::class);
