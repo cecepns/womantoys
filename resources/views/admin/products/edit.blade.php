@@ -127,12 +127,24 @@
                         Gambar Utama <span class="text-red-500">*</span>
                     </label>
                     
-                    <!-- Current Image Preview -->
+                    <!-- File Input -->
                     <div class="mb-3">
-                        <p class="text-sm text-gray-600 mb-2">Gambar saat ini:</p>
-                        <div class="relative inline-block">
+                        <input
+                            type="file"
+                            id="main_image"
+                            name="main_image"
+                            accept=".png,.jpg,.jpeg"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                        >
+                    </div>
+                    
+                    <!-- Image Preview Container -->
+                    <div class="mb-3">
+                        <p class="text-sm text-gray-600 mb-2">Preview Gambar:</p>
+                        <div id="main_image_container" class="relative inline-block">
                             @if($product->hasValidMainImage())
                                 <img 
+                                    id="main_preview_img"
                                     src="{{ $product->main_image_url }}" 
                                     alt="Current Main Image" 
                                     class="w-32 h-32 object-cover rounded-lg border border-gray-300"
@@ -162,28 +174,13 @@
                                     </div>
                                 </div>
                             @endif
-                        </div>
-                    </div>
-                    
-                    <!-- File Input -->
-                    <div class="mb-3">
-                        <input
-                            type="file"
-                            id="main_image"
-                            name="main_image"
-                            accept=".png,.jpg,.jpeg"
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
-                        >
-                    </div>
-                    
-                    <!-- Preview Section -->
-                    <div id="main_image_preview" class="hidden">
-                        <div class="relative inline-block">
-                            <img id="main_preview_img" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border border-gray-300">
+                            
+                            <!-- Remove button (only show when there's an image) -->
                             <button 
+                                id="remove_main_image_btn"
                                 type="button" 
                                 onclick="removeMainImage()" 
-                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors {{ $product->hasValidMainImage() ? '' : 'hidden' }}"
                                 title="Hapus gambar"
                             >
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -414,14 +411,33 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 </form>
 
 <script>
-// Simple image preview
+// Simple image preview - replace existing image
 document.getElementById('main_image').addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            document.getElementById('main_preview_img').src = e.target.result;
-            document.getElementById('main_image_preview').classList.remove('hidden');
+            const container = document.getElementById('main_image_container');
+            const removeBtn = document.getElementById('remove_main_image_btn');
+            
+            // Remove any existing placeholder or error div
+            const existingPlaceholder = container.querySelector('.bg-gray-200');
+            if (existingPlaceholder) {
+                existingPlaceholder.remove();
+            }
+            
+            // Update or create the image element
+            let img = container.querySelector('#main_preview_img');
+            if (!img) {
+                img = document.createElement('img');
+                img.id = 'main_preview_img';
+                img.className = 'w-32 h-32 object-cover rounded-lg border border-gray-300';
+                img.alt = 'Preview';
+                container.insertBefore(img, removeBtn);
+            }
+            
+            img.src = e.target.result;
+            removeBtn.classList.remove('hidden');
         };
         reader.readAsDataURL(file);
     }
@@ -429,8 +445,36 @@ document.getElementById('main_image').addEventListener('change', function(e) {
 
 // Remove main image function
 function removeMainImage() {
+    const container = document.getElementById('main_image_container');
+    const removeBtn = document.getElementById('remove_main_image_btn');
+    
+    // Clear file input
     document.getElementById('main_image').value = '';
-    document.getElementById('main_image_preview').classList.add('hidden');
+    
+    // Remove the image
+    const img = container.querySelector('#main_preview_img');
+    if (img) {
+        img.remove();
+    }
+    
+    // Hide remove button
+    removeBtn.classList.add('hidden');
+    
+    // Show placeholder
+    const placeholder = document.createElement('div');
+    placeholder.className = 'w-32 h-32 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300';
+    placeholder.innerHTML = `
+        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+        <div class="absolute top-1 right-1">
+            <span class="bg-gray-100 text-gray-600 text-xs px-1 py-0.5 rounded-full">
+                No Image
+            </span>
+        </div>
+    `;
+    
+    container.insertBefore(placeholder, removeBtn);
 }
 
 // Gallery preview with individual remove
