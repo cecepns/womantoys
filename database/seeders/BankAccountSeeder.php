@@ -12,6 +12,28 @@ class BankAccountSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        // Check if bank accounts already exist
+        if (App\Models\BankAccount::count() === 0) {
+            App\Models\BankAccount::create([
+                'bank_name' => 'Bank Central Asia (BCA)',
+                'account_holder_name' => 'WomanToys Store',
+                'account_number' => '1234567890',
+                'is_active' => true,
+            ]);
+
+            App\Models\BankAccount::create([
+                'bank_name' => 'Bank Mandiri',
+                'account_holder_name' => 'WomanToys Store',
+                'account_number' => '0987654321',
+                'is_active' => true,
+            ]);
+
+            App\Models\BankAccount::create([
+                'bank_name' => 'Bank Rakyat Indonesia (BRI)',
+                'account_holder_name' => 'WomanToys Store',
+                'account_number' => '1122334455',
+                'is_active' => true,
+            ]);
+        }
     }
 }

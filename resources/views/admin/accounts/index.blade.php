@@ -2,13 +2,18 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
+    @if(session('success'))
+        <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
     <!-- Header Halaman -->
     <div class="flex justify-between items-center mb-6">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Manajemen Rekening Bank</h1>
             <p class="text-gray-600 mt-2">Kelola rekening bank yang digunakan untuk pembayaran</p>
         </div>
-        <a href="/admin/accounts/create" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-200">
+        <a href="{{ route('admin.accounts.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-200">
             Tambah Rekening Baru
         </a>
     </div>
@@ -36,89 +41,50 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                <!-- Data Rekening 1 -->
+                @forelse($bankAccounts as $account)
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        Bank Central Asia (BCA)
+                        {{ $account->bank_name }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        1234567890
+                        {{ $account->account_number }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        PT. Woman Toys Indonesia
+                        {{ $account->account_holder_name }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                            Aktif
-                        </span>
+                        @if($account->is_active)
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                Aktif
+                            </span>
+                        @else
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                Tidak Aktif
+                            </span>
+                        @endif
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div class="flex space-x-2">
-                            <a href="/admin/accounts/1/edit" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md text-xs transition duration-200">
+                            <a href="{{ route('admin.accounts.edit', $account) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md text-xs transition duration-200">
                                 Edit
                             </a>
-                            <button class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md text-xs transition duration-200">
-                                Hapus
-                            </button>
+                            <form action="{{ route('admin.accounts.destroy', $account) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus rekening ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md text-xs transition duration-200">
+                                    Hapus
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
-
-                <!-- Data Rekening 2 -->
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        Bank Mandiri
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        0987654321
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        PT. Woman Toys Indonesia
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                            Aktif
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div class="flex space-x-2">
-                            <a href="/admin/accounts/2/edit" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md text-xs transition duration-200">
-                                Edit
-                            </a>
-                            <button class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md text-xs transition duration-200">
-                                Hapus
-                            </button>
-                        </div>
+                @empty
+                <tr>
+                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                        Belum ada rekening bank yang ditambahkan.
                     </td>
                 </tr>
-
-                <!-- Data Rekening 3 -->
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        Bank Rakyat Indonesia (BRI)
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        1122334455
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        PT. Woman Toys Indonesia
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                            Tidak Aktif
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div class="flex space-x-2">
-                            <a href="/admin/accounts/3/edit" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-md text-xs transition duration-200">
-                                Edit
-                            </a>
-                            <button class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded-md text-xs transition duration-200">
-                                Hapus
-                            </button>
-                        </div>
-                    </td>
-                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

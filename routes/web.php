@@ -94,17 +94,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             return view('admin.orders.show');
         })->name('orders.show');
         
-        Route::get('/accounts', function () {
-            return view('admin.accounts.index');
-        })->name('accounts.index');
-        
-        Route::get('/accounts/create', function () {
-            return view('admin.accounts.create');
-        })->name('accounts.create');
-        
-        Route::get('/accounts/{id}/edit', function ($id) {
-            return view('admin.accounts.edit');
-        })->name('accounts.edit');
+        // Bank Account routes
+        Route::resource('accounts', App\Http\Controllers\Admin\BankAccountController::class)->except(['show']);
     });
 });
 

@@ -13,7 +13,7 @@
             <h1 class="text-3xl font-bold text-gray-800">Tambah Rekening Baru</h1>
             <p class="text-gray-600 mt-2">Buat rekening bank baru untuk digunakan dalam pembayaran</p>
         </div>
-        <a href="/admin/accounts" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
+        <a href="{{ route('admin.accounts.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
@@ -24,7 +24,18 @@
 
     <!-- Formulir Rekening -->
     <div class="bg-white rounded-lg shadow-md p-6">
-        <form>
+        @if($errors->any())
+            <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                <ul class="list-disc list-inside">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        
+        <form action="{{ route('admin.accounts.store') }}" method="POST">
+            @csrf
             <!-- Nama Bank -->
             <div class="mb-6">
                 <label for="bank_name" class="block text-sm font-medium text-gray-700 mb-2">
@@ -34,6 +45,7 @@
                     type="text" 
                     id="bank_name" 
                     name="bank_name" 
+                    value="{{ old('bank_name') }}"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Contoh: Bank Central Asia (BCA)"
                     required
@@ -49,6 +61,7 @@
                     type="text" 
                     id="account_number" 
                     name="account_number" 
+                    value="{{ old('account_number') }}"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Contoh: 1234567890"
                     required
@@ -64,6 +77,7 @@
                     type="text" 
                     id="account_holder" 
                     name="account_holder" 
+                    value="{{ old('account_holder') }}"
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Contoh: PT. Woman Toys Indonesia"
                     required
@@ -82,8 +96,8 @@
                     required
                 >
                     <option value="">Pilih Status</option>
-                    <option value="active">Aktif</option>
-                    <option value="inactive">Tidak Aktif</option>
+                    <option value="active" {{ old('status') === 'active' ? 'selected' : '' }}>Aktif</option>
+                    <option value="inactive" {{ old('status') === 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
                 </select>
             </div>
 

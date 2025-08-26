@@ -59,27 +59,26 @@
         <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Lakukan Pembayaran Ke</h2>
             <div class="space-y-4">
-                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
-                    <div>
-                        <p class="font-medium text-gray-800">Bank Central Asia (BCA)</p>
-                        <p class="text-sm text-gray-600">Nomor Rekening</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-mono font-semibold text-gray-800 text-lg">1234567890</p>
-                        <p class="text-sm text-gray-600">a.n. WomanToys Store</p>
-                    </div>
-                </div>
+                @php
+                    $activeAccounts = App\Models\BankAccount::active()->get();
+                @endphp
                 
+                @forelse($activeAccounts as $account)
                 <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
                     <div>
-                        <p class="font-medium text-gray-800">Bank Mandiri</p>
+                        <p class="font-medium text-gray-800">{{ $account->bank_name }}</p>
                         <p class="text-sm text-gray-600">Nomor Rekening</p>
                     </div>
                     <div class="text-right">
-                        <p class="font-mono font-semibold text-gray-800 text-lg">0987654321</p>
-                        <p class="text-sm text-gray-600">a.n. WomanToys Store</p>
+                        <p class="font-mono font-semibold text-gray-800 text-lg">{{ $account->account_number }}</p>
+                        <p class="text-sm text-gray-600">a.n. {{ $account->account_holder_name }}</p>
                     </div>
                 </div>
+                @empty
+                <div class="text-center py-8 text-gray-500">
+                    <p>Tidak ada rekening bank yang tersedia saat ini.</p>
+                </div>
+                @endforelse
             </div>
             
             <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
