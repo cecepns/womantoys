@@ -12,44 +12,12 @@ Route::get('/', function () {
         ->get();
     $categories = App\Models\Category::withCount(['products' => function ($query) {
         $query->active()->inStock();
-    }])->get();
+    }])->withCoverImage()->get();
     
     return view('home', compact('carouselSlides', 'featuredProducts', 'categories'));
 });
 
 Route::get('/catalog', [App\Http\Controllers\CatalogController::class, 'index'])->name('catalog');
-
-// Test route to check database data
-Route::get('/test-catalog', function () {
-    $products = App\Models\Product::with(['category'])->active()->inStock()->get();
-    $categories = App\Models\Category::withCount(['products' => function ($query) {
-        $query->active()->inStock();
-    }])->get();
-    
-    return response()->json([
-        'products_count' => $products->count(),
-        'categories_count' => $categories->count(),
-        'sample_products' => $products->take(3)->map(function ($product) {
-            return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'price' => $product->formatted_price,
-                'category' => $product->category->name,
-                'image_url' => $product->main_image_url,
-                'status' => $product->status,
-                'stock' => $product->stock
-            ];
-        }),
-        'categories' => $categories->map(function ($category) {
-            return [
-                'id' => $category->id,
-                'name' => $category->name,
-                'slug' => $category->slug,
-                'products_count' => $category->products_count
-            ];
-        })
-    ]);
-});
 
 Route::get('/product/{product:slug}', [App\Http\Controllers\ProductController::class, 'show'])->name('product-detail');
 

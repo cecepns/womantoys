@@ -49,6 +49,14 @@ class Category extends Model
     }
 
     /**
+     * Scope a query to only include categories with cover images.
+     */
+    public function scopeWithCoverImage($query)
+    {
+        return $query->whereNotNull('cover_image')->where('cover_image', '!=', '');
+    }
+
+    /**
      * Get the route key for the model.
      *
      * @return string
@@ -56,5 +64,25 @@ class Category extends Model
     public function getRouteKeyName()
     {
         return 'slug';
+    }
+
+    /**
+     * Check if the category has a cover image.
+     *
+     * @return bool
+     */
+    public function hasCoverImage()
+    {
+        return !empty($this->cover_image);
+    }
+
+    /**
+     * Get the cover image URL.
+     *
+     * @return string|null
+     */
+    public function getCoverImageUrlAttribute()
+    {
+        return $this->hasCoverImage() ? asset('storage/' . $this->cover_image) : null;
     }
 }

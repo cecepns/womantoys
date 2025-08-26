@@ -186,7 +186,7 @@
                     <a href="{{ route('catalog') }}?category={{ $category->slug }}" class="group cursor-pointer">
                         <div class="relative overflow-hidden rounded-lg shadow-lg">
                             <img 
-                                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                                src="{{ $category->cover_image_url }}" 
                                 alt="{{ $category->name }}" 
                                 class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                             >
