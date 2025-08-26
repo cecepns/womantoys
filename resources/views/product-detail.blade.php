@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Product Detail - WomanToys')
+@section('title', $product->name . ' - WomanToys')
 
 @section('content')
 <div class="container mx-auto px-4 py-10">
@@ -9,9 +9,13 @@
         <ol class="flex items-center space-x-2 text-sm text-gray-600">
             <li><a href="/" class="hover:text-pink-600 transition-colors duration-200">Home</a></li>
             <li><span class="mx-2">/</span></li>
-            <li><a href="/catalog" class="hover:text-pink-600 transition-colors duration-200">Collection</a></li>
+            <li><a href="{{ route('catalog') }}" class="hover:text-pink-600 transition-colors duration-200">Collection</a></li>
+            @if($product->category)
+                <li><span class="mx-2">/</span></li>
+                <li><a href="{{ route('catalog', ['category' => $product->category->slug]) }}" class="hover:text-pink-600 transition-colors duration-200">{{ $product->category->name }}</a></li>
+            @endif
             <li><span class="mx-2">/</span></li>
-            <li class="text-gray-800 font-medium">Lelo Sona Cruise 2</li>
+            <li class="text-gray-800 font-medium">{{ $product->name }}</li>
         </ol>
     </nav>
 
@@ -21,95 +25,90 @@
         <div>
             <!-- Main Image -->
             <div class="mb-6">
-                <img 
-                    src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
-                    alt="Lelo Sona Cruise 2" 
-                    class="w-full h-96 lg:h-[500px] object-cover rounded-lg shadow-lg"
-                >
+                @if($product->main_image_url)
+                    <img 
+                        src="{{ $product->main_image_url }}" 
+                        alt="{{ $product->name }}" 
+                        class="w-full h-96 lg:h-[500px] object-cover rounded-lg shadow-lg"
+                        id="main-product-image"
+                    >
+                @else
+                    <div class="w-full h-96 lg:h-[500px] bg-gray-200 flex items-center justify-center rounded-lg shadow-lg">
+                        <div class="text-center">
+                            <svg class="mx-auto h-24 w-24 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p class="text-gray-500 text-lg font-medium">No Image Available</p>
+                        </div>
+                    </div>
+                @endif
             </div>
             
             <!-- Thumbnail Gallery -->
-            <div class="flex space-x-4">
-                <img 
-                    src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" 
-                    alt="Product Image 1" 
-                    class="w-20 h-20 object-cover rounded-lg border-2 border-pink-600 cursor-pointer hover:opacity-80 transition-opacity duration-200"
-                >
-                <img 
-                    src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
-                    alt="Product Image 2" 
-                    class="w-20 h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200"
-                >
-                <img 
-                    src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
-                    alt="Product Image 3" 
-                    class="w-20 h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200"
-                >
-                <img 
-                    src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" 
-                    alt="Product Image 4" 
-                    class="w-20 h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200"
-                >
-            </div>
+            @if($product->images->count() > 0)
+                <div class="flex space-x-4">
+                    @foreach($product->images as $image)
+                        <img 
+                            src="{{ asset('storage/' . $image->image_path) }}" 
+                            alt="{{ $product->name }} - Image {{ $loop->iteration }}" 
+                            class="w-20 h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200 thumbnail-image"
+                            data-image="{{ asset('storage/' . $image->image_path) }}"
+                        >
+                    @endforeach
+                </div>
+            @endif
         </div>
 
         <!-- Right Column - Product Information -->
         <div>
             <!-- Product Name -->
             <h1 class="text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
-                Lelo Sona Cruise 2
+                {{ $product->name }}
             </h1>
             
             <!-- Product Price -->
             <p class="text-3xl font-bold text-pink-600 mb-6">
-                Rp 1.500.000
+                {{ $product->formatted_price }}
             </p>
             
             <!-- Product Description -->
             <div class="mb-8">
                 <p class="text-gray-600 text-lg leading-relaxed">
-                    Experience ultimate pleasure with the Lelo Sona Cruise 2, a premium sonic wave massager designed for intense clitoral stimulation. 
-                    This innovative device uses sonic waves to create powerful, deep-reaching sensations that traditional vibrators cannot achieve.
+                    {{ $product->short_description }}
                 </p>
             </div>
             
-            <!-- Product Features -->
-            <div class="mb-8">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Key Features:</h3>
-                <ul class="space-y-2 text-gray-600">
-                    <li class="flex items-center">
-                        <svg class="w-5 h-5 text-pink-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            <!-- Stock Status -->
+            <div class="mb-6">
+                @if($product->stock > 0)
+                    <p class="text-green-600 font-medium">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                         </svg>
-                        Sonic wave technology for deep stimulation
-                    </li>
-                    <li class="flex items-center">
-                        <svg class="w-5 h-5 text-pink-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        In Stock ({{ $product->stock }} available)
+                    </p>
+                @else
+                    <p class="text-red-600 font-medium">
+                        <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                         </svg>
-                        8 different intensity levels
-                    </li>
-                    <li class="flex items-center">
-                        <svg class="w-5 h-5 text-pink-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        Waterproof and body-safe silicone
-                    </li>
-                    <li class="flex items-center">
-                        <svg class="w-5 h-5 text-pink-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        Rechargeable with long battery life
-                    </li>
-                </ul>
+                        Out of Stock
+                    </p>
+                @endif
             </div>
             
             <!-- Buy Now Button -->
-            <a href="/checkout" class="block">
-                <button class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
-                    Buy Now
+            @if($product->stock > 0)
+                <a href="{{ route('checkout') }}?product={{ $product->id }}" class="block">
+                    <button class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
+                        Buy Now
+                    </button>
+                </a>
+            @else
+                <button class="w-full bg-gray-400 text-white font-bold py-4 px-8 rounded-lg text-xl cursor-not-allowed" disabled>
+                    Out of Stock
                 </button>
-            </a>
+            @endif
         </div>
     </div>
 
@@ -117,13 +116,13 @@
     <div class="border-t border-gray-200 pt-8">
         <!-- Tab Navigation -->
         <div class="flex border-b border-gray-200 mb-8">
-            <button class="px-6 py-3 text-pink-600 border-b-2 border-pink-600 font-medium">
+            <button class="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium rounded-t-lg transition-all duration-200" data-tab="description" id="tab-description">
                 Complete Description
             </button>
-            <button class="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium">
+            <button class="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium rounded-t-lg transition-all duration-200" data-tab="specifications" id="tab-specifications">
                 Specifications
             </button>
-            <button class="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium">
+            <button class="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium rounded-t-lg transition-all duration-200" data-tab="care" id="tab-care">
                 Care Instructions
             </button>
         </div>
@@ -131,30 +130,110 @@
         <!-- Tab Content -->
         <div class="space-y-6">
             <!-- Complete Description Tab (Active) -->
-            <div>
+            <div data-tab-content="description">
                 <h3 class="text-2xl font-bold text-gray-800 mb-4">Complete Description</h3>
                 <div class="prose prose-lg text-gray-600 space-y-4">
-                    <p>
-                        The Lelo Sona Cruise 2 represents the pinnacle of intimate pleasure technology, combining cutting-edge sonic wave technology with elegant design. 
-                        Unlike traditional vibrators that rely on surface-level vibrations, this revolutionary device uses sonic waves to create deep, penetrating sensations 
-                        that reach the internal clitoral structure.
-                    </p>
-                    <p>
-                        Crafted from premium body-safe silicone, the Sona Cruise 2 features a sleek, ergonomic design that fits perfectly in your hand. 
-                        The device offers 8 different intensity levels, allowing you to find the perfect setting for your pleasure journey. 
-                        Whether you prefer gentle, teasing sensations or powerful, intense stimulation, this device delivers exactly what you need.
-                    </p>
-                    <p>
-                        The waterproof design makes it perfect for use in the shower or bath, adding an extra dimension to your intimate moments. 
-                        The rechargeable battery provides hours of pleasure on a single charge, ensuring you never have to interrupt your experience.
-                    </p>
-                    <p>
-                        This premium adult toy is designed for solo use and couples play, making it a versatile addition to your intimate collection. 
-                        The sonic wave technology creates unique sensations that many users describe as more intense and satisfying than traditional vibration patterns.
-                    </p>
+                    {!! nl2br(e($product->description)) !!}
+                </div>
+            </div>
+            
+            <!-- Specifications Tab -->
+            <div class="hidden" data-tab-content="specifications">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Specifications</h3>
+                <div class="prose prose-lg text-gray-600 space-y-4">
+                    {!! nl2br(e($product->specifications)) !!}
+                </div>
+            </div>
+            
+            <!-- Care Instructions Tab -->
+            <div class="hidden" data-tab-content="care">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Care Instructions</h3>
+                <div class="prose prose-lg text-gray-600 space-y-4">
+                    {!! nl2br(e($product->care_instructions)) !!}
                 </div>
             </div>
         </div>
     </div>
+    
+    <!-- Related Products -->
+    @if($relatedProducts->count() > 0)
+        <div class="border-t border-gray-200 pt-12 mt-16">
+            <h2 class="text-2xl font-bold text-gray-800 mb-8">Related Products</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                @foreach($relatedProducts as $relatedProduct)
+                    <x-product-card :product="$relatedProduct" />
+                @endforeach
+            </div>
+        </div>
+    @endif
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('[data-tab]');
+    const tabContents = document.querySelectorAll('[data-tab-content]');
+    
+    function switchTab(targetTab) {
+        // Remove active class from all buttons
+        tabButtons.forEach(btn => {
+            btn.classList.remove('text-pink-600', 'border-pink-600', 'bg-pink-50');
+            btn.classList.add('text-gray-500');
+        });
+        
+        // Hide all tab contents
+        tabContents.forEach(content => {
+            content.classList.add('hidden');
+        });
+        
+        // Add active class to target button
+        const activeButton = document.querySelector(`[data-tab="${targetTab}"]`);
+        if (activeButton) {
+            activeButton.classList.remove('text-gray-500');
+            activeButton.classList.add('text-pink-600', 'border-pink-600', 'bg-pink-50');
+        }
+        
+        // Show target content
+        const targetContent = document.querySelector(`[data-tab-content="${targetTab}"]`);
+        if (targetContent) {
+            targetContent.classList.remove('hidden');
+        }
+    }
+
+    switchTab('description');
+    
+    // Add click event listeners to all tab buttons
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetTab = this.getAttribute('data-tab');
+            switchTab(targetTab);
+        });
+    });
+    
+    // Thumbnail gallery functionality
+    const thumbnailImages = document.querySelectorAll('.thumbnail-image');
+    const mainImage = document.getElementById('main-product-image');
+    
+    thumbnailImages.forEach(thumbnail => {
+        thumbnail.addEventListener('click', function() {
+            const imageSrc = this.getAttribute('data-image');
+            
+            // Update main image
+            if (mainImage) {
+                mainImage.src = imageSrc;
+            }
+            
+            // Update thumbnail borders
+            thumbnailImages.forEach(img => {
+                img.classList.remove('border-pink-600');
+                img.classList.add('border-gray-300');
+            });
+            
+            this.classList.remove('border-gray-300');
+            this.classList.add('border-pink-600');
+        });
+    });
+});
+</script>
 @endsection

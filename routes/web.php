@@ -41,17 +41,15 @@ Route::get('/test-catalog', function () {
     ]);
 });
 
-Route::get('/product/{product:slug}', function (App\Models\Product $product) {
-    return view('product-detail', compact('product'));
-})->name('product-detail');
+Route::get('/product/{product:slug}', [App\Http\Controllers\ProductController::class, 'show'])->name('product-detail');
 
 Route::get('/checkout', function () {
     return view('checkout');
-});
+})->name('checkout');
 
 Route::get('/payment-instruction', function () {
     return view('payment-instruction');
-});
+})->name('payment-instruction');
 
 // Admin Authentication Routes
 Route::prefix('admin')->name('admin.')->group(function () {
