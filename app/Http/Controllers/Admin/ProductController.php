@@ -119,8 +119,8 @@ class ProductController extends Controller
             }
         }
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Produk berhasil ditambahkan.');
+        notify()->success('Produk berhasil ditambahkan.', 'Berhasil');
+        return redirect()->route('admin.products.index');
     }
 
     /**
@@ -236,8 +236,8 @@ class ProductController extends Controller
             }
         }
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Produk berhasil diperbarui.');
+        notify()->success('Produk berhasil diperbarui.', 'Berhasil');
+        return redirect()->route('admin.products.index');
     }
 
     /**
@@ -265,14 +265,14 @@ class ProductController extends Controller
             $product->delete();
             \Log::info("Product deleted successfully: {$product->id}");
 
-            return redirect()->route('admin.products.index')
-                ->with('success', 'Produk berhasil dihapus.');
+            notify()->success('Produk berhasil dihapus.', 'Berhasil');
+            return redirect()->route('admin.products.index');
                 
         } catch (\Exception $e) {
             \Log::error("Failed to delete product ID: {$product->id}", ['error' => $e->getMessage()]);
             
-            return redirect()->route('admin.products.index')
-                ->with('error', 'Gagal menghapus produk. Silakan coba lagi.');
+            notify()->error('Gagal menghapus produk. Silakan coba lagi.', 'Gagal');
+            return redirect()->route('admin.products.index');
         }
     }
 
