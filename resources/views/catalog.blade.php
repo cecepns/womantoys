@@ -12,16 +12,21 @@
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <!-- Filter Kategori -->
             <div class="flex flex-wrap gap-4">
-                <a href="#" class="px-4 py-2 bg-pink-600 text-white rounded-lg font-medium hover:bg-pink-700 transition-colors duration-200">All</a>
-                <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors duration-200">For Women</a>
-                <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors duration-200">For Men</a>
-                <a href="#" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-colors duration-200">BDSM</a>
+                <a href="{{ route('catalog') }}" class="px-4 py-2 {{ request('category') === null || request('category') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">All</a>
+                @foreach($categories as $category)
+                    <a href="{{ route('catalog', ['category' => $category->slug]) }}" class="px-4 py-2 {{ request('category') === $category->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">
+                        {{ $category->name }}
+                        <span class="ml-1 text-xs">({{ $category->products_count }})</span>
+                    </a>
+                @endforeach
             </div>
             
             <!-- Bar Pencarian -->
-            <form class="flex gap-2 w-full md:w-auto">
+            <form class="flex gap-2 w-full md:w-auto" method="GET" action="{{ route('catalog') }}">
                 <input 
                     type="text" 
+                    name="search"
+                    value="{{ request('search') }}"
                     placeholder="Search products..." 
                     class="flex-1 md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                 >
@@ -36,68 +41,27 @@
     </div>
     
     <!-- Grid Produk -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
-        <!-- Product Card 1 -->
-        <x-product-card />
-        
-        <!-- Product Card 2 -->
-        <x-product-card />
-        
-        <!-- Product Card 3 -->
-        <x-product-card />
-        
-        <!-- Product Card 4 -->
-        <x-product-card />
-        
-        <!-- Product Card 5 -->
-        <x-product-card />
-        
-        <!-- Product Card 6 -->
-        <x-product-card />
-        
-        <!-- Product Card 7 -->
-        <x-product-card />
-        
-        <!-- Product Card 8 -->
-        <x-product-card />
-        
-        <!-- Product Card 9 -->
-        <x-product-card />
-        
-        <!-- Product Card 10 -->
-        <x-product-card />
-        
-        <!-- Product Card 11 -->
-        <x-product-card />
-        
-        <!-- Product Card 12 -->
-        <x-product-card />
-    </div>
+    @if($products->count() > 0)
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-12" style="grid-auto-rows: 1fr;">
+            @foreach($products as $product)
+                <x-product-card :product="$product" />
+            @endforeach
+        </div>
+    @else
+        <div class="text-center py-12">
+            <div class="text-gray-500 text-lg mb-4">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No products found</h3>
+            <p class="text-gray-500">Try adjusting your search or filter criteria.</p>
+        </div>
+    @endif
     
     <!-- Paginasi -->
-    <nav class="flex justify-center">
-        <div class="flex items-center space-x-2">
-            <!-- Previous Button -->
-            <a href="#" class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200">
-                « Previous
-            </a>
-            
-            <!-- Page Numbers -->
-            <a href="#" class="px-3 py-2 text-white bg-pink-600 border border-pink-600 rounded-lg font-medium">
-                1
-            </a>
-            <a href="#" class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
-                2
-            </a>
-            <a href="#" class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
-                3
-            </a>
-            
-            <!-- Next Button -->
-            <a href="#" class="px-3 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors duration-200">
-                Next »
-            </a>
-        </div>
-    </nav>
+    @if($products->hasPages())
+        {{ $products->links() }}
+    @endif
 </div>
 @endsection

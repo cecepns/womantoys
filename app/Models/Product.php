@@ -181,6 +181,7 @@ class Product extends Model
             return asset('storage/' . $this->main_image);
         }
         
-        return asset('images/default-product.jpg');
+        // Return null to indicate no image, will be handled in the view
+        return null;
     }
 }
