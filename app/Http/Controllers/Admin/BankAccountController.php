@@ -49,8 +49,8 @@ class BankAccountController extends Controller
             'is_active' => $request->status === 'active',
         ]);
 
-        return redirect()->route('admin.accounts.index')
-            ->with('success', 'Rekening bank berhasil ditambahkan.');
+        notify()->success('Rekening bank berhasil ditambahkan.', 'Berhasil');
+        return redirect()->route('admin.accounts.index');
     }
 
     /**
@@ -68,8 +68,8 @@ class BankAccountController extends Controller
     {
         $account->delete();
 
-        return redirect()->route('admin.accounts.index')
-            ->with('success', 'Rekening bank berhasil dihapus.');
+        notify()->success('Rekening bank berhasil dihapus.', 'Berhasil');
+        return redirect()->route('admin.accounts.index');
     }
 
     /**
@@ -96,8 +96,8 @@ class BankAccountController extends Controller
             'is_active' => $request->status === 'active',
         ]);
 
-        return redirect()->route('admin.accounts.index')
-            ->with('success', 'Rekening bank berhasil diperbarui.');
+        notify()->success('Rekening bank berhasil diperbarui.', 'Berhasil');
+        return redirect()->route('admin.accounts.index');
     }
 
 }
