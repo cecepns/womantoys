@@ -113,7 +113,7 @@
     </div>
 
     <!-- Detailed Information Tabs -->
-    <div class="border-t border-gray-200 pt-8">
+    <div class="pt-8">
         <!-- Tab Navigation -->
         <div class="flex border-b border-gray-200 mb-8">
             <button class="px-6 py-3 text-gray-500 hover:text-gray-700 font-medium rounded-t-lg transition-all duration-200" data-tab="description" id="tab-description">
