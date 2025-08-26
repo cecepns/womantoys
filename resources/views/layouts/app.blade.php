@@ -7,14 +7,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'WomanToys - Mainan Dewasa Premium & Produk Intim')</title>
     @vite('resources/css/app.css')
-    @notifyCss
     
     <!-- Owl Carousel CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
 </head>
 <body class="min-h-screen bg-gray-50">
-    <x-notify::notify />
     <!-- Header -->
     <header class="bg-white shadow-md">
         <nav class="container mx-auto px-4 py-4">
@@ -112,8 +110,6 @@
             }
         });
     </script>
-    <!-- Alpine.js (required by Laravel Notify for interactions) -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    @notifyJs
+
 </body>
 </html>
