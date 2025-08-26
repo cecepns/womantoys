@@ -167,7 +167,15 @@ class ProductController extends Controller
             'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $product->update($request->except(['main_image', 'gallery_images']));
+        $product->update($request->except(['main_image', 'gallery_images', 'remove_main_image']));
+
+        // Handle remove main image flag
+        if ($request->boolean('remove_main_image')) {
+            if ($product->main_image && \Storage::disk('public')->exists($product->main_image)) {
+                \Storage::disk('public')->delete($product->main_image);
+            }
+            $product->update(['main_image' => null]);
+        }
 
         // Handle main image upload
         if ($request->hasFile('main_image')) {
@@ -271,36 +279,35 @@ class ProductController extends Controller
     /**
      * Remove a specific gallery image.
      */
-    public function removeGalleryImage(Request $request, $productId, $imageId)
+    public function removeGalleryImage(Request $request, Product $product, ProductImage $image)
     {
-        $product = Product::findOrFail($productId);
-        $image = $product->images()->findOrFail($imageId);
-        
+        // Ensure the image belongs to the provided product
+        if ($image->product_id !== $product->id) {
+            return response()->json(['success' => false, 'error' => 'Image does not belong to product'], 422);
+        }
+
         try {
-            // Check if file exists before trying to delete it
             if (\Storage::disk('public')->exists($image->image_path)) {
                 \Storage::disk('public')->delete($image->image_path);
-                \Log::info("File deleted for image ID: {$imageId}");
+                \Log::info("File deleted for image ID: {$image->id}");
             } else {
-                \Log::info("File not found for image ID: {$imageId} (path: {$image->image_path}) - continuing with database cleanup");
+                \Log::info("File not found for image ID: {$image->id} (path: {$image->image_path}) - continuing with database cleanup");
             }
-            
-            // Always delete the database record regardless of file existence
+
             $image->delete();
-            \Log::info("Successfully removed image ID: {$imageId} from database");
-            
+            \Log::info("Successfully removed image ID: {$image->id} from database");
+
             return response()->json(['success' => true]);
-            
+
         } catch (\Exception $e) {
-            \Log::error("Failed to remove image ID: {$imageId}", ['error' => $e->getMessage()]);
-            
-            // Even if file deletion fails, try to delete the database record
+            \Log::error("Failed to remove image ID: {$image->id}", ['error' => $e->getMessage()]);
+
             try {
                 $image->delete();
-                \Log::info("Database record deleted for image ID: {$imageId} despite file deletion error");
+                \Log::info("Database record deleted for image ID: {$image->id} despite file deletion error");
                 return response()->json(['success' => true]);
             } catch (\Exception $dbError) {
-                \Log::error("Failed to delete database record for image ID: {$imageId}", ['error' => $dbError->getMessage()]);
+                \Log::error("Failed to delete database record for image ID: {$image->id}", ['error' => $dbError->getMessage()]);
                 return response()->json(['success' => false, 'error' => $dbError->getMessage()], 500);
             }
         }

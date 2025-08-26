@@ -26,6 +26,7 @@
 <form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-8">
     @csrf
     @method('PUT')
+    <input type="hidden" id="remove_main_image" name="remove_main_image" value="0">
     
     <!-- Basic Information Section -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
@@ -150,17 +151,6 @@
                                     class="w-32 h-32 object-cover rounded-lg border border-gray-300"
                                     onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                 >
-                                <!-- Fallback placeholder when image fails to load -->
-                                <div class="w-32 h-32 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300 hidden">
-                                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                    <div class="absolute top-1 right-1">
-                                        <span class="bg-red-100 text-red-800 text-xs px-1 py-0.5 rounded-full">
-                                            Error
-                                        </span>
-                                    </div>
-                                </div>
                             @else
                                 <!-- No image placeholder -->
                                 <div class="w-32 h-32 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300">
@@ -215,7 +205,7 @@
                     
                     <!-- Gallery Images Container -->
                     <div class="mb-3">
-                        <p class="text-sm text-gray-600 mb-2">Gambar galeri ({{ $product->images->count() }}/5):</p>
+                        <p id="gallery_count" class="text-sm text-gray-600 mb-2">Gambar galeri ({{ $product->images->count() }}/5):</p>
                         <div id="gallery_container" class="grid grid-cols-3 gap-3">
                             @if(isset($product) && $product->images->count() > 0)
                                 @foreach($product->images as $index => $image)
@@ -267,6 +257,11 @@
                                 @endforeach
                             @endif
                         </div>
+                    </div>
+                    
+                    <!-- Info box: Deletion applies on submit -->
+                    <div class="mt-2 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm rounded">
+                        Catatan: Gambar yang Anda hapus akan benar-benar dihapus dari sistem setelah Anda menekan tombol "Update Produk".
                     </div>
                     
 
@@ -401,8 +396,55 @@
 </form>
 
 <script>
+// Helpers and constants
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => document.querySelectorAll(selector);
+const MAIN_IMAGE_INPUT_ID = 'main_image';
+const GALLERY_INPUT_ID = 'gallery_images';
+const GALLERY_CONTAINER_ID = 'gallery_container';
+const GALLERY_COUNT_ID = 'gallery_count';
+
+function rebuildGalleryInputFiles() {
+    const input = document.getElementById(GALLERY_INPUT_ID);
+    const dt = new DataTransfer();
+    selectedGalleryFiles.forEach(file => dt.items.add(file));
+    input.files = dt.files;
+}
+
+function addHiddenRemovedInput(imageId) {
+    const existingInput = document.querySelector(`input[name="removed_gallery_images[]"][value="${imageId}"]`);
+    if (!existingInput) {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'removed_gallery_images[]';
+        hiddenInput.value = imageId;
+        document.querySelector('form').appendChild(hiddenInput);
+    }
+}
+
+function countVisibleGalleryItems() {
+    let visibleCount = 0;
+    document.querySelectorAll('.gallery-item').forEach(item => {
+        if (item.style.display !== 'none') visibleCount++;
+    });
+    return visibleCount;
+}
+
+function setGalleryCounterText(count) {
+    const counterElement = document.getElementById(GALLERY_COUNT_ID);
+    if (counterElement) {
+        counterElement.textContent = `Gambar galeri (${count}/5):`;
+    }
+}
+
+function updateGalleryCounter() {
+    setGalleryCounterText(countVisibleGalleryItems());
+}
+
 // Simple image preview - replace existing image
 document.getElementById('main_image').addEventListener('change', function(e) {
+    const removeFlag = document.getElementById('remove_main_image');
+    if (removeFlag) removeFlag.value = '0';
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
@@ -440,6 +482,8 @@ function removeMainImage() {
     
     // Clear file input
     document.getElementById('main_image').value = '';
+    const removeFlag = document.getElementById('remove_main_image');
+    if (removeFlag) removeFlag.value = '1';
     
     // Remove the image
     const img = container.querySelector('#main_preview_img');
@@ -489,16 +533,14 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
     selectedGalleryFiles = selectedGalleryFiles.concat(files);
     
     // Update the file input
-    const dt = new DataTransfer();
-    selectedGalleryFiles.forEach(file => dt.items.add(file));
-    e.target.files = dt.files;
+    rebuildGalleryInputFiles();
     
     // Update preview
     updateGalleryPreview();
 });
 
 function updateGalleryPreview() {
-    const container = document.getElementById('gallery_container');
+    const container = document.getElementById(GALLERY_CONTAINER_ID);
     
     // Remove existing new-image previews first
     const existingNewImages = container.querySelectorAll('.gallery-item.new-image');
@@ -546,10 +588,7 @@ function removeNewGalleryImage(index) {
     selectedGalleryFiles.splice(index, 1);
     
     // Update the file input
-    const input = document.getElementById('gallery_images');
-    const dt = new DataTransfer();
-    selectedGalleryFiles.forEach(file => dt.items.add(file));
-    input.files = dt.files;
+    rebuildGalleryInputFiles();
     
     // Remove the preview element
     const previewElement = document.querySelector(`[data-file-index="${index}"]`);
@@ -572,149 +611,52 @@ function removeNewGalleryImage(index) {
 }
 
 function removeExistingGalleryImage(imageId) {
-    console.log('=== REMOVE EXISTING GALLERY IMAGE CALLED ===');
-    console.log('Image ID to remove:', imageId);
-    console.log('Current removedExistingImages array:', removedExistingImages);
-    
-    if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
-        console.log('User confirmed removal');
-        
-        // Add to removed images list if not already added
-        if (!removedExistingImages.includes(imageId)) {
-            removedExistingImages.push(imageId);
-            console.log('Added to removedExistingImages array');
-        } else {
-            console.log('Image ID already in removedExistingImages array');
-        }
-        
-        console.log('Updated removedExistingImages array:', removedExistingImages);
-
-        // Hide the image element
-        const selector = `[data-image-id="${imageId}"]`;
-        const imageElement = document.querySelector(selector);
-        console.log('Image element found:', !!imageElement);
-        console.log('Selector used:', selector);
-
-        if (imageElement) {
-            imageElement.style.display = 'none';
-            console.log('Image element hidden');
-        }
-
-        // Check if hidden input already exists for this image
-        const existingInput = document.querySelector(`input[name="removed_gallery_images[]"][value="${imageId}"]`);
-        console.log('Existing hidden input found:', !!existingInput);
-
-        if (!existingInput) {
-            // Add hidden input to track removed images
-            const hiddenInput = document.createElement('input');
-            hiddenInput.type = 'hidden';
-            hiddenInput.name = 'removed_gallery_images[]';
-            hiddenInput.value = imageId;
-            document.querySelector('form').appendChild(hiddenInput);
-            console.log('Hidden input created and added to form');
-            console.log('Hidden input details:', {
-                name: hiddenInput.name,
-                value: hiddenInput.value,
-                type: hiddenInput.type
-            });
-        } else {
-            console.log('Hidden input already exists for this image');
-        }
-
-        // Update counter
-        updateGalleryCounter();
-        
-        // Verify hidden inputs after creation
-        const allHiddenInputs = document.querySelectorAll('input[name="removed_gallery_images[]"]');
-        console.log('Total hidden inputs after removal:', allHiddenInputs.length);
-        const hiddenValues = Array.from(allHiddenInputs).map(input => input.value);
-        console.log('Hidden input values after removal:', hiddenValues);
-        
-        console.log('=== END REMOVE EXISTING GALLERY IMAGE ===');
-    } else {
-        console.log('User cancelled removal');
-    }
-}
-
-function updateGalleryCounter() {
-    // Count visible gallery items (not hidden by display: none)
-    const allGalleryItems = document.querySelectorAll('.gallery-item');
-    let visibleCount = 0;
-    
-    allGalleryItems.forEach(item => {
-        if (item.style.display !== 'none') {
-            visibleCount++;
-        }
-    });
-    
-    const counterElement = document.querySelector('p.text-sm.text-gray-600.mb-2');
-    if (counterElement) {
-        counterElement.textContent = `Gambar galeri (${visibleCount}/5):`;
+    // Add to removed images list if not already added
+    if (!removedExistingImages.includes(imageId)) {
+        removedExistingImages.push(imageId);
     }
     
-    console.log('Gallery counter updated:', visibleCount);
+    // Hide the image element
+    const selector = `[data-image-id="${imageId}"]`;
+    const imageElement = document.querySelector(selector);
+
+    if (imageElement) {
+        imageElement.style.display = 'none';
+    }
+
+    // Check if hidden input already exists for this image
+    addHiddenRemovedInput(imageId);
+
+    // Update counter
+    updateGalleryCounter();
+    
+    // Verify hidden inputs after creation
+    const allHiddenInputs = document.querySelectorAll('input[name="removed_gallery_images[]"]');
+    const hiddenValues = Array.from(allHiddenInputs).map(input => input.value);
 }
 
-// Handle image loading errors
-document.addEventListener('DOMContentLoaded', function() {
-    const productImages = document.querySelectorAll('img[src*="storage"]');
-    
-    productImages.forEach(function(img) {
-        img.addEventListener('error', function() {
-            // Hide the failed image
-            this.style.display = 'none';
-            
-            // Show the fallback placeholder
-            const fallback = this.nextElementSibling;
+// updateGalleryCounter moved above with helpers
+
+document.addEventListener('DOMContentLoaded', () => {
+    $$('img[src*="storage"]').forEach(img => {
+        img.addEventListener('error', () => {
+            img.style.display = 'none';
+            const fallback = img.nextElementSibling;
             if (fallback && fallback.classList.contains('hidden')) {
                 fallback.classList.remove('hidden');
                 fallback.style.display = 'flex';
             }
         });
     });
-    
-    // Initialize gallery counter
+
     updateGalleryCounter();
-    
-    // Initialize file input event listeners if they don't exist
-    const mainImageInput = document.getElementById('main_image');
-    const galleryInput = document.getElementById('gallery_images');
-    
-    if (mainImageInput && !mainImageInput.hasAttribute('data-initialized')) {
-        mainImageInput.setAttribute('data-initialized', 'true');
-    }
-    
-    if (galleryInput && !galleryInput.hasAttribute('data-initialized')) {
-        galleryInput.setAttribute('data-initialized', 'true');
-    }
-    
-    // Debug: Log initial state
-    console.log('=== DOM LOADED DEBUG ===');
-    console.log('Gallery items found:', document.querySelectorAll('.gallery-item').length);
-    console.log('Initial removed images:', removedExistingImages);
-    
-    // Log all gallery items with their IDs
-    const galleryItems = document.querySelectorAll('.gallery-item');
-    console.log('Gallery items details:');
-    galleryItems.forEach((item, index) => {
-        const imageId = item.getAttribute('data-image-id');
-        console.log(`  Item ${index + 1}: data-image-id="${imageId}"`);
+
+    [MAIN_IMAGE_INPUT_ID, GALLERY_INPUT_ID].forEach(id => {
+        const input = document.getElementById(id);
+        if (input && !input.hasAttribute('data-initialized')) {
+            input.setAttribute('data-initialized', 'true');
+        }
     });
-    
-    // Check if remove buttons exist
-    const removeButtons = document.querySelectorAll('button[onclick*="removeExistingGalleryImage"]');
-    console.log('Remove buttons found:', removeButtons.length);
-    
-    // Log form details
-    const form = document.querySelector('form');
-    console.log('Form found:', !!form);
-    if (form) {
-        console.log('Form action:', form.action);
-        console.log('Form method:', form.method);
-        console.log('Form enctype:', form.enctype);
-    }
-    
-    console.log('=== END DOM DEBUG ===');
 });
 
 // Simple form validation
