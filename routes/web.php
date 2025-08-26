@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     $carouselSlides = App\Models\CarouselSlide::orderBy('order', 'asc')->get();
@@ -21,12 +22,12 @@ Route::get('/catalog', [App\Http\Controllers\CatalogController::class, 'index'])
 
 Route::get('/product/{product:slug}', [App\Http\Controllers\ProductController::class, 'show'])->name('product-detail');
 
-Route::get('/checkout', function () {
-    return view('checkout');
-})->name('checkout');
+Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
+Route::post('/checkout', [App\Http\Controllers\CheckoutController::class, 'store'])->name('checkout.store');
 
-Route::get('/payment-instruction', function () {
-    return view('payment-instruction');
+Route::get('/payment-instruction', function (Request $request) {
+    $orderNumber = $request->query('order');
+    return view('payment-instruction', compact('orderNumber'));
 })->name('payment-instruction');
 
 // Admin Authentication Routes
