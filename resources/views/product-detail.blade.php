@@ -45,18 +45,24 @@
             </div>
             
             <!-- Thumbnail Gallery -->
-            @if($product->images->count() > 0)
-                <div class="flex space-x-4">
-                    @foreach($product->images as $image)
-                        <img 
-                            src="{{ asset('storage/' . $image->image_path) }}" 
-                            alt="{{ $product->name }} - Gambar {{ $loop->iteration }}" 
-                            class="w-20 h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200 thumbnail-image"
-                            data-image="{{ asset('storage/' . $image->image_path) }}"
-                        >
-                    @endforeach
-                </div>
-            @endif
+            <div class="flex space-x-4">
+                @if($product->main_image_url)
+                    <img 
+                        src="{{ $product->main_image_url }}" 
+                        alt="{{ $product->name }} - Gambar Utama" 
+                        class="w-20 h-20 object-cover rounded-lg border-2 border-pink-600 cursor-pointer hover:border-pink-700 transition-colors duration-200 thumbnail-image"
+                        data-image="{{ $product->main_image_url }}"
+                    >
+                @endif
+                @foreach($product->images as $image)
+                    <img 
+                        src="{{ asset('storage/' . $image->image_path) }}" 
+                        alt="{{ $product->name }} - Gambar {{ $loop->iteration }}" 
+                        class="w-20 h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200 thumbnail-image"
+                        data-image="{{ asset('storage/' . $image->image_path) }}"
+                    >
+                @endforeach
+            </div>
         </div>
 
         <!-- Right Column - Product Information -->
