@@ -23,7 +23,7 @@
 <!-- Form Section -->
 <div class="bg-white rounded-lg shadow-md border border-gray-200">
     <div class="p-6">
-        <form action="{{ route('admin.categories.store') }}" method="POST" id="categoryForm">
+        <form action="{{ route('admin.categories.store') }}" method="POST" id="categoryForm" enctype="multipart/form-data">
             @csrf
             
             <!-- Category Name -->
@@ -53,6 +53,34 @@
                     slug-akan-muncul-disini
                 </div>
                 <p class="mt-1 text-sm text-gray-500">Slug akan otomatis dibuat dari nama kategori.</p>
+            </div>
+
+            <!-- Cover Image (optional) -->
+            <div class="mb-6">
+                <label for="cover_image" class="block text-sm font-medium text-gray-700 mb-2">
+                    Gambar Cover (opsional)
+                </label>
+                <div id="coverPreview" class="mb-3 hidden">
+                    <p class="text-sm text-gray-600 mb-2">Preview Gambar:</p>
+                    <div class="relative w-full max-w-md">
+                        <img id="coverPreviewImg" src="" alt="Preview Cover" class="w-full object-cover rounded-lg border border-gray-300">
+                        <!-- Remove Preview Button -->
+                        <button type="button" id="removeCoverPreviewBtn" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full transition-colors duration-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <input type="file"
+                       id="cover_image"
+                       name="cover_image"
+                       accept="image/jpeg,image/png,image/webp"
+                       class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                @error('cover_image')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+                <p class="mt-1 text-sm text-gray-500">Format: JPG, PNG, WEBP. Maks 2MB.</p>
             </div>
 
             <!-- Submit Buttons -->
@@ -99,6 +127,31 @@ document.addEventListener('DOMContentLoaded', function() {
             nameInput.focus();
             return false;
         }
+    });
+
+    // Cover image preview
+    const coverInput = document.getElementById('cover_image');
+    const coverPreview = document.getElementById('coverPreview');
+    const coverPreviewImg = document.getElementById('coverPreviewImg');
+
+    coverInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                coverPreviewImg.src = e.target.result;
+                coverPreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            coverPreview.classList.add('hidden');
+        }
+    });
+
+    // Remove cover preview functionality
+    document.getElementById('removeCoverPreviewBtn').addEventListener('click', function() {
+        coverPreview.classList.add('hidden');
+        coverInput.value = '';
     });
 });
 </script>

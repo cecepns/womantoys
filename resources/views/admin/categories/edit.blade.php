@@ -23,7 +23,7 @@
 <!-- Form Section -->
 <div class="bg-white rounded-lg shadow-md border border-gray-200">
     <div class="p-6">
-        <form action="{{ route('admin.categories.update', $category) }}" method="POST" id="categoryForm">
+        <form action="{{ route('admin.categories.update', $category) }}" method="POST" id="categoryForm" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -67,21 +67,43 @@
                 <p class="mt-1 text-sm text-gray-500">Slug baru akan muncul di sini jika nama kategori diubah.</p>
             </div>
 
-            <!-- Category Info -->
-            <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div class="flex items-start">
-                    <svg class="w-5 h-5 text-yellow-600 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                    </svg>
-                    <div>
-                        <h4 class="text-sm font-medium text-yellow-800">Informasi Kategori</h4>
-                        <div class="mt-2 text-sm text-yellow-700">
-                            <p><strong>Jumlah Produk:</strong> {{ $category->products->count() }} produk</p>
-                            <p><strong>Dibuat pada:</strong> {{ $category->created_at->format('d M Y H:i') }}</p>
-                            <p><strong>Terakhir diperbarui:</strong> {{ $category->updated_at->format('d M Y H:i') }}</p>
-                        </div>
+            <!-- Cover Image (optional) -->
+            <div class="mb-6">
+                <label for="cover_image" class="block text-sm font-medium text-gray-700 mb-2">
+                    Gambar Cover (opsional)
+                </label>
+                <div id="coverPreview" class="mb-3">
+                    <p class="text-sm text-gray-600 mb-2">Preview Gambar:</p>
+                    <div class="relative w-full max-w-md">
+                        @if($category->cover_image)
+                            <img id="coverPreviewImg" src="{{ asset('storage/' . $category->cover_image) }}" alt="Cover Kategori" class="w-full object-cover rounded-lg border border-gray-300">
+                        @else
+                            <div class="w-full h-32 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center">
+                                <div class="text-center text-gray-500">
+                                    <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <p class="text-sm">Tidak ada gambar</p>
+                                </div>
+                            </div>
+                        @endif
+                        <!-- Remove Preview Button -->
+                        <button type="button" id="removeCoverPreviewBtn" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full transition-colors duration-200 {{ !$category->cover_image ? 'hidden' : '' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
+                <input type="file"
+                       id="cover_image"
+                       name="cover_image"
+                       accept="image/jpeg,image/png,image/webp"
+                       class="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                @error('cover_image')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+                <p class="mt-1 text-sm text-gray-500">Biarkan kosong jika tidak ingin mengubah. Maks 2MB.</p>
             </div>
 
             <!-- Submit Buttons -->
@@ -137,6 +159,56 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
     });
+
+    // Cover image preview
+    const coverInput = document.getElementById('cover_image');
+    const coverPreviewContainer = document.getElementById('coverPreview');
+    let removeCoverPreviewBtn = document.getElementById('removeCoverPreviewBtn');
+
+    coverInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Replace the preview area with new image
+                const previewArea = coverPreviewContainer.querySelector('.relative');
+                previewArea.innerHTML = `
+                    <img id="coverPreviewImg" src="${e.target.result}" alt="Preview Cover" class="w-full object-cover rounded-lg border border-gray-300">
+                    <button type="button" id="removeCoverPreviewBtn" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full transition-colors duration-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                `;
+                // Re-attach event listener to new remove button
+                removeCoverPreviewBtn = document.getElementById('removeCoverPreviewBtn');
+                removeCoverPreviewBtn.addEventListener('click', removeCoverPreviewHandler);
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Remove cover preview functionality
+    function removeCoverPreviewHandler() {
+        const previewArea = coverPreviewContainer.querySelector('.relative');
+        previewArea.innerHTML = `
+            <div class="w-full h-32 bg-gray-100 rounded-lg border border-gray-300 flex items-center justify-center">
+                <div class="text-center text-gray-500">
+                    <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p class="text-sm">Tidak ada gambar</p>
+                </div>
+            </div>
+        `;
+        coverInput.value = '';
+        removeCoverPreviewBtn = null;
+    }
+
+    // Attach event listener to initial remove button if it exists
+    if (removeCoverPreviewBtn) {
+        removeCoverPreviewBtn.addEventListener('click', removeCoverPreviewHandler);
+    }
 });
 </script>
 @endsection

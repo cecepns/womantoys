@@ -31,13 +31,20 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
+            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
         ]);
 
+        $coverImagePath = null;
+        if ($request->hasFile('cover_image')) {
+            $coverImagePath = $request->file('cover_image')->store('categories', 'public');
+        }
+
         Category::create([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
+            'cover_image' => $coverImagePath,
         ]);
 
         notify()->success('Kategori berhasil ditambahkan.', 'Berhasil');
@@ -57,14 +64,25 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
         ]);
 
-        $category->update([
-            'name' => $request->name,
-            'slug' => Str::slug($request->name),
-        ]);
+        $updateData = [
+            'name' => $validated['name'],
+            'slug' => Str::slug($validated['name']),
+        ];
+
+        if ($request->hasFile('cover_image')) {
+            // delete old if exists
+            if (!empty($category->cover_image)) {
+                \Storage::disk('public')->delete($category->cover_image);
+            }
+            $updateData['cover_image'] = $request->file('cover_image')->store('categories', 'public');
+        }
+
+        $category->update($updateData);
 
         notify()->success('Kategori berhasil diperbarui.', 'Berhasil');
         return redirect()->route('admin.categories.index');
