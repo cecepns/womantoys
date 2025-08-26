@@ -212,7 +212,6 @@
                     placeholder="Deskripsi lengkap produk dengan detail fitur dan manfaat"
                     required
                 >{{ old('description') }}</textarea>
-                <p class="text-sm text-gray-500 mt-1">Gunakan HTML tags untuk formatting jika diperlukan</p>
                 @error('description')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
