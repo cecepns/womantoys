@@ -40,8 +40,8 @@ class CategoryController extends Controller
             'slug' => Str::slug($request->name),
         ]);
 
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Kategori berhasil ditambahkan.');
+        notify()->success('Kategori berhasil ditambahkan.', 'Berhasil');
+        return redirect()->route('admin.categories.index');
     }
 
     /**
@@ -66,8 +66,8 @@ class CategoryController extends Controller
             'slug' => Str::slug($request->name),
         ]);
 
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Kategori berhasil diperbarui.');
+        notify()->success('Kategori berhasil diperbarui.', 'Berhasil');
+        return redirect()->route('admin.categories.index');
     }
 
     /**
@@ -77,13 +77,13 @@ class CategoryController extends Controller
     {
         // Check if category has products
         if ($category->products()->count() > 0) {
-            return redirect()->route('admin.categories.index')
-                ->with('error', 'Kategori tidak dapat dihapus karena masih memiliki produk.');
+            notify()->error('Kategori tidak dapat dihapus karena masih memiliki produk.', 'Gagal');
+            return redirect()->route('admin.categories.index');
         }
 
         $category->delete();
 
-        return redirect()->route('admin.categories.index')
-            ->with('success', 'Kategori berhasil dihapus.');
+        notify()->success('Kategori berhasil dihapus.', 'Berhasil');
+        return redirect()->route('admin.categories.index');
     }
 }
