@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -70,14 +71,52 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,draft,out_of_stock',
             'main_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'main_image.required' => 'Gambar utama wajib diupload.',
+            'main_image.image' => 'File harus berupa gambar.',
+            'main_image.mimes' => 'Format gambar harus JPEG, PNG, JPG, atau GIF.',
+            'main_image.max' => 'Ukuran gambar maksimal 2MB.',
+            'gallery_images.*.image' => 'File galeri harus berupa gambar.',
+            'gallery_images.*.mimes' => 'Format gambar galeri harus JPEG, PNG, JPG, atau GIF.',
+            'gallery_images.*.max' => 'Ukuran gambar galeri maksimal 2MB.',
         ]);
 
-        $product = Product::create($request->except('main_image'));
-
-        // Handle image upload
+        // Handle main image upload first
+        $mainImagePath = null;
         if ($request->hasFile('main_image')) {
-            $imagePath = $request->file('main_image')->store('products', 'public');
-            $product->update(['main_image' => $imagePath]);
+            $mainImagePath = $request->file('main_image')->store('products', 'public');
+        }
+
+        // Create product with main image
+        $productData = $request->except(['main_image', 'gallery_images']);
+        $productData['main_image'] = $mainImagePath;
+        $product = Product::create($productData);
+
+        // Handle gallery images upload
+        if ($request->hasFile('gallery_images')) {
+            $galleryImages = $request->file('gallery_images');
+            $order = 1;
+            
+            foreach ($galleryImages as $image) {
+                $imagePath = $image->store('products', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $imagePath,
+                    'order' => $order++
+                ]);
+            }
+        }
+
+        // Handle removal of existing gallery images (for edit mode)
+        if ($request->has('removed_gallery_images')) {
+            foreach ($request->removed_gallery_images as $imageId) {
+                $image = $product->images()->find($imageId);
+                if ($image) {
+                    \Storage::disk('public')->delete($image->image_path);
+                    $image->delete();
+                }
+            }
         }
 
         return redirect()->route('admin.products.index')
@@ -106,25 +145,87 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
+
+        // Debug request data
+        \Log::info('Request data received: ' . json_encode($request->all()));
+        \Log::info('Files in request: ' . json_encode($request->allFiles()));
+        \Log::info('Main image file: ' . ($request->hasFile('main_image') ? 'Present' : 'Not present'));
+        \Log::info('Gallery images files: ' . ($request->hasFile('gallery_images') ? 'Present' : 'Not present'));
+        \Log::info('Removed gallery images: ' . json_encode($request->input('removed_gallery_images', [])));
+
         $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'short_description' => 'required|string|max:500',
             'description' => 'required|string',
-            'specifications' => 'required|string',
-            'care_instructions' => 'required|string',
+            'specifications' => 'nullable|string',
+            'care_instructions' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,draft,out_of_stock',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $product->update($request->except('main_image'));
+        $product->update($request->except(['main_image', 'gallery_images']));
 
-        // Handle image upload
+        // Handle main image upload
         if ($request->hasFile('main_image')) {
             $imagePath = $request->file('main_image')->store('products', 'public');
             $product->update(['main_image' => $imagePath]);
+        }
+
+        // Handle gallery images upload
+        if ($request->hasFile('gallery_images')) {
+            $galleryImages = $request->file('gallery_images');
+            $maxOrder = $product->images()->max('order') ?? 0;
+            $order = $maxOrder + 1;
+            
+            foreach ($galleryImages as $image) {
+                $imagePath = $image->store('products', 'public');
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $imagePath,
+                    'order' => $order++
+                ]);
+            }
+        }
+
+        // Handle removal of existing gallery images
+        if ($request->has('removed_gallery_images')) {
+            \Log::info('Removing gallery images: ' . json_encode($request->removed_gallery_images));
+            
+            foreach ($request->removed_gallery_images as $imageId) {
+                $image = $product->images()->find($imageId);
+                if ($image) {
+                    try {
+                        // Check if file exists before trying to delete it
+                        if (\Storage::disk('public')->exists($image->image_path)) {
+                            \Storage::disk('public')->delete($image->image_path);
+                            \Log::info("File deleted for image ID: {$imageId}");
+                        } else {
+                            \Log::info("File not found for image ID: {$imageId} (path: {$image->image_path}) - continuing with database cleanup");
+                        }
+                        
+                        // Always delete the database record regardless of file existence
+                        $image->delete();
+                        \Log::info("Successfully removed image ID: {$imageId} from database");
+                        
+                    } catch (\Exception $e) {
+                        \Log::error("Failed to remove image ID: {$imageId}", ['error' => $e->getMessage()]);
+                        
+                        // Even if file deletion fails, try to delete the database record
+                        try {
+                            $image->delete();
+                            \Log::info("Database record deleted for image ID: {$imageId} despite file deletion error");
+                        } catch (\Exception $dbError) {
+                            \Log::error("Failed to delete database record for image ID: {$imageId}", ['error' => $dbError->getMessage()]);
+                        }
+                    }
+                } else {
+                    \Log::warning("Image ID not found: {$imageId}");
+                }
+            }
         }
 
         return redirect()->route('admin.products.index')
@@ -136,9 +237,72 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        $product->delete();
+        try {
+            // Delete main image from storage if exists
+            if ($product->main_image && \Storage::disk('public')->exists($product->main_image)) {
+                \Storage::disk('public')->delete($product->main_image);
+                \Log::info("Main image deleted for product ID: {$product->id}");
+            }
+            
+            // Delete gallery images from storage
+            foreach ($product->images as $image) {
+                if (\Storage::disk('public')->exists($image->image_path)) {
+                    \Storage::disk('public')->delete($image->image_path);
+                    \Log::info("Gallery image file deleted for image ID: {$image->id}");
+                } else {
+                    \Log::info("Gallery image file not found for image ID: {$image->id} - continuing with cleanup");
+                }
+            }
+            
+            $product->delete();
+            \Log::info("Product deleted successfully: {$product->id}");
 
-        return redirect()->route('admin.products.index')
-            ->with('success', 'Produk berhasil dihapus.');
+            return redirect()->route('admin.products.index')
+                ->with('success', 'Produk berhasil dihapus.');
+                
+        } catch (\Exception $e) {
+            \Log::error("Failed to delete product ID: {$product->id}", ['error' => $e->getMessage()]);
+            
+            return redirect()->route('admin.products.index')
+                ->with('error', 'Gagal menghapus produk. Silakan coba lagi.');
+        }
+    }
+
+    /**
+     * Remove a specific gallery image.
+     */
+    public function removeGalleryImage(Request $request, $productId, $imageId)
+    {
+        $product = Product::findOrFail($productId);
+        $image = $product->images()->findOrFail($imageId);
+        
+        try {
+            // Check if file exists before trying to delete it
+            if (\Storage::disk('public')->exists($image->image_path)) {
+                \Storage::disk('public')->delete($image->image_path);
+                \Log::info("File deleted for image ID: {$imageId}");
+            } else {
+                \Log::info("File not found for image ID: {$imageId} (path: {$image->image_path}) - continuing with database cleanup");
+            }
+            
+            // Always delete the database record regardless of file existence
+            $image->delete();
+            \Log::info("Successfully removed image ID: {$imageId} from database");
+            
+            return response()->json(['success' => true]);
+            
+        } catch (\Exception $e) {
+            \Log::error("Failed to remove image ID: {$imageId}", ['error' => $e->getMessage()]);
+            
+            // Even if file deletion fails, try to delete the database record
+            try {
+                $image->delete();
+                \Log::info("Database record deleted for image ID: {$imageId} despite file deletion error");
+                return response()->json(['success' => true]);
+            } catch (\Exception $dbError) {
+                \Log::error("Failed to delete database record for image ID: {$imageId}", ['error' => $dbError->getMessage()]);
+                return response()->json(['success' => false, 'error' => $dbError->getMessage()], 500);
+            }
+        }
     }
 }

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gallery Removal</title>
+    <style>
+        .gallery-item {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+        .remove-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Gallery Removal</h1>
+    
+    <form id="testForm" method="POST" enctype="multipart/form-data">
+        <div id="gallery_container">
+            <div class="gallery-item" data-image-id="1">
+                <img src="https://via.placeholder.com/100x100" alt="Image 1">
+                <button type="button" class="remove-btn" onclick="removeExistingGalleryImage(1)">×</button>
+            </div>
+            <div class="gallery-item" data-image-id="2">
+                <img src="https://via.placeholder.com/100x100" alt="Image 2">
+                <button type="button" class="remove-btn" onclick="removeExistingGalleryImage(2)">×</button>
+            </div>
+            <div class="gallery-item" data-image-id="3">
+                <img src="https://via.placeholder.com/100x100" alt="Image 3">
+                <button type="button" class="remove-btn" onclick="removeExistingGalleryImage(3)">×</button>
+            </div>
+        </div>
+        
+        <button type="submit">Submit Form</button>
+    </form>
+    
+    <div id="debug"></div>
+    
+    <script>
+        let removedExistingImages = [];
+        
+        function removeExistingGalleryImage(imageId) {
+            console.log('=== REMOVE EXISTING GALLERY IMAGE CALLED ===');
+            console.log('Image ID to remove:', imageId);
+            console.log('Current removedExistingImages array:', removedExistingImages);
+            
+            if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
+                console.log('User confirmed removal');
+                
+                // Add to removed images list if not already added
+                if (!removedExistingImages.includes(imageId)) {
+                    removedExistingImages.push(imageId);
+                    console.log('Added to removedExistingImages array');
+                } else {
+                    console.log('Image ID already in removedExistingImages array');
+                }
+                
+                console.log('Updated removedExistingImages array:', removedExistingImages);
+
+                // Hide the image element
+                const selector = `[data-image-id="${imageId}"]`;
+                const imageElement = document.querySelector(selector);
+                console.log('Image element found:', !!imageElement);
+                console.log('Selector used:', selector);
+
+                if (imageElement) {
+                    imageElement.style.display = 'none';
+                    console.log('Image element hidden');
+                }
+
+                // Check if hidden input already exists for this image
+                const existingInput = document.querySelector(`input[name="removed_gallery_images[]"][value="${imageId}"]`);
+                console.log('Existing hidden input found:', !!existingInput);
+
+                if (!existingInput) {
+                    // Add hidden input to track removed images
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'removed_gallery_images[]';
+                    hiddenInput.value = imageId;
+                    document.querySelector('form').appendChild(hiddenInput);
+                    console.log('Hidden input created and added to form');
+                    console.log('Hidden input details:', {
+                        name: hiddenInput.name,
+                        value: hiddenInput.value,
+                        type: hiddenInput.type
+                    });
+                } else {
+                    console.log('Hidden input already exists for this image');
+                }
+
+                // Verify hidden inputs after creation
+                const allHiddenInputs = document.querySelectorAll('input[name="removed_gallery_images[]"]');
+                console.log('Total hidden inputs after removal:', allHiddenInputs.length);
+                const hiddenValues = Array.from(allHiddenInputs).map(input => input.value);
+                console.log('Hidden input values after removal:', hiddenValues);
+                
+                console.log('=== END REMOVE EXISTING GALLERY IMAGE ===');
+            } else {
+                console.log('User cancelled removal');
+            }
+        }
+        
+        // Form submission test
+        document.getElementById('testForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            console.log('=== FORM SUBMISSION TEST ===');
+            
+            const formData = new FormData(this);
+            console.log('FormData entries:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`  ${key}: ${value}`);
+            }
+            
+            // Check removed gallery images
+            const removedImages = formData.getAll('removed_gallery_images[]');
+            console.log('Removed gallery images from FormData:', removedImages);
+            
+            // Also check hidden inputs directly
+            const hiddenInputs = document.querySelectorAll('input[name="removed_gallery_images[]"]');
+            console.log('Hidden inputs for removed images:', hiddenInputs.length);
+            const hiddenValues = Array.from(hiddenInputs).map(input => input.value);
+            console.log('Hidden input values:', hiddenValues);
+            
+            // Display results
+            document.getElementById('debug').innerHTML = `
+                <h3>Test Results:</h3>
+                <p>Removed images array: ${JSON.stringify(removedExistingImages)}</p>
+                <p>Hidden inputs count: ${hiddenInputs.length}</p>
+                <p>Hidden input values: ${JSON.stringify(hiddenValues)}</p>
+                <p>FormData removed images: ${JSON.stringify(removedImages)}</p>
+            `;
+        });
+    </script>
+</body>
+</html>

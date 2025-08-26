@@ -163,7 +163,11 @@ class Product extends Model
      */
     public function hasValidMainImage()
     {
-        return !empty($this->main_image) && file_exists(storage_path('app/public/' . $this->main_image));
+        if (empty($this->main_image)) {
+            return false;
+        }
+        
+        return \Storage::disk('public')->exists($this->main_image);
     }
 
     /**

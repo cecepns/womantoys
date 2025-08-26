@@ -474,12 +474,14 @@ let removedExistingImages = [];
 document.getElementById('gallery_images').addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
     const maxFiles = 5;
-    const currentImages = document.querySelectorAll('.gallery-item').length;
+    const currentImages = document.querySelectorAll('.gallery-item:not(.new-image)').length;
     const availableSlots = maxFiles - currentImages + removedExistingImages.length;
     
     // Check if adding new files would exceed limit
     if (files.length > availableSlots) {
         alert(`Maksimal ${maxFiles} gambar. Anda hanya bisa menambahkan ${availableSlots} gambar lagi. Hapus beberapa gambar yang ada terlebih dahulu.`);
+        // Reset file input
+        e.target.value = '';
         return;
     }
     
@@ -497,6 +499,10 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
 
 function updateGalleryPreview() {
     const container = document.getElementById('gallery_container');
+    
+    // Remove existing new-image previews first
+    const existingNewImages = container.querySelectorAll('.gallery-item.new-image');
+    existingNewImages.forEach(el => el.remove());
     
     // Add new preview images
     selectedGalleryFiles.forEach((file, index) => {
@@ -553,37 +559,100 @@ function removeNewGalleryImage(index) {
     
     // Update counter
     updateGalleryCounter();
+    
+    // Re-index remaining previews
+    const remainingPreviews = document.querySelectorAll('.gallery-item.new-image');
+    remainingPreviews.forEach((preview, newIndex) => {
+        preview.setAttribute('data-file-index', newIndex);
+        const removeBtn = preview.querySelector('button');
+        if (removeBtn) {
+            removeBtn.onclick = () => removeNewGalleryImage(newIndex);
+        }
+    });
 }
 
 function removeExistingGalleryImage(imageId) {
+    console.log('=== REMOVE EXISTING GALLERY IMAGE CALLED ===');
+    console.log('Image ID to remove:', imageId);
+    console.log('Current removedExistingImages array:', removedExistingImages);
+    
     if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) {
-        // Add to removed images list
-        removedExistingImages.push(imageId);
+        console.log('User confirmed removal');
         
-        // Hide the image element
-        const imageElement = document.querySelector(`[data-image-id="${imageId}"]`);
-        if (imageElement) {
-            imageElement.style.display = 'none';
+        // Add to removed images list if not already added
+        if (!removedExistingImages.includes(imageId)) {
+            removedExistingImages.push(imageId);
+            console.log('Added to removedExistingImages array');
+        } else {
+            console.log('Image ID already in removedExistingImages array');
         }
         
-        // Add hidden input to track removed images
-        const hiddenInput = document.createElement('input');
-        hiddenInput.type = 'hidden';
-        hiddenInput.name = 'removed_gallery_images[]';
-        hiddenInput.value = imageId;
-        document.querySelector('form').appendChild(hiddenInput);
-        
+        console.log('Updated removedExistingImages array:', removedExistingImages);
+
+        // Hide the image element
+        const selector = `[data-image-id="${imageId}"]`;
+        const imageElement = document.querySelector(selector);
+        console.log('Image element found:', !!imageElement);
+        console.log('Selector used:', selector);
+
+        if (imageElement) {
+            imageElement.style.display = 'none';
+            console.log('Image element hidden');
+        }
+
+        // Check if hidden input already exists for this image
+        const existingInput = document.querySelector(`input[name="removed_gallery_images[]"][value="${imageId}"]`);
+        console.log('Existing hidden input found:', !!existingInput);
+
+        if (!existingInput) {
+            // Add hidden input to track removed images
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'removed_gallery_images[]';
+            hiddenInput.value = imageId;
+            document.querySelector('form').appendChild(hiddenInput);
+            console.log('Hidden input created and added to form');
+            console.log('Hidden input details:', {
+                name: hiddenInput.name,
+                value: hiddenInput.value,
+                type: hiddenInput.type
+            });
+        } else {
+            console.log('Hidden input already exists for this image');
+        }
+
         // Update counter
         updateGalleryCounter();
+        
+        // Verify hidden inputs after creation
+        const allHiddenInputs = document.querySelectorAll('input[name="removed_gallery_images[]"]');
+        console.log('Total hidden inputs after removal:', allHiddenInputs.length);
+        const hiddenValues = Array.from(allHiddenInputs).map(input => input.value);
+        console.log('Hidden input values after removal:', hiddenValues);
+        
+        console.log('=== END REMOVE EXISTING GALLERY IMAGE ===');
+    } else {
+        console.log('User cancelled removal');
     }
 }
 
 function updateGalleryCounter() {
-    const currentImages = document.querySelectorAll('.gallery-item:not([style*="display: none"])').length;
+    // Count visible gallery items (not hidden by display: none)
+    const allGalleryItems = document.querySelectorAll('.gallery-item');
+    let visibleCount = 0;
+    
+    allGalleryItems.forEach(item => {
+        if (item.style.display !== 'none') {
+            visibleCount++;
+        }
+    });
+    
     const counterElement = document.querySelector('p.text-sm.text-gray-600.mb-2');
     if (counterElement) {
-        counterElement.textContent = `Gambar galeri (${currentImages}/5):`;
+        counterElement.textContent = `Gambar galeri (${visibleCount}/5):`;
     }
+    
+    console.log('Gallery counter updated:', visibleCount);
 }
 
 // Handle image loading errors
@@ -603,10 +672,95 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    
+    // Initialize gallery counter
+    updateGalleryCounter();
+    
+    // Initialize file input event listeners if they don't exist
+    const mainImageInput = document.getElementById('main_image');
+    const galleryInput = document.getElementById('gallery_images');
+    
+    if (mainImageInput && !mainImageInput.hasAttribute('data-initialized')) {
+        mainImageInput.setAttribute('data-initialized', 'true');
+    }
+    
+    if (galleryInput && !galleryInput.hasAttribute('data-initialized')) {
+        galleryInput.setAttribute('data-initialized', 'true');
+    }
+    
+    // Debug: Log initial state
+    console.log('=== DOM LOADED DEBUG ===');
+    console.log('Gallery items found:', document.querySelectorAll('.gallery-item').length);
+    console.log('Initial removed images:', removedExistingImages);
+    
+    // Log all gallery items with their IDs
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    console.log('Gallery items details:');
+    galleryItems.forEach((item, index) => {
+        const imageId = item.getAttribute('data-image-id');
+        console.log(`  Item ${index + 1}: data-image-id="${imageId}"`);
+    });
+    
+    // Check if remove buttons exist
+    const removeButtons = document.querySelectorAll('button[onclick*="removeExistingGalleryImage"]');
+    console.log('Remove buttons found:', removeButtons.length);
+    
+    // Log form details
+    const form = document.querySelector('form');
+    console.log('Form found:', !!form);
+    if (form) {
+        console.log('Form action:', form.action);
+        console.log('Form method:', form.method);
+        console.log('Form enctype:', form.enctype);
+    }
+    
+    console.log('=== END DOM DEBUG ===');
 });
 
 // Simple form validation
 document.querySelector('form').addEventListener('submit', function(e) {
+    console.log('=== FORM SUBMISSION START ===');
+    
+    // Debug form data BEFORE validation
+    const formData = new FormData(this);
+    console.log('FormData entries:');
+    for (let [key, value] of formData.entries()) {
+        console.log(`  ${key}: ${value}`);
+    }
+    
+    // Check file inputs specifically
+    const mainImageInput = document.getElementById('main_image');
+    const galleryInput = document.getElementById('gallery_images');
+    
+    console.log('Main image input files:', mainImageInput.files.length);
+    console.log('Gallery images input files:', galleryInput.files.length);
+    
+    if (mainImageInput.files.length > 0) {
+        console.log('Main image file name:', mainImageInput.files[0].name);
+    }
+    
+    if (galleryInput.files.length > 0) {
+        console.log('Gallery files:');
+        for (let i = 0; i < galleryInput.files.length; i++) {
+            console.log(`  File ${i + 1}: ${galleryInput.files[i].name}`);
+        }
+    }
+    
+    // Check removed gallery images
+    const removedImages = formData.getAll('removed_gallery_images[]');
+    console.log('Removed gallery images from FormData:', removedImages);
+    
+    // Also check hidden inputs directly
+    const hiddenInputs = document.querySelectorAll('input[name="removed_gallery_images[]"]');
+    console.log('Hidden inputs for removed images:', hiddenInputs.length);
+    const hiddenValues = Array.from(hiddenInputs).map(input => input.value);
+    console.log('Hidden input values:', hiddenValues);
+    
+    // Check if there's a mismatch
+    if (removedImages.length !== hiddenValues.length) {
+        console.log('⚠️ Mismatch: FormData has', removedImages.length, 'but hidden inputs has', hiddenValues.length);
+    }
+    
     const requiredFields = ['name', 'category_id', 'price', 'short_description', 'description'];
     let isValid = true;
     
@@ -620,9 +774,66 @@ document.querySelector('form').addEventListener('submit', function(e) {
         }
     });
     
+    // Check if main image is required (only if no existing image)
+    const hasExistingImage = document.querySelector('#main_preview_img') && 
+                            document.querySelector('#main_preview_img').src && 
+                            !document.querySelector('#main_preview_img').src.includes('data:image');
+    
+    console.log('Has existing image:', hasExistingImage);
+    console.log('Main image files:', mainImageInput.files.length);
+    
+    // Only require main image if there's no existing image
+    if (!hasExistingImage && (!mainImageInput.files || mainImageInput.files.length === 0)) {
+        console.log('Main image is required but not provided');
+        mainImageInput.classList.add('border-red-500');
+        isValid = false;
+    } else {
+        console.log('Main image requirement satisfied');
+        mainImageInput.classList.remove('border-red-500');
+    }
+    
+    console.log('Form validation result:', isValid);
+    console.log('=== FORM SUBMISSION END ===');
+    
     if (!isValid) {
         e.preventDefault();
         alert('Mohon lengkapi semua field yang wajib diisi.');
+        return;
+    }
+    
+    // If valid, let the form submit normally
+    console.log('Form is valid, proceeding with submission...');
+    
+    // Add a small delay to ensure all logs are printed
+    setTimeout(() => {
+        console.log('Form submission will proceed in 1 second...');
+    }, 1000);
+    
+    // Additional verification before submission
+    const finalFormData = new FormData(this);
+    console.log('Final FormData before submission:');
+    for (let [key, value] of finalFormData.entries()) {
+        console.log(`  ${key}: ${value}`);
+    }
+    
+    // Check if files are included
+    const mainImageFile = finalFormData.get('main_image');
+    const galleryFiles = finalFormData.getAll('gallery_images[]');
+    
+    console.log('Main image file in FormData:', mainImageFile ? 'Present' : 'Not present');
+    console.log('Gallery files in FormData:', galleryFiles.length);
+    
+    if (mainImageFile && mainImageFile instanceof File) {
+        console.log('Main image file name:', mainImageFile.name);
+        console.log('Main image file size:', mainImageFile.size);
+    }
+    
+    if (galleryFiles.length > 0) {
+        galleryFiles.forEach((file, index) => {
+            if (file instanceof File) {
+                console.log(`Gallery file ${index + 1}: ${file.name} (${file.size} bytes)`);
+            }
+        });
     }
 });
 </script>

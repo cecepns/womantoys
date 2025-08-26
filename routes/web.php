@@ -38,6 +38,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Product routes
         Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
+        Route::delete('/products/{product}/gallery/{image}', [App\Http\Controllers\Admin\ProductController::class, 'removeGalleryImage'])->name('products.remove-gallery-image');
         
         // Carousel routes
         Route::resource('carousel', App\Http\Controllers\Admin\CarouselController::class);
