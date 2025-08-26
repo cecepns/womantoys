@@ -23,7 +23,7 @@
 </div>
 
 <!-- Product Form -->
-<form method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-8">
+<form id="product_form" method="POST" action="{{ route('admin.products.update', $product) }}" enctype="multipart/form-data" class="space-y-8">
     @csrf
     @method('PUT')
     <input type="hidden" id="remove_main_image" name="remove_main_image" value="0">
@@ -396,7 +396,6 @@
 </form>
 
 <script>
-// Helpers and constants
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => document.querySelectorAll(selector);
 const MAIN_IMAGE_INPUT_ID = 'main_image';
@@ -418,7 +417,8 @@ function addHiddenRemovedInput(imageId) {
         hiddenInput.type = 'hidden';
         hiddenInput.name = 'removed_gallery_images[]';
         hiddenInput.value = imageId;
-        document.querySelector('form').appendChild(hiddenInput);
+        const form = document.getElementById('product_form') || document.querySelector('form');
+        form.appendChild(hiddenInput);
     }
 }
 
@@ -441,7 +441,6 @@ function updateGalleryCounter() {
     setGalleryCounterText(countVisibleGalleryItems());
 }
 
-// Simple image preview - replace existing image
 document.getElementById('main_image').addEventListener('change', function(e) {
     const removeFlag = document.getElementById('remove_main_image');
     if (removeFlag) removeFlag.value = '0';
@@ -451,14 +450,10 @@ document.getElementById('main_image').addEventListener('change', function(e) {
         reader.onload = function(e) {
             const container = document.getElementById('main_image_container');
             const removeBtn = document.getElementById('remove_main_image_btn');
-            
-            // Remove any existing placeholder or error div
             const existingPlaceholder = container.querySelector('.bg-gray-200');
             if (existingPlaceholder) {
                 existingPlaceholder.remove();
             }
-            
-            // Update or create the image element
             let img = container.querySelector('#main_preview_img');
             if (!img) {
                 img = document.createElement('img');
@@ -467,7 +462,6 @@ document.getElementById('main_image').addEventListener('change', function(e) {
                 img.alt = 'Preview';
                 container.insertBefore(img, removeBtn);
             }
-            
             img.src = e.target.result;
             removeBtn.classList.remove('hidden');
         };
@@ -475,26 +469,17 @@ document.getElementById('main_image').addEventListener('change', function(e) {
     }
 });
 
-// Remove main image function
 function removeMainImage() {
     const container = document.getElementById('main_image_container');
     const removeBtn = document.getElementById('remove_main_image_btn');
-    
-    // Clear file input
     document.getElementById('main_image').value = '';
     const removeFlag = document.getElementById('remove_main_image');
     if (removeFlag) removeFlag.value = '1';
-    
-    // Remove the image
     const img = container.querySelector('#main_preview_img');
     if (img) {
         img.remove();
     }
-    
-    // Hide remove button
     removeBtn.classList.add('hidden');
-    
-    // Show placeholder
     const placeholder = document.createElement('div');
     placeholder.className = 'w-32 h-32 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300';
     placeholder.innerHTML = `
@@ -507,11 +492,9 @@ function removeMainImage() {
             </span>
         </div>
     `;
-    
     container.insertBefore(placeholder, removeBtn);
 }
 
-// Gallery management with 5 image limit
 let selectedGalleryFiles = [];
 let removedExistingImages = [];
 
@@ -520,86 +503,57 @@ document.getElementById('gallery_images').addEventListener('change', function(e)
     const maxFiles = 5;
     const currentImages = document.querySelectorAll('.gallery-item:not(.new-image)').length;
     const availableSlots = maxFiles - currentImages + removedExistingImages.length;
-    
-    // Check if adding new files would exceed limit
     if (files.length > availableSlots) {
         alert(`Maksimal ${maxFiles} gambar. Anda hanya bisa menambahkan ${availableSlots} gambar lagi. Hapus beberapa gambar yang ada terlebih dahulu.`);
-        // Reset file input
         e.target.value = '';
         return;
     }
-    
-    // Add new files to selected files
     selectedGalleryFiles = selectedGalleryFiles.concat(files);
-    
-    // Update the file input
     rebuildGalleryInputFiles();
-    
-    // Update preview
     updateGalleryPreview();
 });
 
 function updateGalleryPreview() {
     const container = document.getElementById(GALLERY_CONTAINER_ID);
-    
-    // Remove existing new-image previews first
     const existingNewImages = container.querySelectorAll('.gallery-item.new-image');
     existingNewImages.forEach(el => el.remove());
-    
-    // Add new preview images
     selectedGalleryFiles.forEach((file, index) => {
         const reader = new FileReader();
-        
         reader.onload = function(e) {
             const wrapper = document.createElement('div');
             wrapper.className = 'relative gallery-item new-image';
             wrapper.setAttribute('data-file-index', index);
-            
             const img = document.createElement('img');
             img.src = e.target.result;
             img.alt = 'Gallery Preview';
             img.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
-            
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
             removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors';
             removeBtn.title = 'Hapus gambar';
             removeBtn.onclick = () => removeNewGalleryImage(index);
-            
             removeBtn.innerHTML = `
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             `;
-            
             wrapper.appendChild(img);
             wrapper.appendChild(removeBtn);
             container.appendChild(wrapper);
         };
-        
         reader.readAsDataURL(file);
     });
-    
-    // Update counter
     updateGalleryCounter();
 }
 
 function removeNewGalleryImage(index) {
     selectedGalleryFiles.splice(index, 1);
-    
-    // Update the file input
     rebuildGalleryInputFiles();
-    
-    // Remove the preview element
     const previewElement = document.querySelector(`[data-file-index="${index}"]`);
     if (previewElement) {
         previewElement.remove();
     }
-    
-    // Update counter
     updateGalleryCounter();
-    
-    // Re-index remaining previews
     const remainingPreviews = document.querySelectorAll('.gallery-item.new-image');
     remainingPreviews.forEach((preview, newIndex) => {
         preview.setAttribute('data-file-index', newIndex);
@@ -611,31 +565,17 @@ function removeNewGalleryImage(index) {
 }
 
 function removeExistingGalleryImage(imageId) {
-    // Add to removed images list if not already added
     if (!removedExistingImages.includes(imageId)) {
         removedExistingImages.push(imageId);
     }
-    
-    // Hide the image element
     const selector = `[data-image-id="${imageId}"]`;
     const imageElement = document.querySelector(selector);
-
     if (imageElement) {
         imageElement.style.display = 'none';
     }
-
-    // Check if hidden input already exists for this image
     addHiddenRemovedInput(imageId);
-
-    // Update counter
     updateGalleryCounter();
-    
-    // Verify hidden inputs after creation
-    const allHiddenInputs = document.querySelectorAll('input[name="removed_gallery_images[]"]');
-    const hiddenValues = Array.from(allHiddenInputs).map(input => input.value);
 }
-
-// updateGalleryCounter moved above with helpers
 
 document.addEventListener('DOMContentLoaded', () => {
     $$('img[src*="storage"]').forEach(img => {
@@ -648,9 +588,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
     updateGalleryCounter();
-
     [MAIN_IMAGE_INPUT_ID, GALLERY_INPUT_ID].forEach(id => {
         const input = document.getElementById(id);
         if (input && !input.hasAttribute('data-initialized')) {
@@ -659,53 +597,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Simple form validation
-document.querySelector('form').addEventListener('submit', function(e) {
-    console.log('=== FORM SUBMISSION START ===');
-    
-    // Debug form data BEFORE validation
-    const formData = new FormData(this);
-    console.log('FormData entries:');
-    for (let [key, value] of formData.entries()) {
-        console.log(`  ${key}: ${value}`);
-    }
-    
-    // Check file inputs specifically
-    const mainImageInput = document.getElementById('main_image');
-    const galleryInput = document.getElementById('gallery_images');
-    
-    console.log('Main image input files:', mainImageInput.files.length);
-    console.log('Gallery images input files:', galleryInput.files.length);
-    
-    if (mainImageInput.files.length > 0) {
-        console.log('Main image file name:', mainImageInput.files[0].name);
-    }
-    
-    if (galleryInput.files.length > 0) {
-        console.log('Gallery files:');
-        for (let i = 0; i < galleryInput.files.length; i++) {
-            console.log(`  File ${i + 1}: ${galleryInput.files[i].name}`);
-        }
-    }
-    
-    // Check removed gallery images
-    const removedImages = formData.getAll('removed_gallery_images[]');
-    console.log('Removed gallery images from FormData:', removedImages);
-    
-    // Also check hidden inputs directly
-    const hiddenInputs = document.querySelectorAll('input[name="removed_gallery_images[]"]');
-    console.log('Hidden inputs for removed images:', hiddenInputs.length);
-    const hiddenValues = Array.from(hiddenInputs).map(input => input.value);
-    console.log('Hidden input values:', hiddenValues);
-    
-    // Check if there's a mismatch
-    if (removedImages.length !== hiddenValues.length) {
-        console.log('⚠️ Mismatch: FormData has', removedImages.length, 'but hidden inputs has', hiddenValues.length);
-    }
-    
+document.getElementById('product_form').addEventListener('submit', function(e) {
     const requiredFields = ['name', 'category_id', 'price', 'short_description', 'description'];
     let isValid = true;
-    
     requiredFields.forEach(fieldId => {
         const field = document.getElementById(fieldId);
         if (!field.value.trim()) {
@@ -715,67 +609,20 @@ document.querySelector('form').addEventListener('submit', function(e) {
             field.classList.remove('border-red-500');
         }
     });
-    
-    // Check if main image is required (only if no existing image)
+    const mainImageInput = document.getElementById('main_image');
     const hasExistingImage = document.querySelector('#main_preview_img') && 
                             document.querySelector('#main_preview_img').src && 
                             !document.querySelector('#main_preview_img').src.includes('data:image');
-    
-    console.log('Has existing image:', hasExistingImage);
-    console.log('Main image files:', mainImageInput.files.length);
-    
-    // Only require main image if there's no existing image
     if (!hasExistingImage && (!mainImageInput.files || mainImageInput.files.length === 0)) {
-        console.log('Main image is required but not provided');
         mainImageInput.classList.add('border-red-500');
         isValid = false;
     } else {
-        console.log('Main image requirement satisfied');
         mainImageInput.classList.remove('border-red-500');
     }
-    
-    console.log('Form validation result:', isValid);
-    console.log('=== FORM SUBMISSION END ===');
-    
     if (!isValid) {
         e.preventDefault();
         alert('Mohon lengkapi semua field yang wajib diisi.');
         return;
-    }
-    
-    // If valid, let the form submit normally
-    console.log('Form is valid, proceeding with submission...');
-    
-    // Add a small delay to ensure all logs are printed
-    setTimeout(() => {
-        console.log('Form submission will proceed in 1 second...');
-    }, 1000);
-    
-    // Additional verification before submission
-    const finalFormData = new FormData(this);
-    console.log('Final FormData before submission:');
-    for (let [key, value] of finalFormData.entries()) {
-        console.log(`  ${key}: ${value}`);
-    }
-    
-    // Check if files are included
-    const mainImageFile = finalFormData.get('main_image');
-    const galleryFiles = finalFormData.getAll('gallery_images[]');
-    
-    console.log('Main image file in FormData:', mainImageFile ? 'Present' : 'Not present');
-    console.log('Gallery files in FormData:', galleryFiles.length);
-    
-    if (mainImageFile && mainImageFile instanceof File) {
-        console.log('Main image file name:', mainImageFile.name);
-        console.log('Main image file size:', mainImageFile.size);
-    }
-    
-    if (galleryFiles.length > 0) {
-        galleryFiles.forEach((file, index) => {
-            if (file instanceof File) {
-                console.log(`Gallery file ${index + 1}: ${file.name} (${file.size} bytes)`);
-            }
-        });
     }
 });
 </script>
