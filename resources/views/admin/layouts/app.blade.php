@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin Panel - WomanToys')</title>
+    <title>@yield('title', 'Panel Admin - WomanToys')</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
@@ -14,8 +14,8 @@
         <div class="w-64 bg-gray-800 text-white">
             <!-- Sidebar Header -->
             <div class="p-6 border-b border-gray-700">
-                <h1 class="text-xl font-bold">Admin Panel</h1>
-                <p class="text-gray-400 text-sm mt-1">WomanToys Management</p>
+                <h1 class="text-xl font-bold">Panel Admin</h1>
+                <p class="text-gray-400 text-sm mt-1">Manajemen WomanToys</p>
             </div>
 
             <!-- Navigation Menu -->
@@ -80,7 +80,7 @@
                         <span class="text-white text-sm font-bold">{{ Auth::guard('admin')->user() ? substr(Auth::guard('admin')->user()->name ?? Auth::guard('admin')->user()->email, 0, 1) : 'A' }}</span>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium">{{ Auth::guard('admin')->user() ? (Auth::guard('admin')->user()->name ?? 'Admin User') : 'Admin User' }}</p>
+                        <p class="text-sm font-medium">{{ Auth::guard('admin')->user() ? (Auth::guard('admin')->user()->name ?? 'Pengguna Admin') : 'Pengguna Admin' }}</p>
                         <p class="text-xs text-gray-400">{{ Auth::guard('admin')->user() ? Auth::guard('admin')->user()->email : 'admin@womantoys.com' }}</p>
                     </div>
                 </div>
@@ -94,7 +94,7 @@
                 <div class="flex items-center justify-between px-6 py-4">
                     <div>
                         <h2 class="text-xl font-semibold text-gray-800">@yield('page-title', 'Dashboard')</h2>
-                        <p class="text-sm text-gray-600">@yield('page-description', 'Welcome to the admin panel')</p>
+                        <p class="text-sm text-gray-600">@yield('page-description', 'Selamat datang di panel admin')</p>
                     </div>
                     <div class="flex items-center space-x-4">
                         <button class="text-gray-500 hover:text-gray-700">
@@ -106,7 +106,7 @@
                         <form method="POST" action="{{ route('admin.logout') }}" class="inline">
                             @csrf
                             <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
-                                Logout
+                                Keluar
                             </button>
                         </form>
                     </div>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Home - WomanToys')
+@section('title', 'Beranda - WomanToys')
 
 @section('content')
 <!-- Carousel Section -->
@@ -15,7 +15,7 @@
                         @if($slide->image_path)
                             <img 
                                 src="{{ $slide->image_url }}" 
-                                alt="{{ $slide->title ?: 'Carousel Slide' }}" 
+                                alt="{{ $slide->title ?: 'Slide Carousel' }}" 
                                 class="w-full h-full object-cover"
                                 onerror="console.log('Image failed to load:', this.src); this.style.display='none'; this.nextElementSibling.style.display='flex';"
                             >
@@ -55,7 +55,7 @@
                                 </a>
                             @else
                                 <a href="/catalog" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-4 px-8 rounded-lg transition-colors duration-200 text-lg">
-                                    View Collection
+                                    Lihat Koleksi
                                 </a>
                             @endif
                         </div>
@@ -82,13 +82,13 @@
         <div class="relative z-10 flex items-center justify-center h-full text-center text-white px-4">
             <div class="max-w-4xl">
                 <h1 class="text-4xl md:text-6xl font-bold mb-6">
-                    Discover Your <span class="text-pink-400">Intimate</span> Pleasure
+                    Temukan <span class="text-pink-400">Kesenangan</span> Intim Anda
                 </h1>
                 <p class="text-xl md:text-2xl mb-8 opacity-90">
-                    Premium adult toys and intimate products for enhanced satisfaction
+                    Mainan dewasa premium dan produk intim untuk kepuasan yang lebih baik
                 </p>
                 <a href="/catalog" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-4 px-8 rounded-lg transition-colors duration-200 text-lg">
-                    View Collection
+                    Lihat Koleksi
                 </a>
             </div>
         </div>
@@ -106,8 +106,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">100% Discreet Packaging</h3>
-                <p class="text-gray-600">Completely private packaging for your peace of mind</p>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">100% Kemasan Rahasia</h3>
+                <p class="text-gray-600">Kemasan yang sepenuhnya pribadi untuk ketenangan pikiran Anda</p>
             </div>
             
             <!-- Transaksi Aman & Privat -->
@@ -117,8 +117,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">Secure & Private Transactions</h3>
-                <p class="text-gray-600">Your privacy and security are our top priority</p>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Transaksi Aman & Privat</h3>
+                <p class="text-gray-600">Privasi dan keamanan Anda adalah prioritas utama kami</p>
             </div>
             
             <!-- Produk Terkurasi & Aman -->
@@ -128,8 +128,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                 </div>
-                <h3 class="text-xl font-semibold text-gray-800 mb-2">Curated & Safe Products</h3>
-                <p class="text-gray-600">Premium quality products tested for safety and satisfaction</p>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Produk Terkurasi & Aman</h3>
+                <p class="text-gray-600">Produk berkualitas premium yang diuji untuk keamanan dan kepuasan</p>
             </div>
         </div>
     </div>
@@ -139,29 +139,32 @@
 <div class="bg-gray-50 py-16">
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Featured Products</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Produk Unggulan</h2>
             <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                Discover our most popular and premium adult toys for enhanced pleasure
+                Temukan mainan dewasa paling populer dan premium kami untuk kesenangan yang lebih baik
             </p>
         </div>
         
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- Product Card 1 -->
-            <x-product-card />
-            
-            <!-- Product Card 2 -->
-            <x-product-card />
-            
-            <!-- Product Card 3 -->
-            <x-product-card />
-            
-            <!-- Product Card 4 -->
-            <x-product-card />
+            @if($featuredProducts && $featuredProducts->count() > 0)
+                @foreach($featuredProducts as $product)
+                    <x-product-card :product="$product" />
+                @endforeach
+            @else
+                <!-- Fallback product cards when no products available -->
+                <div class="col-span-full text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Produk</h3>
+                    <p class="text-gray-500">Produk akan segera tersedia</p>
+                </div>
+            @endif
         </div>
         
         <div class="text-center mt-12">
             <a href="/catalog" class="bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200">
-                View All Products
+                Lihat Semua Produk
             </a>
         </div>
     </div>
@@ -171,60 +174,40 @@
 <div class="bg-white py-16">
     <div class="container mx-auto px-4">
         <div class="text-center mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Shop by Category</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Belanja Berdasarkan Kategori</h2>
             <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-                Find the perfect products for your intimate needs
+                Temukan produk sempurna untuk kebutuhan intim Anda
             </p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- For Women -->
-            <div class="group cursor-pointer">
-                <div class="relative overflow-hidden rounded-lg shadow-lg">
-                    <img 
-                        src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                        alt="For Women" 
-                        class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                    >
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div class="absolute bottom-4 left-4 text-white">
-                        <h3 class="text-2xl font-bold mb-2">For Women</h3>
-                        <p class="text-sm opacity-90">Premium products designed for women</p>
-                    </div>
+            @if($categories && $categories->count() > 0)
+                @foreach($categories->take(3) as $category)
+                    <a href="{{ route('catalog') }}?category={{ $category->slug }}" class="group cursor-pointer">
+                        <div class="relative overflow-hidden rounded-lg shadow-lg">
+                            <img 
+                                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
+                                alt="{{ $category->name }}" 
+                                class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                            >
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                            <div class="absolute bottom-4 left-4 text-white">
+                                <h3 class="text-2xl font-bold mb-2">{{ $category->name }}</h3>
+                                <p class="text-sm opacity-90">{{ $category->products_count }} produk tersedia</p>
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            @else
+                <!-- Fallback categories when no categories available -->
+                <div class="col-span-full text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Kategori</h3>
+                    <p class="text-gray-500">Kategori akan segera tersedia</p>
                 </div>
-            </div>
-            
-            <!-- For Men -->
-            <div class="group cursor-pointer">
-                <div class="relative overflow-hidden rounded-lg shadow-lg">
-                    <img 
-                        src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                        alt="For Men" 
-                        class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                    >
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div class="absolute bottom-4 left-4 text-white">
-                        <h3 class="text-2xl font-bold mb-2">For Men</h3>
-                        <p class="text-sm opacity-90">Quality products for men's pleasure</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- For Couples -->
-            <div class="group cursor-pointer">
-                <div class="relative overflow-hidden rounded-lg shadow-lg">
-                    <img 
-                        src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" 
-                        alt="For Couples" 
-                        class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                    >
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                    <div class="absolute bottom-4 left-4 text-white">
-                        <h3 class="text-2xl font-bold mb-2">For Couples</h3>
-                        <p class="text-sm opacity-90">Enhance intimacy together</p>
-                    </div>
-                </div>
-            </div>
+            @endif
         </div>
     </div>
 </div>
@@ -233,19 +216,19 @@
 <div class="bg-gray-50 py-16">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">About Us</h2>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">Tentang Kami</h2>
             <div class="text-lg text-gray-600 space-y-4">
                 <p>
-                    WomanToys is a trusted online store that provides high-quality adult products to meet your intimate needs. 
-                    We are committed to providing a safe, comfortable, and discreet shopping experience.
+                    WomanToys adalah toko online terpercaya yang menyediakan produk dewasa berkualitas tinggi untuk memenuhi kebutuhan intim Anda. 
+                    Kami berkomitmen untuk memberikan pengalaman berbelanja yang aman, nyaman, dan rahasia.
                 </p>
                 <p>
-                    All our products have undergone strict curation to ensure quality, safety, and customer satisfaction. 
-                    With years of experience in this industry, we understand the importance of customer privacy and trust.
+                    Semua produk kami telah melalui kurasi ketat untuk memastikan kualitas, keamanan, dan kepuasan pelanggan. 
+                    Dengan pengalaman bertahun-tahun di industri ini, kami memahami pentingnya privasi dan kepercayaan pelanggan.
                 </p>
                 <p>
-                    Join thousands of customers who have trusted WomanToys for their intimate needs. 
-                    Enjoy a pleasant shopping experience with responsive customer service and fast delivery.
+                    Bergabunglah dengan ribuan pelanggan yang telah mempercayai WomanToys untuk kebutuhan intim mereka. 
+                    Nikmati pengalaman berbelanja yang menyenangkan dengan layanan pelanggan yang responsif dan pengiriman cepat.
                 </p>
             </div>
         </div>

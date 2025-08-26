@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Carousel Management - Admin Panel')
+@section('title', 'Manajemen Carousel - Panel Admin')
 
 @section('page-title', 'Manajemen Carousel')
 @section('page-description', 'Kelola slide carousel untuk homepage')

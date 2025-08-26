@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Admin Login - WomanToys</title>
+    <title>Login Admin - WomanToys</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="h-screen w-screen bg-gray-100 flex items-center justify-center">
@@ -16,8 +16,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                 </svg>
             </div>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">Admin Login</h2>
-            <p class="text-gray-600">Enter your credentials to access admin panel</p>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Login Admin</h2>
+            <p class="text-gray-600">Masukkan kredensial Anda untuk mengakses panel admin</p>
         </div>
 
         <!-- Login Form -->
@@ -38,7 +38,7 @@
             <!-- Email Field -->
             <div>
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
+                    Alamat Email
                 </label>
                 <input 
                     type="email" 
@@ -46,7 +46,7 @@
                     name="email" 
                     value="{{ old('email') }}"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('email') border-red-500 @enderror"
-                    placeholder="Enter your email"
+                    placeholder="Masukkan email Anda"
                     required
                 >
                 @error('email')
@@ -57,14 +57,14 @@
             <!-- Password Field -->
             <div>
                 <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
-                    Password
+                    Kata Sandi
                 </label>
                 <input 
                     type="password" 
                     id="password" 
                     name="password" 
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('password') border-red-500 @enderror"
-                    placeholder="Enter your password"
+                    placeholder="Masukkan kata sandi Anda"
                     required
                 >
                 @error('password')
@@ -80,10 +80,10 @@
                         name="remember" 
                         class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
                     >
-                    <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                    <span class="ml-2 text-sm text-gray-600">Ingat saya</span>
                 </label>
                 <a href="#" class="text-sm text-pink-600 hover:text-pink-700">
-                    Forgot password?
+                    Lupa kata sandi?
                 </a>
             </div>
 
@@ -92,14 +92,14 @@
                 type="submit" 
                 class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200"
             >
-                Login
+                Masuk
             </button>
         </form>
 
         <!-- Footer -->
         <div class="mt-8 text-center">
             <p class="text-sm text-gray-500">
-                Back to 
+                Kembali ke 
                 <a href="/" class="text-pink-600 hover:text-pink-700 font-medium">Website</a>
             </p>
         </div>

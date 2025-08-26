@@ -1,9 +1,9 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Dashboard - Admin Panel')
+@section('title', 'Dashboard - Panel Admin')
 
 @section('page-title', 'Dashboard')
-@section('page-description', 'Overview of your store performance')
+@section('page-description', 'Ringkasan performa toko Anda')
 
 @section('content')
 <!-- Welcome Section -->
@@ -107,7 +107,7 @@
                     </div>
                     <div class="text-right">
                         <p class="font-medium text-gray-800">Rp 1.520.000</p>
-                        <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Pending</span>
+                        <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Menunggu</span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between">
@@ -117,7 +117,7 @@
                     </div>
                     <div class="text-right">
                         <p class="font-medium text-gray-800">Rp 850.000</p>
-                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Paid</span>
+                        <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">Dibayar</span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between">
@@ -127,7 +127,7 @@
                     </div>
                     <div class="text-right">
                         <p class="font-medium text-gray-800">Rp 2.100.000</p>
-                        <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Processing</span>
+                        <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Diproses</span>
                     </div>
                 </div>
             </div>

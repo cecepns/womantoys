@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'WomanToys - Premium Adult Toys & Intimate Products')</title>
+    <title>@yield('title', 'WomanToys - Mainan Dewasa Premium & Produk Intim')</title>
     @vite('resources/css/app.css')
     
     <!-- Owl Carousel CSS -->
@@ -24,9 +24,9 @@
                 
                 <!-- Navigation Links -->
                 <div class="hidden md:flex space-x-8">
-                    <a href="/catalog" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Collection</a>
-                    <a href="#" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">About Us</a>
-                    <a href="#" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Contact</a>
+                    <a href="/catalog" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Koleksi</a>
+                    <a href="#" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Tentang Kami</a>
+                    <a href="#" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Kontak</a>
                 </div>
                 
                 <!-- Mobile Menu Button -->
@@ -56,33 +56,33 @@
                 <!-- Company Info -->
                 <div>
                     <h3 class="text-xl font-bold mb-4">WomanToys</h3>
-                    <p class="text-gray-300">Premium adult toys and intimate products for enhanced pleasure and satisfaction.</p>
+                    <p class="text-gray-300">Mainan dewasa premium dan produk intim untuk kesenangan dan kepuasan yang lebih baik.</p>
                 </div>
                 
                 <!-- Quick Links -->
                 <div>
-                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <h4 class="text-lg font-semibold mb-4">Tautan Cepat</h4>
                     <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">How to Order</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Privacy Policy</a></li>
-                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Terms & Conditions</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Cara Memesan</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Kebijakan Privasi</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-200">Syarat & Ketentuan</a></li>
                     </ul>
                 </div>
                 
                 <!-- Contact Info -->
                 <div>
-                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <h4 class="text-lg font-semibold mb-4">Kontak</h4>
                     <div class="text-gray-300 space-y-2">
                         <p>Email: info@womantoys.com</p>
-                        <p>Phone: (021) 1234-5678</p>
-                        <p>Address: Jakarta, Indonesia</p>
+                        <p>Telepon: (021) 1234-5678</p>
+                        <p>Alamat: Jakarta, Indonesia</p>
                     </div>
                 </div>
             </div>
             
             <!-- Copyright -->
             <div class="border-t border-gray-700 mt-8 pt-8 text-center">
-                <p class="text-gray-300">&copy; 2024 WomanToys. All rights reserved.</p>
+                <p class="text-gray-300">&copy; 2024 WomanToys. Semua hak dilindungi.</p>
             </div>
         </div>
     </footer>

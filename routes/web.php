@@ -4,7 +4,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     $carouselSlides = App\Models\CarouselSlide::orderBy('order', 'asc')->get();
-    return view('home', compact('carouselSlides'));
+    $featuredProducts = App\Models\Product::with(['category'])
+        ->active()
+        ->inStock()
+        ->orderBy('created_at', 'desc')
+        ->limit(4)
+        ->get();
+    $categories = App\Models\Category::withCount(['products' => function ($query) {
+        $query->active()->inStock();
+    }])->get();
+    
+    return view('home', compact('carouselSlides', 'featuredProducts', 'categories'));
 });
 
 Route::get('/catalog', [App\Http\Controllers\CatalogController::class, 'index'])->name('catalog');

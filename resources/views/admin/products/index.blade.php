@@ -118,7 +118,7 @@
                                     </svg>
                                     <div class="absolute top-1 right-1">
                                         <span class="bg-gray-100 text-gray-600 text-xs px-1 py-0.5 rounded-full">
-                                            No Image
+                                            Tidak Ada Gambar
                                         </span>
                                     </div>
                                 </div>
