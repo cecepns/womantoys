@@ -71,8 +71,8 @@ class CarouselController extends Controller
             'order' => $nextOrder,
         ]);
 
-        return redirect()->route('admin.carousel.index')
-            ->with('success', 'Slide carousel berhasil ditambahkan!');
+        notify()->success('Slide carousel berhasil ditambahkan!', 'Berhasil');
+        return redirect()->route('admin.carousel.index');
     }
 
     /**
@@ -154,8 +154,8 @@ class CarouselController extends Controller
 
         $carousel->update($data);
 
-        return redirect()->route('admin.carousel.index')
-            ->with('success', 'Slide carousel berhasil diupdate!');
+        notify()->success('Slide carousel berhasil diupdate!', 'Berhasil');
+        return redirect()->route('admin.carousel.index');
     }
 
     /**
@@ -180,8 +180,8 @@ class CarouselController extends Controller
 
         $carouselSlide->delete();
 
-        return redirect()->route('admin.carousel.index')
-            ->with('success', 'Slide carousel berhasil dihapus!');
+        notify()->success('Slide carousel berhasil dihapus!', 'Berhasil');
+        return redirect()->route('admin.carousel.index');
     }
 
     /**
@@ -190,12 +190,12 @@ class CarouselController extends Controller
     public function moveUp(CarouselSlide $carouselSlide)
     {
         if ($carouselSlide->moveUp()) {
-            return redirect()->route('admin.carousel.index')
-                ->with('success', 'Urutan slide berhasil diubah!');
+            notify()->success('Urutan slide berhasil diubah!', 'Berhasil');
+            return redirect()->route('admin.carousel.index');
         }
 
-        return redirect()->route('admin.carousel.index')
-            ->with('error', 'Tidak dapat memindahkan slide ke atas!');
+        notify()->error('Tidak dapat memindahkan slide ke atas!', 'Gagal');
+        return redirect()->route('admin.carousel.index');
     }
 
     /**
@@ -204,11 +204,11 @@ class CarouselController extends Controller
     public function moveDown(CarouselSlide $carouselSlide)
     {
         if ($carouselSlide->moveDown()) {
-            return redirect()->route('admin.carousel.index')
-                ->with('success', 'Urutan slide berhasil diubah!');
+            notify()->success('Urutan slide berhasil diubah!', 'Berhasil');
+            return redirect()->route('admin.carousel.index');
         }
 
-        return redirect()->route('admin.carousel.index')
-            ->with('error', 'Tidak dapat memindahkan slide ke bawah!');
+        notify()->error('Tidak dapat memindahkan slide ke bawah!', 'Gagal');
+        return redirect()->route('admin.carousel.index');
     }
 }

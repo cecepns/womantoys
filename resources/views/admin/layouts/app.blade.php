@@ -7,8 +7,12 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Panel Admin - WomanToys')</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    @notifyCss
+    <!-- Alpine.js (required by Laravel Notify for interactions) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-100">
+    <x-notify::notify />
     <div class="flex h-screen">
         <!-- Sidebar -->
         <div class="w-64 bg-gray-800 text-white">
@@ -138,5 +142,6 @@
             </main>
         </div>
     </div>
+    @notifyJs
 </body>
 </html>
