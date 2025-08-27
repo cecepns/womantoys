@@ -103,6 +103,36 @@
                 font-size: 0.75rem;
             }
         }
+        
+        /* Line clamp utility */
+        .line-clamp-1 {
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* Responsive shipping options */
+        @media (max-width: 768px) {
+            .shipping-option {
+                padding: 0.75rem;
+            }
+            
+            .shipping-option .service-info {
+                font-size: 0.875rem;
+            }
+            
+            .shipping-option .service-details {
+                font-size: 0.75rem;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gray-50">
