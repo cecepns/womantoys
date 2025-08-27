@@ -99,7 +99,12 @@
                 <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg">
                     <div>
                         <h3 class="font-medium text-gray-800">{{ $item->product_name }}</h3>
-                        <p class="text-sm text-gray-600">Jumlah: {{ $item->quantity }} pcs</p>
+                        <div class="flex items-center gap-4 mt-1">
+                            <p class="text-sm text-gray-600">Jumlah: {{ $item->quantity }} pcs</p>
+                            @if($item->product && $item->product->weight)
+                                <p class="text-sm text-gray-600">Berat: {{ $item->product->formatted_weight }} / pcs</p>
+                            @endif
+                        </div>
                     </div>
                     <div class="text-right">
                         <p class="font-semibold text-gray-800">{{ 'Rp ' . number_format($item->price, 0, ',', '.') }}</p>

@@ -186,7 +186,12 @@
                     <div class="flex-1">
                         <h3 class="font-semibold text-gray-800">{{ $product->name }}</h3>
                         <p class="text-sm text-gray-600">{{ $product->short_description }}</p>
-                        <p class="text-xs text-gray-500 mt-1">Stok: {{ $product->stock }} unit</p>
+                        <div class="flex items-center gap-4 mt-1">
+                            <p class="text-xs text-gray-500">Stok: {{ $product->stock }} unit</p>
+                            @if($product->weight)
+                                <p class="text-xs text-gray-500">Berat: {{ $product->formatted_weight }}</p>
+                            @endif
+                        </div>
                         
                         <!-- Quantity Selector -->
                         <div class="flex items-center space-x-3 mt-2">
@@ -276,7 +281,8 @@
 // Product data from backend
 const productData = {
     price: {{ $product->price }},
-    stock: {{ $product->stock }}
+    stock: {{ $product->stock }},
+    weight: {{ $product->weight ?? 500 }} // Default 500g if weight not set
 };
 
 let selectedLocationId = null;
@@ -491,7 +497,7 @@ async function calculateShippingCost() {
     }
     showShippingLoading();
     try {
-        const weight = quantity * 500;
+        const weight = quantity * productData.weight;
         // const couriers = ['jne', 'pos', 'tiki'];
         const couriers = ['jne'];
         const shippingPromises = couriers.map(courier => 

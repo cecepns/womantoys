@@ -20,8 +20,8 @@ class PaymentController extends Controller
             return redirect()->route('catalog')->with('error', 'Nomor pesanan tidak ditemukan.');
         }
 
-        // Find order by order number with order items
-        $order = Order::with('orderItems')->where('order_number', $orderNumber)->first();
+        // Find order by order number with order items and products
+        $order = Order::with(['orderItems.product'])->where('order_number', $orderNumber)->first();
         
         if (!$order) {
             return redirect()->route('catalog')->with('error', 'Pesanan tidak ditemukan.');
