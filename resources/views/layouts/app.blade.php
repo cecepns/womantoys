@@ -46,8 +46,7 @@
         @yield('content')
     </main>
 
-    <!-- Age Verification Modal -->
-    <x-age-modal />
+
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-white">
