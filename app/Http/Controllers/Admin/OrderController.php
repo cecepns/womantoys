@@ -79,27 +79,34 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, Order $order)
     {
-        $request->validate([
-            'status' => 'required|in:' . implode(',', [
-                Order::STATUS_PENDING_PAYMENT,
-                Order::STATUS_PAID,
-                Order::STATUS_PROCESSING,
-                Order::STATUS_SHIPPED,
-                Order::STATUS_DELIVERED,
-                Order::STATUS_CANCELLED,
-            ]),
-        ]);
+        try {
+            $request->validate([
+                'status' => 'required|in:' . implode(',', [
+                    Order::STATUS_PENDING_PAYMENT,
+                    Order::STATUS_PAID,
+                    Order::STATUS_PROCESSING,
+                    Order::STATUS_SHIPPED,
+                    Order::STATUS_DELIVERED,
+                    Order::STATUS_CANCELLED,
+                ]),
+            ]);
 
-        $oldStatus = $order->status;
-        $newStatus = $request->status;
+            $oldStatus = $order->status;
+            $newStatus = $request->status;
 
-        // Update the order status
-        $order->update(['status' => $newStatus]);
+            // Update the order status
+            $order->update(['status' => $newStatus]);
 
-        // Log status change (optional: you can create a separate order_logs table)
-        \Log::info("Order {$order->order_number} status changed from {$oldStatus} to {$newStatus} by admin");
+            // Log status change (optional: you can create a separate order_logs table)
+            \Log::info("Order {$order->order_number} status changed from {$oldStatus} to {$newStatus} by admin");
 
-        return redirect()->back()->with('success', 'Status pesanan berhasil diperbarui.');
+            notify()->success('Status pesanan berhasil diperbarui.', 'Berhasil');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            \Log::error("Failed to update order status: " . $e->getMessage());
+            notify()->error('Gagal memperbarui status pesanan. Silakan coba lagi.', 'Gagal');
+            return redirect()->back();
+        }
     }
 
     /**
@@ -128,74 +135,85 @@ class OrderController extends Controller
      */
     public function export(Request $request)
     {
-        $status = $request->get('status');
-        $search = $request->get('search');
-        
-        $query = Order::with(['orderItems.product']);
-        
-        if ($status && $status !== 'all') {
-            $query->where('status', $status);
-        }
-        
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_email', 'like', "%{$search}%");
-            });
-        }
-        
-        $orders = $query->get();
-        
-        $filename = 'orders_export_' . now()->format('Y-m-d_H-i-s') . '.csv';
-        
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ];
-
-        $callback = function() use ($orders) {
-            $file = fopen('php://output', 'w');
+        try {
+            $status = $request->get('status');
+            $search = $request->get('search');
             
-            // CSV Headers
-            fputcsv($file, [
-                'No. Pesanan',
-                'Nama Pelanggan', 
-                'Email',
-                'Telepon',
-                'Alamat Pengiriman',
-                'Metode Pengiriman',
-                'Biaya Pengiriman',
-                'Total Pembayaran',
-                'Status',
-                'Tanggal Pesanan',
-                'Items'
-            ]);
+            $query = Order::with(['orderItems.product']);
             
-            foreach ($orders as $order) {
-                $items = $order->orderItems->map(function($item) {
-                    return $item->product_name . ' (Qty: ' . $item->quantity . ', Price: Rp ' . number_format($item->price, 0, ',', '.') . ')';
-                })->implode('; ');
-                
-                fputcsv($file, [
-                    $order->order_number,
-                    $order->customer_name,
-                    $order->customer_email,
-                    $order->customer_phone,
-                    $order->shipping_address,
-                    $order->shipping_method,
-                    'Rp ' . number_format($order->shipping_cost, 0, ',', '.'),
-                    'Rp ' . number_format($order->total_amount, 0, ',', '.'),
-                    $this->getStatusLabel($order->status),
-                    $order->created_at->format('d/m/Y H:i'),
-                    $items
-                ]);
+            if ($status && $status !== 'all') {
+                $query->where('status', $status);
             }
             
-            fclose($file);
-        };
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('order_number', 'like', "%{$search}%")
+                      ->orWhere('customer_name', 'like', "%{$search}%")
+                      ->orWhere('customer_email', 'like', "%{$search}%");
+                });
+            }
+            
+            $orders = $query->get();
+            
+            if ($orders->isEmpty()) {
+                notify()->warning('Tidak ada data pesanan untuk diekspor.', 'Peringatan');
+                return redirect()->back();
+            }
+            
+            $filename = 'orders_export_' . now()->format('Y-m-d_H-i-s') . '.csv';
+            
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
 
-        return response()->stream($callback, 200, $headers);
+            $callback = function() use ($orders) {
+                $file = fopen('php://output', 'w');
+                
+                // CSV Headers
+                fputcsv($file, [
+                    'No. Pesanan',
+                    'Nama Pelanggan', 
+                    'Email',
+                    'Telepon',
+                    'Alamat Pengiriman',
+                    'Metode Pengiriman',
+                    'Biaya Pengiriman',
+                    'Total Pembayaran',
+                    'Status',
+                    'Tanggal Pesanan',
+                    'Items'
+                ]);
+                
+                foreach ($orders as $order) {
+                    $items = $order->orderItems->map(function($item) {
+                        return $item->product_name . ' (Qty: ' . $item->quantity . ', Price: Rp ' . number_format($item->price, 0, ',', '.') . ')';
+                    })->implode('; ');
+                    
+                    fputcsv($file, [
+                        $order->order_number,
+                        $order->customer_name,
+                        $order->customer_email,
+                        $order->customer_phone,
+                        $order->shipping_address,
+                        $order->shipping_method,
+                        'Rp ' . number_format($order->shipping_cost, 0, ',', '.'),
+                        'Rp ' . number_format($order->total_amount, 0, ',', '.'),
+                        $this->getStatusLabel($order->status),
+                        $order->created_at->format('d/m/Y H:i'),
+                        $items
+                    ]);
+                }
+                
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            \Log::error("Failed to export orders: " . $e->getMessage());
+            notify()->error('Gagal mengekspor data pesanan. Silakan coba lagi.', 'Gagal');
+            return redirect()->back();
+        }
     }
 
     /**
@@ -220,10 +238,17 @@ class OrderController extends Controller
      */
     public function sendConfirmationEmail(Order $order)
     {
-        // TODO: Implement email sending logic
-        // You can use Laravel Mail here
-        
-        return redirect()->back()->with('success', 'Email konfirmasi berhasil dikirim ke pelanggan.');
+        try {
+            // TODO: Implement email sending logic
+            // You can use Laravel Mail here
+            
+            notify()->success('Email konfirmasi berhasil dikirim ke pelanggan.', 'Berhasil');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            \Log::error("Failed to send confirmation email: " . $e->getMessage());
+            notify()->error('Gagal mengirim email konfirmasi. Silakan coba lagi.', 'Gagal');
+            return redirect()->back();
+        }
     }
 
     /**
@@ -231,10 +256,17 @@ class OrderController extends Controller
      */
     public function sendWhatsAppMessage(Order $order)
     {
-        // TODO: Implement WhatsApp API integration
-        // You can use a service like Twilio or local WhatsApp Business API
-        
-        return redirect()->back()->with('success', 'Pesan WhatsApp berhasil dikirim ke pelanggan.');
+        try {
+            // TODO: Implement WhatsApp API integration
+            // You can use a service like Twilio or local WhatsApp Business API
+            
+            notify()->success('Pesan WhatsApp berhasil dikirim ke pelanggan.', 'Berhasil');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            \Log::error("Failed to send WhatsApp message: " . $e->getMessage());
+            notify()->error('Gagal mengirim pesan WhatsApp. Silakan coba lagi.', 'Gagal');
+            return redirect()->back();
+        }
     }
 
     /**
@@ -242,9 +274,16 @@ class OrderController extends Controller
      */
     public function downloadInvoice(Order $order)
     {
-        // TODO: Implement PDF invoice generation
-        // You can use libraries like DomPDF or TCPDF
-        
-        return redirect()->back()->with('info', 'Fitur download invoice akan segera tersedia.');
+        try {
+            // TODO: Implement PDF invoice generation
+            // You can use libraries like DomPDF or TCPDF
+            
+            notify()->info('Fitur download invoice akan segera tersedia.', 'Informasi');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            \Log::error("Failed to generate invoice: " . $e->getMessage());
+            notify()->error('Gagal mengunduh invoice. Silakan coba lagi.', 'Gagal');
+            return redirect()->back();
+        }
     }
 }
