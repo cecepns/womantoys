@@ -49,9 +49,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     
     // Protected admin routes
     Route::middleware('auth.admin')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard');
+        Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
         
         // Product routes
         Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
