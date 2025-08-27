@@ -9,6 +9,12 @@
 @section('content')
 <div class="container mx-auto px-4 py-10">
     <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Konfirmasih Pembayaran</h1>
+            <p class="text-lg text-gray-600">Terima kasih. Pesanan Anda sedang diproses.</p>
+        </div>
+
         <!-- Flash Messages -->
         @if(session('success'))
             <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
@@ -50,12 +56,6 @@
             </div>
         @endif
 
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-4">Pesanan Diterima</h1>
-            <p class="text-lg text-gray-600">Terima kasih. Pesanan Anda sedang diproses.</p>
-        </div>
-
         <!-- Order Information -->
         <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Informasi Pesanan</h2>
@@ -75,7 +75,7 @@
                 <div class="flex justify-between">
                     <span class="text-gray-600">Status Pembayaran:</span>
                     @if($order->isPendingPayment())
-                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Menunggu Pembayaran</span>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Menunggu Pembayaran</span>
                     @elseif($order->isPaid())
                         <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Sudah Dibayar</span>
                     @elseif($order->isProcessing())
@@ -248,7 +248,7 @@
                     </div>
                 @endif
             @else
-                <form action="{{ route('payment.confirm') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                <form action="{{ route('payment.confirm') }}" method="POST" enctype="multipart/form-data" class="space-y-6" novalidate>
                     @csrf
                     <input type="hidden" name="order_number" value="{{ $order->order_number }}">
                 <!-- Upload Payment Proof -->
@@ -256,21 +256,71 @@
                     <label for="paymentProof" class="block text-sm font-medium text-gray-700 mb-2">
                         Unggah Bukti Pembayaran
                     </label>
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-pink-400 transition-colors duration-200">
-                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
-                        <p class="text-gray-600 mb-2">Klik untuk mengunggah atau seret dan lepas</p>
-                        <p class="text-sm text-gray-500">PNG, JPG, PDF hingga 10MB</p>
+                        
+                                                <!-- Hidden file input (always available for form validation) -->
                         <input 
                             type="file" 
                             id="paymentProof" 
-                            name="paymentProof" 
+                            name="payment_proof" 
                             accept=".png,.jpg,.jpeg,.pdf"
-                            class="hidden"
-                            required
+                            class="sr-only"
                         >
-                    </div>
+                        
+                        <!-- Upload Area (shown when no file selected) -->
+                        <div id="upload-area" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-pink-400 transition-colors duration-200">
+                            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <p class="text-gray-600 mb-2">Klik untuk mengunggah atau seret dan lepas</p>
+                            <p class="text-sm text-gray-500">PNG, JPG, PDF hingga 10MB</p>
+                        </div>
+                        
+                        <!-- Preview Area (shown when file is selected) -->
+                        <div id="preview-area" class="hidden">
+                            <!-- Image Preview -->
+                            <div id="image-preview" class="hidden">
+                                <div class="relative">
+                                    <img id="preview-image" 
+                                         alt="Preview Bukti Pembayaran" 
+                                         class="w-full h-48 object-contain border border-gray-200 rounded-lg">
+                                    <div class="absolute top-2 right-2 flex space-x-2">
+                                        <button onclick="deleteFile()" 
+                                                class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors cursor-pointer">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-center">
+                                    <p id="file-name" class="text-green-600 font-medium text-sm"></p>
+                                    <p class="text-xs text-gray-500 mt-1">Hapus file terlebih dahulu untuk mengupload file baru</p>
+                                </div>
+                            </div>
+                            
+                            <!-- PDF Preview -->
+                            <div id="pdf-preview" class="hidden">
+                                <div class="flex items-center justify-center p-8 border border-gray-200 rounded-lg bg-gray-50">
+                                    <div class="text-center">
+                                        <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <p class="text-gray-800 font-medium mb-2">File PDF</p>
+                                        <p id="pdf-file-name" class="text-sm text-gray-600 mb-4"></p>
+                                        <button onclick="deleteFile()" 
+                                                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer">
+                                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                            Hapus File
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="mt-3 text-center">
+                                    <p class="text-xs text-gray-500">Hapus file terlebih dahulu untuk mengupload file baru</p>
+                                </div>
+                            </div>
+                        </div>
                 </div>
 
                 <!-- Additional Notes -->
@@ -284,17 +334,25 @@
                         rows="3" 
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
                         placeholder="Tambahkan informasi tambahan tentang pembayaran Anda..."
-                    >{{ old('notes') }}</textarea>
+                        >{{ old('notes') }}</textarea>
                 </div>
 
-                    <!-- Submit Button -->
-                    <button 
-                        type="submit" 
-                        class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg hover:shadow-xl"
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                        id="submitBtn"
+                        class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Konfirmasi Pembayaran
-                    </button>
-                </form>
+                        <span id="submitText">Konfirmasi Pembayaran</span>
+                        <span id="submitLoading" class="hidden">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Memproses...
+                        </span>
+                </button>
+            </form>
             @endif
         </div>
 
@@ -308,10 +366,11 @@
 </div>
 
 <script>
-function copyPageLink() {
+function copyPageLink(event) {
+    // Pastikan event diterima dari onclick
     navigator.clipboard.writeText(window.location.href).then(function() {
         // Show success message
-        const button = event.target;
+        const button = event.target || event.currentTarget;
         const originalText = button.textContent;
         button.textContent = 'Link Disalin!';
         button.classList.remove('bg-yellow-600', 'hover:bg-yellow-700');
@@ -326,18 +385,201 @@ function copyPageLink() {
 }
 
 // File upload handling
-document.getElementById('paymentProof').addEventListener('change', function(e) {
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('paymentProof');
+    
+    if (!fileInput) {
+        console.log('Payment proof input not found');
+        return;
+    }
+    
+    const uploadArea =  document.getElementById('upload-area');
+    
+    if (!uploadArea) {
+        console.log('Upload area not found');
+        return;
+    }
+    
+    // Click handler for upload area
+    uploadArea.addEventListener('click', function(e) {
+        if (e.target !== fileInput) {
+            // Check if there's already a file selected
+            if (fileInput.files && fileInput.files.length > 0) {
+                // Show alert to delete first
+                alert('Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.');
+                return;
+            }
+            fileInput.click();
+        }
+    });
+    
+    // Drag and drop handlers
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('border-pink-400', 'bg-pink-50');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-pink-400', 'bg-pink-50');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-pink-400', 'bg-pink-50');
+        
+        // Check if there's already a file selected
+        if (fileInput.files && fileInput.files.length > 0) {
+            alert('Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.');
+            return;
+        }
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            handleFileSelect(files[0]);
+        }
+    });
+        
+    fileInput.addEventListener('change', function(e) {
+        // Check if there's already a file selected (prevent multiple files)
+        if (fileInput.files && fileInput.files.length > 1) {
+            alert('Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.');
+            // Reset to first file only
+            const firstFile = fileInput.files[0];
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(firstFile);
+            fileInput.files = dataTransfer.files;
+            return;
+        }
+        
     const file = e.target.files[0];
     if (file) {
-        const uploadArea = document.querySelector('.border-dashed');
-        uploadArea.innerHTML = `
-            <svg class="w-12 h-12 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <p class="text-green-600 font-medium mb-2">File berhasil dipilih!</p>
-            <p class="text-sm text-gray-500">${file.name}</p>
-        `;
+            handleFileSelect(file);
+        }
+    });
+        
+    const form = document.querySelector('form[action*="payment.confirm"]');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('Form submitted');
+            const fileInput = document.getElementById('paymentProof');
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitLoading = document.getElementById('submitLoading');
+            
+            // Validate file selection
+            if (!fileInput.files || fileInput.files.length === 0) {
+                e.preventDefault();
+                alert('Silakan pilih file bukti pembayaran terlebih dahulu.');
+                
+                // Show upload area if hidden
+                const uploadArea = document.getElementById('upload-area');
+                const previewArea = document.getElementById('preview-area');
+                if (uploadArea.classList.contains('hidden')) {
+                    uploadArea.classList.remove('hidden');
+                    previewArea.classList.add('hidden');
+                }
+                
+                return false;
+            }
+            
+            // Validate file type and size
+            const file = fileInput.files[0];
+            const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+            if (!allowedTypes.includes(file.type)) {
+                e.preventDefault();
+                alert('Format file tidak didukung. Gunakan PNG, JPG, atau PDF.');
+                return false;
+            }
+            
+            // Validate file size (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                e.preventDefault();
+                alert('Ukuran file terlalu besar. Maksimal 10MB.');
+                return false;
+            }
+            
+            console.log('File selected:', file.name);
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            submitLoading.classList.remove('hidden');
+        });
     }
+
+    function handleFileSelect(file) {
+        const uploadArea = document.getElementById('upload-area');
+        const previewArea = document.getElementById('preview-area');
+        const imagePreview = document.getElementById('image-preview');
+        const pdfPreview = document.getElementById('pdf-preview');
+        const fileInput = document.getElementById('paymentProof');
+        
+        // Validate file type
+        const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Format file tidak didukung. Gunakan PNG, JPG, atau PDF.');
+            return;
+        }
+        
+        // Validate file size (10MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Ukuran file terlalu besar. Maksimal 10MB.');
+            return;
+        }
+        
+        // Create preview URL
+        const fileUrl = URL.createObjectURL(file);
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        
+        // Hide upload area and show preview area
+        uploadArea.classList.add('hidden');
+        previewArea.classList.remove('hidden');
+        
+        // Update UI with preview
+        if (['jpg', 'jpeg', 'png'].includes(fileExtension)) {
+            // Show image preview
+            imagePreview.classList.remove('hidden');
+            pdfPreview.classList.add('hidden');
+            
+            // Update image and file name
+            document.getElementById('preview-image').src = fileUrl;
+            document.getElementById('file-name').textContent = file.name;
+        } else {
+            // Show PDF preview
+            imagePreview.classList.add('hidden');
+            pdfPreview.classList.remove('hidden');
+            
+            // Update PDF file name
+            document.getElementById('pdf-file-name').textContent = file.name;
+        }
+    }
+    
+    // Delete file function
+    window.deleteFile = function() {
+        const fileInput = document.getElementById('paymentProof');
+        const uploadArea = document.getElementById('upload-area');
+        const previewArea = document.getElementById('preview-area');
+        const imagePreview = document.getElementById('image-preview');
+        const pdfPreview = document.getElementById('pdf-preview');
+        
+        // Clear file input
+        fileInput.value = '';
+        
+        // Hide preview area and show upload area
+        previewArea.classList.add('hidden');
+        uploadArea.classList.remove('hidden');
+        
+        // Hide both preview types
+        imagePreview.classList.add('hidden');
+        pdfPreview.classList.add('hidden');
+        
+        // Clear preview content
+        document.getElementById('preview-image').src = '';
+        document.getElementById('file-name').textContent = '';
+        document.getElementById('pdf-file-name').textContent = '';
+    };
 });
 </script>
 @endsection

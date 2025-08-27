@@ -27,11 +27,6 @@ class PaymentController extends Controller
             return redirect()->route('catalog')->with('error', 'Pesanan tidak ditemukan.');
         }
 
-        // Check if order is still pending payment
-        if (!$order->isPendingPayment()) {
-            return redirect()->route('catalog')->with('error', 'Pesanan ini sudah tidak dapat dikonfirmasi pembayarannya.');
-        }
-
         return view('payment-instruction', compact('order'));
     }
 
