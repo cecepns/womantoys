@@ -68,6 +68,7 @@ class ProductController extends Controller
             'specifications' => 'required|string',
             'care_instructions' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'weight' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,draft,out_of_stock',
             'main_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -161,6 +162,7 @@ class ProductController extends Controller
             'specifications' => 'nullable|string',
             'care_instructions' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'weight' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,draft,out_of_stock',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -237,7 +239,7 @@ class ProductController extends Controller
         }
 
         notify()->success('Produk berhasil diperbarui.', 'Berhasil');
-        return redirect()->route('admin.products.index');
+        return back();
     }
 
     /**
@@ -266,13 +268,13 @@ class ProductController extends Controller
             \Log::info("Product deleted successfully: {$product->id}");
 
             notify()->success('Produk berhasil dihapus.', 'Berhasil');
-            return redirect()->route('admin.products.index');
+            return back();
                 
         } catch (\Exception $e) {
             \Log::error("Failed to delete product ID: {$product->id}", ['error' => $e->getMessage()]);
             
             notify()->error('Gagal menghapus produk. Silakan coba lagi.', 'Gagal');
-            return redirect()->route('admin.products.index');
+            return back();
         }
     }
 

@@ -24,6 +24,7 @@ class Product extends Model
         'main_image',
         'status',
         'stock',
+        'weight',
     ];
 
     /**
@@ -90,6 +91,24 @@ class Product extends Model
     public function getFormattedPriceAttribute()
     {
         return 'Rp ' . number_format($this->price, 0, ',', '.');
+    }
+
+    /**
+     * Get the formatted weight.
+     *
+     * @return string|null
+     */
+    public function getFormattedWeightAttribute()
+    {
+        if (is_null($this->weight)) {
+            return null;
+        }
+
+        if ($this->weight >= 1000) {
+            return number_format($this->weight / 1000, 2) . ' kg';
+        }
+
+        return number_format($this->weight, 0) . ' gram';
     }
 
     /**

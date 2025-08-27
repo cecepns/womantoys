@@ -101,6 +101,30 @@
                     @enderror
                 </div>
 
+                <!-- Weight -->
+                <div>
+                    <label for="weight" class="block text-sm font-medium text-gray-700 mb-2">
+                        Berat (gram)
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="number"
+                            id="weight"
+                            name="weight"
+                            value="{{ old('weight', $product->weight) }}"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('weight') border-red-500 @enderror"
+                            placeholder="0"
+                            min="0"
+                            step="0.01"
+                        >
+                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">gram</span>
+                    </div>
+                    <p class="text-gray-500 text-xs mt-1">Kosongkan jika berat tidak diketahui</p>
+                    @error('weight')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Short Description -->
                 <div>
                     <label for="short_description" class="block text-sm font-medium text-gray-700 mb-2">
