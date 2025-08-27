@@ -65,13 +65,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Category routes
         Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class);
         
-        Route::get('/orders', function () {
-            return view('admin.orders.index');
-        })->name('orders.index');
-        
-        Route::get('/orders/{id}', function ($id) {
-            return view('admin.orders.show');
-        })->name('orders.show');
+        // Order routes
+        Route::get('/orders', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/export', [App\Http\Controllers\Admin\OrderController::class, 'export'])->name('orders.export');
+        Route::get('/orders/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
+        Route::put('/orders/{order}/status', [App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
         
         // Bank Account routes
         Route::resource('accounts', App\Http\Controllers\Admin\BankAccountController::class)->except(['show']);

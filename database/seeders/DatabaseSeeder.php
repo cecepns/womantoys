@@ -17,8 +17,9 @@ class DatabaseSeeder extends Seeder
             CarouselSlideSeeder::class,
             CategorySeeder::class,
             BankAccountSeeder::class,
-            // ProductSeeder::class,
-            // ProductImageSeeder::class,
+            ProductSeeder::class,
+            ProductImageSeeder::class,
+            OrderSeeder::class,
         ]);
     }
 }
