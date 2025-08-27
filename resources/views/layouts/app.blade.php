@@ -51,11 +51,18 @@
                 
                 <!-- Search Bar -->
                 <div class="w-full md:flex-1 md:max-w-md md:mx-8">
-                    <div class="relative">
+                    <form action="/catalog" method="GET" class="relative">
                         <input type="text" 
+                               name="search"
+                               value="{{ request('search') }}"
                                placeholder="Cari produk..." 
                                class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-sm md:text-base">
-                    </div>
+                        <button type="submit" class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-auto">
+                            <svg class="h-4 w-4 text-gray-400 hover:text-pink-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </button>
+                    </form>
                 </div>
             </div>
         </nav>
@@ -155,6 +162,35 @@
                 mobileMenuBtn.addEventListener('click', function() {
                     // Add mobile menu functionality here if needed
                     console.log('Mobile menu clicked');
+                });
+            }
+            
+            // Search functionality enhancements
+            const searchInput = document.querySelector('input[name="search"]');
+            const searchForm = document.querySelector('form[action="/catalog"]');
+            
+            if (searchInput && searchForm) {
+                // Auto-submit search after 1 second of no typing
+                let searchTimeout;
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        if (this.value.length >= 2 || this.value.length === 0) {
+                            searchForm.submit();
+                        }
+                    }, 1000);
+                });
+                
+                // Submit on Enter key
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        clearTimeout(searchTimeout);
+                        searchForm.submit();
+                    }
+                });
+                
+                searchInput.addEventListener('input', function() {
+                    clearSearchBtn.style.display = this.value ? 'flex' : 'none';
                 });
             }
             
