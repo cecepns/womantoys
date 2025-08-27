@@ -47,6 +47,7 @@
             <form id="checkout-form" class="space-y-6" method="POST" action="{{ route('checkout.store') }}">
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
+                <input type="hidden" name="quantity" id="hidden_quantity" value="{{ old('quantity', 1) }}">
                 <input type="hidden" name="origin_id" id="origin_id" value="17473">
                 <input type="hidden" name="destination_id" id="destination_id" value="">
                 <!-- Full Name -->
@@ -660,8 +661,9 @@ function decreaseQuantity() {
     const quantityInput = document.getElementById('quantity');
     const currentValue = parseInt(quantityInput.value);
     if (currentValue > 1) {
-        quantityInput.value = currentValue - 1;
-        updateQuantity(currentValue - 1);
+        const newValue = currentValue - 1;
+        quantityInput.value = newValue;
+        updateQuantity(newValue);
     }
 }
 
@@ -669,8 +671,9 @@ function increaseQuantity() {
     const quantityInput = document.getElementById('quantity');
     const currentValue = parseInt(quantityInput.value);
     if (currentValue < productData.stock) {
-        quantityInput.value = currentValue + 1;
-        updateQuantity(currentValue + 1);
+        const newValue = currentValue + 1;
+        quantityInput.value = newValue;
+        updateQuantity(newValue);
     }
 }
 
@@ -683,6 +686,10 @@ function updateQuantity(value) {
         document.getElementById('quantity').value = productData.stock;
         quantity = productData.stock;
     }
+    
+    // Update hidden input in form
+    document.getElementById('hidden_quantity').value = quantity;
+    
     const destinationId = document.getElementById('destination_id').value;
     if (destinationId) {
         calculateShippingCost();
@@ -712,6 +719,10 @@ function formatNumber(num) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const initialQuantity = parseInt(document.getElementById('quantity').value) || 1;
+    
+    // Initialize hidden quantity input
+    document.getElementById('hidden_quantity').value = initialQuantity;
+    
     updatePricing(initialQuantity);
     initRajaOngkirAutocomplete();
     document.addEventListener('change', function(e) {
