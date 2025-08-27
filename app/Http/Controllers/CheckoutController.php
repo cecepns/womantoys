@@ -41,9 +41,12 @@ class CheckoutController extends Controller
             'fullName' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
-            'address' => 'required|string',
-            'shipping' => 'required|in:regular,express',
-            'quantity' => 'required|integer|min:1'
+            'address_location' => 'required|string|max:255',
+            'address_detail' => 'required|string',
+            'shipping' => 'required|string',
+            'quantity' => 'required|integer|min:1',
+            'origin_id' => 'required|integer',
+            'destination_id' => 'required|integer'
         ]);
 
         // Get product
@@ -54,18 +57,26 @@ class CheckoutController extends Controller
             return back()->withErrors(['quantity' => 'Stok tidak mencukupi untuk jumlah yang dipilih.'])->withInput();
         }
 
+        // Parse shipping data
+        $shippingData = explode('_', $request->shipping);
+        $courier = $shippingData[0] ?? 'unknown';
+        $service = $shippingData[1] ?? 'unknown';
+        $shippingCost = (int)($shippingData[2] ?? 0);
+        
         // Calculate costs
-        $shippingCost = $request->shipping === 'express' ? 35000 : 20000;
         $subtotal = $product->price * $request->quantity;
         $totalAmount = $subtotal + $shippingCost;
 
+        // Combine address fields
+        $fullAddress = $request->address_location . "\n" . $request->address_detail;
+        
         // Create order
         $order = \App\Models\Order::create([
             'customer_name' => $request->fullName,
             'customer_phone' => $request->phone,
             'customer_email' => $request->email,
-            'shipping_address' => $request->address,
-            'shipping_method' => $request->shipping,
+            'shipping_address' => $fullAddress,
+            'shipping_method' => $courier . ' - ' . $service,
             'shipping_cost' => $shippingCost,
             'total_amount' => $totalAmount,
         ]);

@@ -25,6 +25,18 @@ Route::get('/product/{product:slug}', [App\Http\Controllers\ProductController::c
 Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout', [App\Http\Controllers\CheckoutController::class, 'store'])->name('checkout.store');
 
+// RajaOngkir API Routes
+Route::prefix('api/rajaongkir')->group(function () {
+    Route::get('/search-destination', [App\Http\Controllers\RajaOngkirController::class, 'searchDestination']);
+    Route::post('/calculate-cost', [App\Http\Controllers\RajaOngkirController::class, 'calculateCost']);
+    
+    // Address API Routes
+    Route::get('/provinces', [App\Http\Controllers\RajaOngkirController::class, 'getProvinces']);
+    Route::get('/cities', [App\Http\Controllers\RajaOngkirController::class, 'getCities']);
+    Route::get('/cities/{city_id}', [App\Http\Controllers\RajaOngkirController::class, 'getCityById']);
+    Route::get('/provinces/{province_id}', [App\Http\Controllers\RajaOngkirController::class, 'getProvinceById']);
+});
+
 Route::get('/payment-instruction', function (Request $request) {
     $orderNumber = $request->query('order');
     return view('payment-instruction', compact('orderNumber'));
