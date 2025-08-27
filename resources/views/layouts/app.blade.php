@@ -47,18 +47,18 @@
     </header>
 
     <!-- Sub Header - Categories -->
-    <div class="bg-gray-100 border-b border-gray-200">
+    <div class="bg-white border-b border-gray-200 shadow">
         <div class="container mx-auto px-4 py-3">
-            <div class="flex items-center space-x-6 overflow-x-auto scrollbar-hide">
+            <div class="flex items-center justify-between w-full">
                 @if(isset($categories) && $categories->count() > 0)
                     @foreach($categories as $category)
                         <a href="/catalog?category={{ $category->slug }}" 
-                           class="text-sm text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium flex-shrink-0">
+                           class="text-sm text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium text-center">
                             {{ $category->name }}
                         </a>
                     @endforeach
                 @else
-                    <span class="text-sm text-gray-500">Tidak ada kategori tersedia</span>
+                    <span class="text-sm text-gray-500">Tidak ada kategori tersedia (Total: {{ isset($categories) ? $categories->count() : 0 }})</span>
                 @endif
             </div>
         </div>

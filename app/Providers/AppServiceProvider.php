@@ -25,7 +25,10 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.app', function ($view) {
             $categories = Category::withCount(['products' => function ($query) {
                 $query->active()->inStock();
-            }])->withCoverImage()->get();
+            }])
+            ->orderBy('products_count', 'desc')
+            ->limit(12)
+            ->get();
             
             $view->with('categories', $categories);
         });

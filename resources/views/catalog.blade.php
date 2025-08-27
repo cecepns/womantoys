@@ -20,23 +20,6 @@
                     </a>
                 @endforeach
             </div>
-            
-            <!-- Bar Pencarian -->
-            <form class="flex gap-2 w-full md:w-auto" method="GET" action="{{ route('catalog') }}">
-                <input 
-                    type="text" 
-                    name="search"
-                    value="{{ request('search') }}"
-                    placeholder="Cari produk..." 
-                    class="flex-1 md:w-64 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                >
-                <button 
-                    type="submit" 
-                    class="px-6 py-2 bg-pink-600 text-white rounded-lg font-medium hover:bg-pink-700 transition-colors duration-200"
-                >
-                    Cari
-                </button>
-            </form>
         </div>
     </div>
     

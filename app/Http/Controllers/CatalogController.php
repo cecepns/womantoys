@@ -34,7 +34,7 @@ class CatalogController extends Controller
         // Get all categories for filter
         $categories = Category::withCount(['products' => function ($query) {
             $query->active()->inStock();
-        }])->withCoverImage()->get();
+        }])->get();
 
         return view('catalog', compact('products', 'categories'));
     }
