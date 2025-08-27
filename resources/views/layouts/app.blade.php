@@ -19,14 +19,19 @@
             <div class="flex justify-between items-center">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <a href="/" class="text-2xl font-bold text-pink-600">WomanToys</a>
+                    <a href="/" class="text-2xl font-bold text-pink-600 flex items-center">
+                        WomanToys
+                    </a>
                 </div>
                 
-                <!-- Navigation Links -->
-                <div class="hidden md:flex space-x-8">
-                    <a href="/catalog" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Koleksi</a>
-                    <a href="#" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Tentang Kami</a>
-                    <a href="#" class="text-gray-700 hover:text-pink-600 transition-colors duration-200 font-medium">Kontak</a>
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-md mx-8">
+                    <div class="relative">
+                        <input type="text" 
+                               placeholder="Search..." 
+                               class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                        
+                    </div>
                 </div>
                 
                 <!-- Mobile Menu Button -->
@@ -40,6 +45,24 @@
             </div>
         </nav>
     </header>
+
+    <!-- Sub Header - Categories -->
+    <div class="bg-gray-100 border-b border-gray-200">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex items-center space-x-6 overflow-x-auto scrollbar-hide">
+                @if(isset($categories) && $categories->count() > 0)
+                    @foreach($categories as $category)
+                        <a href="/catalog?category={{ $category->slug }}" 
+                           class="text-sm text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium flex-shrink-0">
+                            {{ $category->name }}
+                        </a>
+                    @endforeach
+                @else
+                    <span class="text-sm text-gray-500">Tidak ada kategori tersedia</span>
+                @endif
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="flex-grow">
