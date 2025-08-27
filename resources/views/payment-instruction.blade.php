@@ -2,9 +2,54 @@
 
 @section('title', 'Instruksi Pembayaran - WomanToys')
 
+@php
+    use Illuminate\Support\Facades\Storage;
+@endphp
+
 @section('content')
 <div class="container mx-auto px-4 py-10">
     <div class="max-w-2xl mx-auto">
+        <!-- Flash Messages -->
+        @if(session('success'))
+            <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-green-800 font-medium">{{ session('success') }}</p>
+                </div>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="text-red-800 font-medium">{{ session('error') }}</p>
+                </div>
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-red-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                        <h3 class="text-red-800 font-medium mb-2">Terjadi kesalahan:</h3>
+                        <ul class="text-red-700 text-sm space-y-1">
+                            @foreach($errors->all() as $error)
+                                <li>• {{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Header -->
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800 mb-4">Pesanan Diterima</h1>
@@ -17,19 +62,84 @@
             <div class="space-y-3">
                 <div class="flex justify-between">
                     <span class="text-gray-600">Nomor Pesanan:</span>
-                    <span class="font-semibold text-gray-800">INV-2025-0001</span>
+                    <span class="font-semibold text-gray-800">{{ $order->order_number }}</span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-600">Total Pembayaran:</span>
-                    <span class="text-2xl font-bold text-pink-600">Rp 1.520.000</span>
+                    <span class="text-2xl font-bold text-pink-600">{{ $order->formatted_total_amount }}</span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-600">Tanggal Pesanan:</span>
-                    <span class="font-semibold text-gray-800">15 Januari 2025</span>
+                    <span class="font-semibold text-gray-800">{{ $order->created_at->format('d F Y') }}</span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-gray-600">Status Pembayaran:</span>
-                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Menunggu Pembayaran</span>
+                    @if($order->isPendingPayment())
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Menunggu Pembayaran</span>
+                    @elseif($order->isPaid())
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Sudah Dibayar</span>
+                    @elseif($order->isProcessing())
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">Sedang Diproses</span>
+                    @elseif($order->isShipped())
+                        <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">Dikirim</span>
+                    @elseif($order->isDelivered())
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Diterima</span>
+                    @elseif($order->isCancelled())
+                        <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">Dibatalkan</span>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Detail Pesanan</h2>
+            <div class="space-y-4">
+                @foreach($order->orderItems as $item)
+                <div class="flex justify-between items-center p-4 bg-gray-100 rounded-lg">
+                    <div>
+                        <h3 class="font-medium text-gray-800">{{ $item->product_name }}</h3>
+                        <p class="text-sm text-gray-600">Jumlah: {{ $item->quantity }} pcs</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-semibold text-gray-800">{{ 'Rp ' . number_format($item->price, 0, ',', '.') }}</p>
+                        <p class="text-sm text-gray-600">Total: {{ 'Rp ' . number_format($item->price * $item->quantity, 0, ',', '.') }}</p>
+                    </div>
+                </div>
+                @endforeach
+                
+                <div class="pt-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Subtotal:</span>
+                        <span>{{ 'Rp ' . number_format($order->total_amount - $order->shipping_cost, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Ongkir ({{ $order->shipping_method }}):</span>
+                        <span>{{ $order->formatted_shipping_cost }}</span>
+                    </div>
+                    <div class="flex justify-between text-lg font-bold text-gray-800">
+                        <span>Total:</span>
+                        <span>{{ $order->formatted_total_amount }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Information -->
+        <div class="bg-white border border-gray-200 rounded-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Informasi Pengiriman</h2>
+            <div class="space-y-3">
+                <div>
+                    <span class="text-gray-600 block text-sm">Alamat Pengiriman:</span>
+                    <span class="font-medium text-gray-800 whitespace-pre-line">{{ $order->shipping_address }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Metode Pengiriman:</span>
+                    <span class="font-semibold text-gray-800">{{ $order->shipping_method }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Biaya Pengiriman:</span>
+                    <span class="font-semibold text-gray-800">{{ $order->formatted_shipping_cost }}</span>
                 </div>
             </div>
         </div>
@@ -89,8 +199,8 @@
                     <div class="text-sm text-blue-800">
                         <p class="font-medium">Instruksi Pembayaran:</p>
                         <ul class="mt-2 space-y-1">
-                            <li>• Transfer dengan jumlah yang tepat: <strong>Rp 1.520.000</strong></li>
-                            <li>• Sertakan nomor pesanan dalam keterangan transfer</li>
+                            <li>• Transfer dengan jumlah yang tepat: <strong>{{ $order->formatted_total_amount }}</strong></li>
+                            <li>• Sertakan nomor pesanan dalam keterangan transfer: <strong>{{ $order->order_number }}</strong></li>
                             <li>• Unggah bukti pembayaran dalam 24 jam</li>
                             <li>• Pesanan akan dibatalkan jika pembayaran tidak dikonfirmasi</li>
                         </ul>
@@ -103,7 +213,44 @@
         <div class="bg-white border border-gray-200 rounded-lg p-6">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Konfirmasi Pembayaran Anda</h2>
             
-            <form class="space-y-6">
+            @if($order->isPaid())
+                <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <div>
+                            <h3 class="text-lg font-semibold text-green-800">Pembayaran Sudah Dikonfirmasi!</h3>
+                            <p class="text-green-700">Bukti pembayaran Anda sudah diterima. Pesanan sedang diproses.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                @if($order->payment_proof_path)
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <h3 class="text-lg font-semibold text-blue-800 mb-2">Bukti Pembayaran</h3>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-blue-800 font-medium">{{ basename($order->payment_proof_path) }}</p>
+                                <p class="text-blue-600 text-sm">File bukti pembayaran</p>
+                            </div>
+                            <div>
+                                <a href="{{ Storage::url($order->payment_proof_path) }}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium text-sm">
+                                    Lihat File
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @else
+                <form action="{{ route('payment.confirm') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    @csrf
+                    <input type="hidden" name="order_number" value="{{ $order->order_number }}">
                 <!-- Upload Payment Proof -->
                 <div>
                     <label for="paymentProof" class="block text-sm font-medium text-gray-700 mb-2">
@@ -137,17 +284,18 @@
                         rows="3" 
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none"
                         placeholder="Tambahkan informasi tambahan tentang pembayaran Anda..."
-                    ></textarea>
+                    >{{ old('notes') }}</textarea>
                 </div>
 
-                <!-- Submit Button -->
-                <button 
-                    type="submit" 
-                    class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg hover:shadow-xl"
-                >
-                    Konfirmasi Pembayaran
-                </button>
-            </form>
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg hover:shadow-xl"
+                    >
+                        Konfirmasi Pembayaran
+                    </button>
+                </form>
+            @endif
         </div>
 
         <!-- Contact Information -->

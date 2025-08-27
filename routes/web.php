@@ -37,10 +37,8 @@ Route::prefix('api/rajaongkir')->group(function () {
     Route::get('/provinces/{province_id}', [App\Http\Controllers\RajaOngkirController::class, 'getProvinceById']);
 });
 
-Route::get('/payment-instruction', function (Request $request) {
-    $orderNumber = $request->query('order');
-    return view('payment-instruction', compact('orderNumber'));
-})->name('payment-instruction');
+Route::get('/payment-instruction', [App\Http\Controllers\PaymentController::class, 'show'])->name('payment-instruction');
+Route::post('/payment-instruction', [App\Http\Controllers\PaymentController::class, 'confirmPayment'])->name('payment.confirm');
 
 // Admin Authentication Routes
 Route::prefix('admin')->name('admin.')->group(function () {
