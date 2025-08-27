@@ -14,7 +14,7 @@
     
     <!-- Custom Responsive Styles -->
     <style>
-        /* Hide scrollbar for category navigation */
+        /* Hide scrollbar for category navigation and gallery */
         .scrollbar-hide {
             -ms-overflow-style: none;
             scrollbar-width: none;
