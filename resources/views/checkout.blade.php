@@ -48,7 +48,7 @@
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <input type="hidden" name="quantity" id="hidden_quantity" value="{{ old('quantity', 1) }}">
-                <input type="hidden" name="origin_id" id="origin_id" value="17473">
+                <input type="hidden" name="origin_id" id="origin_id" value="{{ isset($originId) ? $originId : 17473 }}">
                 <input type="hidden" name="destination_id" id="destination_id" value="">
                 <!-- Full Name -->
                 <div>

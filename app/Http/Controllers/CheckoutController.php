@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Models\Setting;
 
 class CheckoutController extends Controller
 {
@@ -30,7 +31,8 @@ class CheckoutController extends Controller
             return redirect()->route('product-detail', $product->slug)->with('error', 'Stok produk habis.');
         }
 
-        return view('checkout', compact('product'));
+        $originId = (int) Setting::getValue('store_origin_id', 17473);
+        return view('checkout', compact('product', 'originId'));
     }
 
     public function store(Request $request)

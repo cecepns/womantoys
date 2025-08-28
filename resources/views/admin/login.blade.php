@@ -72,21 +72,6 @@
                 @enderror
             </div>
 
-            <!-- Remember Me Checkbox -->
-            <div class="flex items-center justify-between">
-                <label class="flex items-center">
-                    <input 
-                        type="checkbox" 
-                        name="remember" 
-                        class="w-4 h-4 text-pink-600 border-gray-300 rounded focus:ring-pink-500"
-                    >
-                    <span class="ml-2 text-sm text-gray-600">Ingat saya</span>
-                </label>
-                <a href="#" class="text-sm text-pink-600 hover:text-pink-700">
-                    Lupa kata sandi?
-                </a>
-            </div>
-
             <!-- Login Button -->
             <button 
                 type="submit" 

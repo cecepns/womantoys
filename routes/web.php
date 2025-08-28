@@ -71,6 +71,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Bank Account routes
         Route::resource('accounts', App\Http\Controllers\Admin\BankAccountController::class)->except(['show']);
+
+        // Settings routes
+        Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings/password', [App\Http\Controllers\Admin\SettingController::class, 'updatePassword'])->name('settings.password');
+        Route::put('/settings/store', [App\Http\Controllers\Admin\SettingController::class, 'updateStore'])->name('settings.store');
     });
 });
 
