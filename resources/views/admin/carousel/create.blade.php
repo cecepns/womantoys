@@ -7,34 +7,37 @@
 
 @section('content')
 <!-- Header Section -->
-<div class="mb-8">
-    <div class="flex items-center justify-between">
+<div class="mb-6 md:mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Tambah Slide Baru</h1>
-            <p class="text-gray-600 mt-2">Buat slide carousel baru untuk ditampilkan di homepage</p>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Tambah Slide Baru</h1>
+            <p class="text-sm md:text-base text-gray-600 mt-1 md:mt-2">Buat slide carousel baru untuk ditampilkan di homepage</p>
         </div>
-        <a href="/admin/carousel" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
+        <a href="/admin/carousel" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center sm:justify-start text-sm md:text-base">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
             Kembali ke Daftar
         </a>
     </div>
 </div>
 
 <!-- Carousel Slide Form -->
-<form action="{{ route('admin.carousel.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
+<form action="{{ route('admin.carousel.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6 md:space-y-8">
     @csrf
     <!-- Image Upload Section -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-4">Gambar Slide</h2>
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
+        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-4">Gambar Slide</h2>
         
         <div class="space-y-4">
             <!-- Image Preview Area -->
             <div id="image_preview_container" class="hidden">
                 <p class="text-sm text-gray-600 mb-2">Preview Gambar:</p>
-                <div class="relative w-full max-w-md">
-                    <img id="image_preview" src="" alt="Preview" class="w-full object-cover rounded-lg border border-gray-300">
+                <div class="relative w-full max-w-sm md:max-w-md">
+                    <img id="image_preview" src="" alt="Preview" class="w-full h-32 md:h-48 object-cover rounded-lg border border-gray-300">
                     <!-- Remove Preview Button -->
-                    <button type="button" id="remove_preview_btn" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1 rounded-full transition-colors duration-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="button" id="remove_preview_btn" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white p-1.5 md:p-1 rounded-full transition-colors duration-200">
+                        <svg class="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
@@ -51,22 +54,22 @@
                     id="image_path"
                     name="image_path"
                     accept=".png,.jpg,.jpeg"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('image_path') border-red-500 @enderror"
+                    class="w-full px-3 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('image_path') border-red-500 @enderror text-sm md:text-base"
                     required
                 >
-                <p class="text-sm text-gray-500 mt-1">PNG, JPG, JPEG (max 5MB) - Rekomendasi: 1920x600px</p>
+                <p class="text-xs md:text-sm text-gray-500 mt-1">PNG, JPG, JPEG (max 5MB) - Rekomendasi: 1920x600px</p>
                 @error('image_path')
-                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                    <p class="text-red-500 text-xs md:text-sm">{{ $message }}</p>
                 @enderror
             </div>
         </div>
     </div>
 
     <!-- Content Section -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-6">Konten Slide</h2>
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
+        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-4 md:mb-6">Konten Slide</h2>
         
-        <div class="space-y-6">
+        <div class="space-y-4 md:space-y-6">
             <!-- Title -->
             <div>
                 <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
@@ -77,12 +80,12 @@
                     id="title"
                     name="title"
                     value="{{ old('title') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('title') border-red-500 @enderror"
+                    class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('title') border-red-500 @enderror text-sm md:text-base"
                     placeholder="Masukkan judul slide"
                 >
-                <p class="text-sm text-gray-500 mt-1">Judul utama yang akan ditampilkan di slide</p>
+                <p class="text-xs md:text-sm text-gray-500 mt-1">Judul utama yang akan ditampilkan di slide</p>
                 @error('title')
-                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                    <p class="text-red-500 text-xs md:text-sm">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -95,12 +98,12 @@
                     id="description"
                     name="description"
                     rows="3"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror"
+                    class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror text-sm md:text-base"
                     placeholder="Masukkan deskripsi slide (opsional)"
                 >{{ old('description') }}</textarea>
-                <p class="text-sm text-gray-500 mt-1">Deskripsi singkat di bawah judul</p>
+                <p class="text-xs md:text-sm text-gray-500 mt-1">Deskripsi singkat di bawah judul</p>
                 @error('description')
-                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                    <p class="text-red-500 text-xs md:text-sm">{{ $message }}</p>
                 @enderror
             </div>
         </div>
@@ -108,10 +111,10 @@
     </div>
 
     <!-- CTA Button Section -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
-        <h2 class="text-xl font-semibold text-gray-800 mb-6">Tombol Call-to-Action</h2>
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
+        <h2 class="text-lg md:text-xl font-semibold text-gray-800 mb-4 md:mb-6">Tombol Call-to-Action</h2>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             <!-- CTA Button Text -->
             <div>
                 <label for="cta_text" class="block text-sm font-medium text-gray-700 mb-2">
@@ -122,12 +125,12 @@
                     id="cta_text"
                     name="cta_text"
                     value="{{ old('cta_text') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('cta_text') border-red-500 @enderror"
+                    class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('cta_text') border-red-500 @enderror text-sm md:text-base"
                     placeholder="Contoh: Lihat Koleksi"
                 >
-                <p class="text-sm text-gray-500 mt-1">Teks yang akan ditampilkan di tombol (kosongkan jika tidak ingin ada tombol)</p>
+                <p class="text-xs md:text-sm text-gray-500 mt-1">Teks yang akan ditampilkan di tombol (kosongkan jika tidak ingin ada tombol)</p>
                 @error('cta_text')
-                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                    <p class="text-red-500 text-xs md:text-sm">{{ $message }}</p>
                 @enderror
             </div>
 
@@ -141,12 +144,12 @@
                     id="cta_link"
                     name="cta_link"
                     value="{{ old('cta_link') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('cta_link') border-red-500 @enderror"
+                    class="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('cta_link') border-red-500 @enderror text-sm md:text-base"
                     placeholder="Contoh: /catalog atau https://example.com"
                 >
-                <p class="text-sm text-gray-500 mt-1">URL tujuan ketika tombol diklik</p>
+                <p class="text-xs md:text-sm text-gray-500 mt-1">URL tujuan ketika tombol diklik</p>
                 @error('cta_link')
-                    <p class="text-red-500 text-sm">{{ $message }}</p>
+                    <p class="text-red-500 text-xs md:text-sm">{{ $message }}</p>
                 @enderror
             </div>
         </div>
@@ -155,15 +158,15 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex justify-end space-x-4">
-        <a href="/admin/carousel" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200">
+    <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
+        <a href="/admin/carousel" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 md:py-3 px-4 md:px-6 rounded-lg transition-colors duration-200 text-center text-sm md:text-base">
             Batal
         </a>
         <button
             type="submit"
-            class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 flex items-center"
+            class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 md:py-3 px-6 md:px-8 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm md:text-base"
         >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 md:w-5 md:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
             Simpan Slide
