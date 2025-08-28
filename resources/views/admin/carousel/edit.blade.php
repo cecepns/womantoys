@@ -32,7 +32,7 @@
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Edit Slide</h1>
             <p class="text-sm md:text-base text-gray-600 mt-1 md:mt-2">Edit slide carousel yang sudah ada</p>
         </div>
-        <a href="{{ route('admin.carousel.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center sm:justify-start text-sm md:text-base">
+        <a href="{{ route('admin.carousel.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center sm:justify-start text-sm md:text-base w-full sm:w-auto">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
@@ -208,12 +208,12 @@
 
     <!-- Action Buttons -->
     <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
-        <a href="{{ route('admin.carousel.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 md:py-3 px-4 md:px-6 rounded-lg transition-colors duration-200 text-center text-sm md:text-base">
+        <a href="{{ route('admin.carousel.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 md:py-3 px-4 md:px-6 rounded-lg transition-colors duration-200 text-center text-sm md:text-base w-full sm:w-auto">
             Batal
         </a>
         <button
             type="submit"
-            class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 md:py-3 px-6 md:px-8 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm md:text-base"
+            class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 md:py-3 px-6 md:px-8 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm md:text-base w-full sm:w-auto"
         >
             <svg class="w-4 h-4 md:w-5 md:h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>

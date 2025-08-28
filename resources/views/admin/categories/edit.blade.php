@@ -7,12 +7,12 @@
 
 @section('content')
 <!-- Header Section -->
-<div class="flex justify-between items-center mb-6">
+<div class="flex justify-between items-center mb-6 flex-col sm:flex-row gap-4 sm:gap-0">
     <div>
         <h1 class="text-2xl font-bold text-gray-800">Edit Kategori</h1>
         <p class="text-gray-600">Edit kategori: {{ $category->name }}</p>
     </div>
-    <a href="{{ route('admin.categories.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+    <a href="{{ route('admin.categories.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 w-full sm:w-auto text-center">
         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
@@ -107,11 +107,11 @@
             </div>
 
             <!-- Submit Buttons -->
-            <div class="flex justify-end space-x-3">
-                <a href="{{ route('admin.categories.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200">
+            <div class="flex justify-end flex-col sm:flex-row gap-2 sm:gap-3">
+                <a href="{{ route('admin.categories.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 w-full sm:w-auto text-center">
                     Batal
                 </a>
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 w-full sm:w-auto">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
