@@ -7,33 +7,33 @@
 
 @section('content')
 <!-- Header Section -->
-<div class="flex justify-between items-center mb-8">
+<div class="flex justify-between items-center mb-8 flex-col sm:flex-row gap-4 sm:gap-0">
     <div>
         <h1 class="text-3xl font-bold text-gray-800">Manajemen Pesanan</h1>
         <p class="text-gray-600 mt-2">Kelola semua pesanan masuk dari pelanggan</p>
     </div>
-    <div class="flex items-center space-x-4">
+    <div class="flex items-center flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
         <!-- Search Form -->
-        <form method="GET" action="{{ route('admin.orders.index') }}" class="flex items-center space-x-2">
-            <div class="relative">
+        <form method="GET" action="{{ route('admin.orders.index') }}" class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+            <div class="relative flex-1 sm:flex-none">
                 <input
                     type="text"
                     name="search"
                     value="{{ request('search') }}"
                     placeholder="Cari pesanan..."
-                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent w-full"
                 >
                 <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
             </div>
             <input type="hidden" name="status" value="{{ request('status', 'all') }}">
-            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
+            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center w-full sm:w-auto justify-center">
                 Cari
             </button>
         </form>
         
-        <a href="{{ route('admin.orders.export', request()->query()) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
+        <a href="{{ route('admin.orders.export', request()->query()) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center w-full sm:w-auto justify-center">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
@@ -43,7 +43,7 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="mb-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
@@ -126,10 +126,10 @@
                     <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Nama Pelanggan
                     </th>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                         Tanggal Pesanan
                     </th>
-                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                         Total Pembayaran
                     </th>
                     <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -158,11 +158,11 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                             <div class="text-sm text-gray-900">{{ $order->created_at->format('d M Y') }}</div>
                             <div class="text-sm text-gray-500">{{ $order->created_at->format('H:i') }} WIB</div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                             <div class="text-sm font-medium text-gray-900">{{ $order->formatted_total_amount }}</div>
                             <div class="text-sm text-gray-500">Transfer Bank</div>
                         </td>
@@ -222,8 +222,8 @@
 
 <!-- Pagination -->
 @if($orders->hasPages())
-<div class="mt-6 flex items-center justify-between">
-    <div class="text-sm text-gray-700">
+<div class="mt-6 flex items-center justify-between flex-col sm:flex-row gap-4 sm:gap-0">
+    <div class="text-sm text-gray-700 text-center sm:text-left">
         Menampilkan <span class="font-medium">{{ $orders->firstItem() }}</span> sampai <span class="font-medium">{{ $orders->lastItem() }}</span> dari <span class="font-medium">{{ $orders->total() }}</span> pesanan
     </div>
     
