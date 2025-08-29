@@ -296,7 +296,7 @@
         </div>
 
         <!-- Transfer Proof -->
-        @if($order->transfer_proof)
+        @if($order->payment_proof_path)
             <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
                 <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                     <svg class="w-5 h-5 mr-2 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -307,14 +307,9 @@
                 
                 <div class="space-y-3">
                     <div>
-                        <img src="{{ asset('storage/' . $order->transfer_proof) }}" 
+                        <img src="{{ asset('storage/' . $order->payment_proof_path) }}" 
                              alt="Bukti Transfer" 
                              class="w-full rounded-lg border border-gray-300">
-                    </div>
-                    <div class="text-sm text-gray-600">
-                        <p><strong>Bank:</strong> {{ $order->bank_name ?? 'Tidak diketahui' }}</p>
-                        <p><strong>Atas Nama:</strong> {{ $order->account_holder ?? 'Tidak diketahui' }}</p>
-                        <p><strong>Jumlah Transfer:</strong> {{ number_format($order->total_amount, 0, ',', '.') }}</p>
                     </div>
                 </div>
             </div>
