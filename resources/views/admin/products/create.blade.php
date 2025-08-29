@@ -7,17 +7,17 @@
 
 @section('content')
 <!-- Header Section -->
-<div class="mb-8">
-    <div class="flex items-center justify-between">
+<div class="mb-6 md:mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Tambah Produk Baru</h1>
-            <p class="text-gray-600 mt-2">Isi semua detail produk yang diperlukan</p>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Tambah Produk Baru</h1>
+            <p class="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Isi semua detail produk yang diperlukan</p>
         </div>
-        <a href="/admin/products" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <a href="/admin/products" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-3 md:px-4 rounded-lg transition-colors duration-200 flex items-center justify-center sm:justify-start w-full sm:w-auto">
+            <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
-            Kembali ke Daftar
+            <span class="text-sm md:text-base">Kembali ke Daftar</span>
         </a>
     </div>
 </div>
@@ -27,7 +27,7 @@
     @csrf
     
     <!-- Basic Information Section -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-6">Informasi Dasar Produk</h2>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -219,7 +219,7 @@
     </div>
 
     <!-- Detailed Information Section -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-6">Informasi Detail Produk</h2>
         
         <div class="space-y-6">
@@ -278,7 +278,7 @@
     </div>
 
     <!-- Additional Settings Section -->
-    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-6">Pengaturan Tambahan</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -323,18 +323,18 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex justify-end space-x-4">
-        <a href="/admin/products" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200">
+    <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4">
+        <a href="/admin/products" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 md:py-3 px-4 md:px-6 rounded-lg transition-colors duration-200 text-center text-sm md:text-base order-2 sm:order-1">
             Batal
         </a>
         <button
             type="submit"
-            class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-3 px-8 rounded-lg transition-colors duration-200 flex items-center"
+            class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2.5 md:py-3 px-4 md:px-8 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm md:text-base order-1 sm:order-2"
         >
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
             </svg>
-            Simpan Produk
+            <span>Simpan Produk</span>
         </button>
     </div>
 </form>
