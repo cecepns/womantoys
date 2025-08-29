@@ -133,6 +133,38 @@
                 font-size: 0.75rem;
             }
         }
+        
+        /* Floating Action Button Styles */
+        .fab {
+            animation: fab-float 3s ease-in-out infinite;
+        }
+        
+        @keyframes fab-float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .fab:hover {
+            animation: none;
+            transform: scale(1.1);
+        }
+        
+        /* Mobile responsive FAB */
+        @media (max-width: 768px) {
+            .fab {
+                width: 3.5rem;
+                height: 3.5rem;
+            }
+            
+            .fab svg {
+                width: 1.5rem;
+                height: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body class="min-h-screen bg-gray-50">
@@ -189,7 +221,16 @@
         @yield('content')
     </main>
 
-
+    <!-- Floating Action Button -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button class="fab w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group" 
+                onclick="openChat()"
+                aria-label="Chat dengan kami">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+        </button>
+    </div>
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-white">
@@ -299,6 +340,18 @@
                     // Add smooth scroll behavior if needed
                 });
             });
+            
+            // Floating Action Button functionality
+            window.openChat = function() {
+                // Direct WhatsApp link
+                // WhatsApp URL dipisah agar mudah diedit
+                const whatsappPhone = '628100235004';
+                const whatsappText = encodeURIComponent('Halo, saya ingin bertanya produk terbaru womantoys');
+                const whatsappUrl = `https://api.whatsapp.com/send/?phone=${whatsappPhone}&text=${whatsappText}&type=phone_number&app_absent=0`;
+                
+                // Open WhatsApp in new tab
+                window.open(whatsappUrl, '_blank');
+            };
         });
     </script>
 
