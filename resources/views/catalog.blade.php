@@ -103,11 +103,7 @@
     
     <!-- Paginasi -->
     @if($products->hasPages())
-        <div class="flex justify-center mt-8 md:mt-12">
-            <div class="pagination-wrapper">
-                {{ $products->links() }}
-            </div>
-        </div>
+        {{ $products->links() }}
     @endif
 </div>
 @endsection
