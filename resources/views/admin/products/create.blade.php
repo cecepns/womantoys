@@ -185,9 +185,9 @@
 
                 <!-- Gallery Images -->
                 <div>
-                    <label for="gallery_images" class="block text-sm font-medium text-gray-700 mb-2">
-                        Gambar Galeri (Maksimal 5 gambar)
-                    </label>
+                                    <label for="gallery_images" class="block text-sm font-medium text-gray-700 mb-2">
+                    Gambar Galeri
+                </label>
                     
                     <!-- File Input -->
                     <div class="mb-3">
@@ -386,9 +386,6 @@ let selectedGalleryFiles = [];
 
 document.getElementById('gallery_images').addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
-    const maxFiles = 999; // Unlimited
-    
-
     
     // Add new files to selected files
     selectedGalleryFiles = selectedGalleryFiles.concat(files);

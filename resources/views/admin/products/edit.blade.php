@@ -210,9 +210,9 @@
 
                 <!-- Gallery Images -->
                 <div>
-                    <label for="gallery_images" class="block text-sm font-medium text-gray-700 mb-2">
-                        Gambar Galeri (Maksimal 5 gambar)
-                    </label>
+                                    <label for="gallery_images" class="block text-sm font-medium text-gray-700 mb-2">
+                    Gambar Galeri
+                </label>
                     
                     <!-- File Input -->
                     <div class="mb-3">
@@ -228,7 +228,7 @@
                     
                     <!-- Gallery Images Container -->
                     <div class="mb-3">
-                        <p id="gallery_count" class="text-sm text-gray-600 mb-2">Gambar galeri ({{ $product->images->count() }}/5):</p>
+                        <p id="gallery_count" class="text-sm text-gray-600 mb-2">Gambar galeri ({{ $product->images->count() }}):</p>
                         <div id="gallery_container" class="grid grid-cols-3 gap-3">
                             @if(isset($product) && $product->images->count() > 0)
                                 @foreach($product->images as $index => $image)
@@ -479,7 +479,7 @@ function countVisibleGalleryItems() {
 function setGalleryCounterText(count) {
     const counterElement = document.getElementById(GALLERY_COUNT_ID);
     if (counterElement) {
-        counterElement.textContent = `Gambar galeri (${count}/5):`;
+        counterElement.textContent = `Gambar galeri (${count}):`;
     }
 }
 
@@ -546,9 +546,6 @@ let removedExistingImages = [];
 
 document.getElementById('gallery_images').addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
-    const maxFiles = 999; // Unlimited
-    const currentImages = document.querySelectorAll('.gallery-item:not(.new-image)').length;
-    const availableSlots = maxFiles - currentImages + removedExistingImages.length;
 
     selectedGalleryFiles = selectedGalleryFiles.concat(files);
     rebuildGalleryInputFiles();
