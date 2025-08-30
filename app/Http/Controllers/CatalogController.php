@@ -14,6 +14,13 @@ class CatalogController extends Controller
             ->active()
             ->inStock();
 
+        // Filter by main category
+        if ($request->has('main') && $request->main !== 'all') {
+            $query->whereHas('category.mainCategory', function ($q) use ($request) {
+                $q->where('slug', $request->main);
+            });
+        }
+
         // Filter by category
         if ($request->has('category') && $request->category !== 'all') {
             $query->whereHas('category', function ($q) use ($request) {

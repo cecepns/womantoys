@@ -201,8 +201,42 @@
     <!-- Sub Header - Categories -->
     <div class="bg-white border-b border-gray-200 shadow">
         <div class="container mx-auto px-4 py-2 md:py-3">
-            <div class="flex overflow-x-auto space-x-4 py-2 scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none;">
-                @if(isset($categories) && $categories->count() > 0)
+            <div class="flex flex-col justify-center flex-wrap lg:flex-row gap-5 lg:gap-3 py-2">
+                @if(isset($mainCategories) && $mainCategories->count() > 0)
+                    @foreach($mainCategories as $main)
+                        <div class="relative group">
+                            @if($main->categories && $main->categories->count() > 0)
+                                <!-- Main menu dengan dropdown -->
+                                <button type="button"
+                                       class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1 flex items-center gap-1 cursor-pointer">
+                                    {{ $main->name }}
+                                    <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-pink-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+
+                                <div class="absolute left-0 top-full w-56 bg-white border border-gray-200 rounded-md shadow-lg z-30 hidden group-hover:block focus-within:block">
+                                    <ul class="py-1 max-h-64 overflow-auto scrollbar-hide">
+                                        @foreach($main->categories as $child)
+                                            <li>
+                                                <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $child->slug])) }}"
+                                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600">
+                                                    {{ $child->name }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @else
+                                <!-- Main menu tanpa sub kategori - bisa diklik untuk ke halaman main category -->
+                                <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug])) }}"
+                                   class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1">
+                                    {{ $main->name }}
+                                </a>
+                            @endif
+                        </div>
+                    @endforeach
+                @elseif(isset($categories) && $categories->count() > 0)
                     @foreach($categories as $category)
                         <a href="/catalog?category={{ $category->slug }}" 
                             class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3">
