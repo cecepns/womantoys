@@ -228,7 +228,7 @@
                     
                     <!-- Gallery Images Container -->
                     <div class="mb-3">
-                        <p id="gallery_count" class="text-sm text-gray-600 mb-2">Gambar galeri ({{ $product->images->count() }}):</p>
+
                         <div id="gallery_container" class="grid grid-cols-3 gap-3">
                             @if(isset($product) && $product->images->count() > 0)
                                 @foreach($product->images as $index => $image)
@@ -447,7 +447,7 @@ const $$ = (selector) => document.querySelectorAll(selector);
 const MAIN_IMAGE_INPUT_ID = 'main_image';
 const GALLERY_INPUT_ID = 'gallery_images';
 const GALLERY_CONTAINER_ID = 'gallery_container';
-const GALLERY_COUNT_ID = 'gallery_count';
+
 
 function rebuildGalleryInputFiles() {
     const input = document.getElementById(GALLERY_INPUT_ID);
@@ -468,24 +468,7 @@ function addHiddenRemovedInput(imageId) {
     }
 }
 
-function countVisibleGalleryItems() {
-    let visibleCount = 0;
-    document.querySelectorAll('.gallery-item').forEach(item => {
-        if (item.style.display !== 'none') visibleCount++;
-    });
-    return visibleCount;
-}
 
-function setGalleryCounterText(count) {
-    const counterElement = document.getElementById(GALLERY_COUNT_ID);
-    if (counterElement) {
-        counterElement.textContent = `Gambar galeri (${count}):`;
-    }
-}
-
-function updateGalleryCounter() {
-    setGalleryCounterText(countVisibleGalleryItems());
-}
 
 document.getElementById('main_image').addEventListener('change', function(e) {
     const removeFlag = document.getElementById('remove_main_image');
@@ -582,7 +565,6 @@ function updateGalleryPreview() {
         };
         reader.readAsDataURL(file);
     });
-    updateGalleryCounter();
 }
 
 function removeNewGalleryImage(index) {
@@ -592,7 +574,6 @@ function removeNewGalleryImage(index) {
     if (previewElement) {
         previewElement.remove();
     }
-    updateGalleryCounter();
     const remainingPreviews = document.querySelectorAll('.gallery-item.new-image');
     remainingPreviews.forEach((preview, newIndex) => {
         preview.setAttribute('data-file-index', newIndex);
@@ -613,7 +594,6 @@ function removeExistingGalleryImage(imageId) {
         imageElement.style.display = 'none';
     }
     addHiddenRemovedInput(imageId);
-    updateGalleryCounter();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -627,7 +607,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-    updateGalleryCounter();
     [MAIN_IMAGE_INPUT_ID, GALLERY_INPUT_ID].forEach(id => {
         const input = document.getElementById(id);
         if (input && !input.hasAttribute('data-initialized')) {
