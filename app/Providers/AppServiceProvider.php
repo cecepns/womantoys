@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
             // Main categories with their sub categories
             $mainCategories = MainCategory::with(['categories' => function ($q) {
                 $q->orderBy('name', 'asc');
-            }])->orderBy('name', 'asc')->limit(8)->get();
+            }])->orderBy('name', 'asc')->get();
             
             $view->with(compact('categories', 'mainCategories'));
         });

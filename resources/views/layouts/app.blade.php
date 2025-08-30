@@ -201,26 +201,35 @@
     <!-- Sub Header - Categories -->
     <div class="bg-white border-b border-gray-200 shadow">
         <div class="container mx-auto px-4 py-2 md:py-3">
-            <div class="flex flex-col justify-center flex-wrap lg:flex-row gap-5 lg:gap-3 py-2">
+            <div class="lg:hidden py-1">
+                <button id="mobile-menu-btn" type="button" aria-label="Toggle categories menu" aria-expanded="false" aria-controls="categories-container" class="inline-flex items-center justify-center p-2 border border-gray-200 rounded-lg text-gray-600 hover:text-pink-600 hover:border-pink-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            <div id="categories-container" class="hidden flex flex-col justify-center lg:flex lg:flex-row lg:flex-nowrap gap-5 lg:gap-3 py-2">
                 @if(isset($mainCategories) && $mainCategories->count() > 0)
                     @foreach($mainCategories as $main)
-                        <div class="relative group">
+                        <div class="relative group shrink-0 category-item">
                             @if($main->categories && $main->categories->count() > 0)
                                 <!-- Main menu dengan dropdown -->
                                 <button type="button"
-                                       class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1 flex items-center gap-1 cursor-pointer">
+                                       class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1 flex items-center gap-1 cursor-pointer main-menu-toggle"
+                                       aria-expanded="false"
+                                       aria-controls="submenu-{{ $main->id }}">
                                     {{ $main->name }}
                                     <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-pink-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
 
-                                <div class="absolute left-0 top-full w-56 bg-white border border-gray-200 rounded-md shadow-lg z-30 hidden group-hover:block focus-within:block">
+                                <div id="submenu-{{ $main->id }}" class="submenu-panel hidden w-full lg:w-56 lg:absolute lg:left-0 lg:top-full bg-white lg:border lg:border-gray-200 rounded-md lg:shadow-lg z-30 lg:group-hover:block">
                                     <ul class="py-1 max-h-64 overflow-auto scrollbar-hide">
                                         @foreach($main->categories as $child)
                                             <li>
                                                 <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $child->slug])) }}"
-                                                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600">
+                                                   class="block px-4 py-2 text-xs text-gray-700 hover:bg-pink-50 hover:text-pink-600">
                                                     {{ $child->name }}
                                                 </a>
                                             </li>
@@ -333,10 +342,63 @@
             
             if (mobileMenuBtn) {
                 mobileMenuBtn.addEventListener('click', function() {
-                    // Add mobile menu functionality here if needed
-                    console.log('Mobile menu clicked');
+                    const container = document.getElementById('categories-container');
+                    if (!container) return;
+                    const isHidden = container.classList.contains('hidden');
+                    if (isHidden) {
+                        container.classList.remove('hidden');
+                        mobileMenuBtn.setAttribute('aria-expanded', 'true');
+                    } else {
+                        container.classList.add('hidden');
+                        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+                        // Also collapse any open submenus on close
+                        document.querySelectorAll('.submenu-panel').forEach(function(panel) {
+                            panel.classList.add('hidden');
+                        });
+                        document.querySelectorAll('.main-menu-toggle[aria-expanded="true"]').forEach(function(btn) {
+                            btn.setAttribute('aria-expanded', 'false');
+                        });
+                    }
                 });
             }
+
+            // Close categories menu when clicking outside (mobile only)
+            document.addEventListener('click', function(e) {
+                const container = document.getElementById('categories-container');
+                const toggleBtn = document.getElementById('mobile-menu-btn');
+                if (!container || window.innerWidth >= 1024) return;
+                const withinMenu = container.contains(e.target);
+                const clickedToggle = toggleBtn && toggleBtn.contains(e.target);
+                if (!withinMenu && !clickedToggle) {
+                    if (!container.classList.contains('hidden')) {
+                        container.classList.add('hidden');
+                        if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+                    }
+                    document.querySelectorAll('.submenu-panel').forEach(function(panel) {
+                        panel.classList.add('hidden');
+                    });
+                    document.querySelectorAll('.main-menu-toggle[aria-expanded="true"]').forEach(function(btn) {
+                        btn.setAttribute('aria-expanded', 'false');
+                    });
+                }
+            });
+
+            // Close on Escape key (mobile only)
+            document.addEventListener('keydown', function(e) {
+                if (e.key !== 'Escape' || window.innerWidth >= 1024) return;
+                const container = document.getElementById('categories-container');
+                const toggleBtn = document.getElementById('mobile-menu-btn');
+                if (container && !container.classList.contains('hidden')) {
+                    container.classList.add('hidden');
+                    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+                }
+                document.querySelectorAll('.submenu-panel').forEach(function(panel) {
+                    panel.classList.add('hidden');
+                });
+                document.querySelectorAll('.main-menu-toggle[aria-expanded="true"]').forEach(function(btn) {
+                    btn.setAttribute('aria-expanded', 'false');
+                });
+            });
             
             // Search functionality enhancements
             const searchInput = document.querySelector('input[name="search"]');
@@ -375,6 +437,56 @@
                 });
             });
             
+            // Dynamic hide of overflowing main menu items on lg and above
+            let categoriesResizeTimeout;
+            function adjustCategoriesLayout() {
+                const container = document.getElementById('categories-container');
+                if (!container) return;
+                const items = Array.from(container.querySelectorAll('.category-item'));
+                // Reset all items to visible
+                items.forEach(item => { item.style.display = ''; });
+                // Only apply logic on lg breakpoint and above (1024px)
+                if (window.innerWidth < 1024) return;
+                const style = window.getComputedStyle(container);
+                const gapPx = parseFloat(style.columnGap || style.gap || '0');
+                const containerWidth = container.clientWidth;
+                let usedWidth = 0;
+                items.forEach((item, index) => {
+                    const itemWidth = item.offsetWidth;
+                    const addGap = index === 0 ? 0 : gapPx;
+                    if (usedWidth + addGap + itemWidth <= containerWidth) {
+                        usedWidth += addGap + itemWidth;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            }
+            // Run on load and on resize (debounced)
+            adjustCategoriesLayout();
+            window.addEventListener('resize', function() {
+                clearTimeout(categoriesResizeTimeout);
+                categoriesResizeTimeout = setTimeout(adjustCategoriesLayout, 150);
+            });
+
+            // Collapse behavior for vertical (mobile) menu: toggle on click, only < lg
+            document.addEventListener('click', function(e) {
+                const toggle = e.target.closest('.main-menu-toggle');
+                if (!toggle) return;
+                // Only enable collapse on small screens
+                if (window.innerWidth >= 1024) return;
+                const controls = toggle.getAttribute('aria-controls');
+                if (!controls) return;
+                const panel = document.getElementById(controls);
+                if (!panel) return;
+                const expanded = toggle.getAttribute('aria-expanded') === 'true';
+                toggle.setAttribute('aria-expanded', String(!expanded));
+                if (expanded) {
+                    panel.classList.add('hidden');
+                } else {
+                    panel.classList.remove('hidden');
+                }
+            });
+
             // Floating Action Button functionality
             window.openChat = function() {
                 // Get WhatsApp settings from PHP
