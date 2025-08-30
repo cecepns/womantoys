@@ -33,11 +33,11 @@
             <div class="w-full">
                 <div class="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                     <h2 class="text-sm md:text-base font-semibold text-gray-700 mb-2">Kategori Utama</h2>
-                    <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('catalog') }}{{ request('search') ? '?search=' . request('search') : '' }}" class="px-4 py-2 {{ request('main') === null || request('main') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">Semua Utama</a>
+                    <div class="flex flex-wrap gap-2 md:gap-3">
+                        <a href="{{ route('catalog') }}{{ request('search') ? '?search=' . request('search') : '' }}" class="px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm {{ request('main') === null || request('main') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">Semua Utama</a>
                         @if(isset($mainCategories))
                             @foreach($mainCategories as $main)
-                                <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug, 'category' => 'all'])) }}" class="px-4 py-2 {{ request('main') === $main->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">
+                                <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug, 'category' => 'all'])) }}" class="px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm {{ request('main') === $main->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">
                                     {{ $main->name }}
                                 </a>
                             @endforeach
@@ -50,10 +50,10 @@
             <div class="w-full">
                 <div class="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
                     <h2 class="text-sm md:text-base font-semibold text-gray-700 mb-2">Sub Kategori</h2>
-                    <div class="flex flex-wrap gap-3">
-                        <a href="{{ route('catalog', array_merge(request()->query(), ['category' => 'all'])) }}" class="px-4 py-2 {{ request('category') === null || request('category') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">Semua Sub</a>
+                    <div class="flex flex-wrap gap-2 md:gap-3">
+                        <a href="{{ route('catalog', array_merge(request()->query(), ['category' => 'all'])) }}" class="px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm {{ request('category') === null || request('category') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">Semua Sub</a>
                         @foreach($categories as $category)
-                            <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $category->slug])) }}" class="px-4 py-2 {{ request('category') === $category->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">
+                            <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $category->slug])) }}" class="px-2 py-1 md:px-4 md:py-2 text-xs md:text-sm {{ request('category') === $category->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">
                                 {{ $category->name }}
                                 <span class="ml-1 text-xs">({{ $category->products_count }})</span>
                             </a>
