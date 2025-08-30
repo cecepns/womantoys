@@ -343,11 +343,10 @@
             
             // Floating Action Button functionality
             window.openChat = function() {
-                // Direct WhatsApp link
-                // WhatsApp URL dipisah agar mudah diedit
-                const whatsappPhone = '628100235004';
-                const whatsappText = encodeURIComponent('Halo, saya ingin bertanya produk terbaru womantoys');
-                const whatsappUrl = `https://api.whatsapp.com/send/?phone=${whatsappPhone}&text=${whatsappText}&type=phone_number&app_absent=0`;
+                // Get WhatsApp settings from PHP
+                const whatsappPhone = '{{ \App\Helpers\SettingHelper::getWhatsAppNumber() }}';
+                const whatsappText = encodeURIComponent('{{ \App\Helpers\SettingHelper::getWhatsAppMessage() }}');
+                const whatsappUrl = `https://api.whatsapp.com/send/?phone=62${whatsappPhone}&text=${whatsappText}&type=phone_number&app_absent=0`;
                 
                 // Open WhatsApp in new tab
                 window.open(whatsappUrl, '_blank');

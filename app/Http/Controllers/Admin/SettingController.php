@@ -19,13 +19,17 @@ class SettingController extends Controller
         $storeCityId = Setting::getValue('store_city_id', '');
         $storeCityLabel = Setting::getValue('store_city_label', '');
         $storeOriginId = Setting::getValue('store_origin_id', '');
+        $whatsappNumber = Setting::getValue('whatsapp_number', '8100235004');
+        $whatsappMessage = Setting::getValue('whatsapp_message', 'Halo, saya ingin bertanya produk terbaru womantoys');
         return view('admin.settings.edit', compact(
             'storeName',
             'storeAddress',
             'storeProvinceId',
             'storeCityId',
             'storeCityLabel',
-            'storeOriginId'
+            'storeOriginId',
+            'whatsappNumber',
+            'whatsappMessage'
         ));
     }
 
@@ -68,6 +72,27 @@ class SettingController extends Controller
         Setting::setValue('store_origin_id', $request->input('store_origin_id'));
 
         notify()->success('Pengaturan toko berhasil disimpan');
+        return back();
+    }
+
+    public function updateWhatsApp(Request $request)
+    {
+        $request->validate([
+            'whatsapp_number' => 'required|string|regex:/^[0-9]+$/|min:9|max:15',
+            'whatsapp_message' => 'required|string|max:500',
+        ], [
+            'whatsapp_number.required' => 'Nomor WhatsApp harus diisi',
+            'whatsapp_number.regex' => 'Nomor WhatsApp hanya boleh berisi angka',
+            'whatsapp_number.min' => 'Nomor WhatsApp minimal 9 digit',
+            'whatsapp_number.max' => 'Nomor WhatsApp maksimal 15 digit',
+            'whatsapp_message.required' => 'Pesan WhatsApp harus diisi',
+            'whatsapp_message.max' => 'Pesan WhatsApp maksimal 500 karakter',
+        ]);
+
+        Setting::setValue('whatsapp_number', $request->input('whatsapp_number'));
+        Setting::setValue('whatsapp_message', $request->input('whatsapp_message'));
+
+        notify()->success('Pengaturan WhatsApp berhasil disimpan');
         return back();
     }
 }
