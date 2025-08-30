@@ -386,13 +386,9 @@ let selectedGalleryFiles = [];
 
 document.getElementById('gallery_images').addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
-    const maxFiles = 5;
+    const maxFiles = 999; // Unlimited
     
-    // Check if adding new files would exceed limit
-    if (selectedGalleryFiles.length + files.length > maxFiles) {
-        alert(`Maksimal ${maxFiles} gambar. Anda sudah memilih ${selectedGalleryFiles.length} gambar.`);
-        return;
-    }
+
     
     // Add new files to selected files
     selectedGalleryFiles = selectedGalleryFiles.concat(files);

@@ -32,7 +32,7 @@ class CarouselController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'image_path' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+            'image_path' => 'required|image|mimes:jpeg,png,jpg',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'cta_text' => 'nullable|string|max:255',
@@ -41,7 +41,6 @@ class CarouselController extends Controller
             'image_path.required' => 'Gambar slide wajib diupload.',
             'image_path.image' => 'File harus berupa gambar.',
             'image_path.mimes' => 'Format gambar harus JPEG, PNG, atau JPG.',
-            'image_path.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
 
         // Validate CTA consistency

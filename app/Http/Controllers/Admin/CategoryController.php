@@ -36,7 +36,7 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
             'main_category_id' => 'required|exists:main_categories,id',
-            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp',
         ], [
             'main_category_id.required' => 'Kategori utama wajib dipilih.',
             'main_category_id.exists' => 'Kategori utama yang dipilih tidak valid.',
@@ -75,7 +75,7 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'main_category_id' => 'required|exists:main_categories,id',
-            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp',
         ], [
             'main_category_id.required' => 'Kategori utama wajib dipilih.',
             'main_category_id.exists' => 'Kategori utama yang dipilih tidak valid.',

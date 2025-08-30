@@ -33,7 +33,7 @@ class MainCategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:main_categories,name',
-            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp',
         ]);
 
         $coverImagePath = null;
@@ -66,7 +66,7 @@ class MainCategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:main_categories,name,' . $mainCategory->id,
-            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp',
         ]);
 
         $updateData = [

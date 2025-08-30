@@ -77,16 +77,14 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,draft,out_of_stock',
             'is_featured' => 'nullable|boolean',
-            'main_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'main_image' => 'required|image|mimes:jpeg,png,jpg,gif',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ], [
             'main_image.required' => 'Gambar utama wajib diupload.',
             'main_image.image' => 'File harus berupa gambar.',
             'main_image.mimes' => 'Format gambar harus JPEG, PNG, JPG, atau GIF.',
-            'main_image.max' => 'Ukuran gambar maksimal 2MB.',
             'gallery_images.*.image' => 'File galeri harus berupa gambar.',
             'gallery_images.*.mimes' => 'Format gambar galeri harus JPEG, PNG, JPG, atau GIF.',
-            'gallery_images.*.max' => 'Ukuran gambar galeri maksimal 2MB.',
         ]);
 
         // Handle main image upload first
@@ -176,8 +174,8 @@ class ProductController extends Controller
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,draft,out_of_stock',
             'is_featured' => 'nullable|boolean',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         // Prepare update data

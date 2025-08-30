@@ -55,13 +55,12 @@ class PaymentController extends Controller
 
         // Validate request
         $validator = Validator::make($request->all(), [
-            'payment_proof' => 'required|file|mimes:png,jpg,jpeg,pdf|max:10240', // 10MB max
+            'payment_proof' => 'required|file|mimes:png,jpg,jpeg,pdf',
             'notes' => 'nullable|string|max:1000',
         ], [
             'payment_proof.required' => 'Bukti pembayaran harus diunggah.',
             'payment_proof.file' => 'File yang diunggah tidak valid.',
             'payment_proof.mimes' => 'Format file harus PNG, JPG, JPEG, atau PDF.',
-            'payment_proof.max' => 'Ukuran file maksimal 10MB.',
             'notes.max' => 'Catatan maksimal 1000 karakter.',
         ]);
 

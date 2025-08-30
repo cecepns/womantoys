@@ -546,14 +546,10 @@ let removedExistingImages = [];
 
 document.getElementById('gallery_images').addEventListener('change', function(e) {
     const files = Array.from(e.target.files);
-    const maxFiles = 5;
+    const maxFiles = 999; // Unlimited
     const currentImages = document.querySelectorAll('.gallery-item:not(.new-image)').length;
     const availableSlots = maxFiles - currentImages + removedExistingImages.length;
-    if (files.length > availableSlots) {
-        alert(`Maksimal ${maxFiles} gambar. Anda hanya bisa menambahkan ${availableSlots} gambar lagi. Hapus beberapa gambar yang ada terlebih dahulu.`);
-        e.target.value = '';
-        return;
-    }
+
     selectedGalleryFiles = selectedGalleryFiles.concat(files);
     rebuildGalleryInputFiles();
     updateGalleryPreview();

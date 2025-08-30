@@ -127,7 +127,7 @@
                 @error('cover_image')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <p class="mt-1 text-sm text-gray-500">Biarkan kosong jika tidak ingin mengubah. Maks 2MB.</p>
+                <p class="mt-1 text-sm text-gray-500">Biarkan kosong jika tidak ingin mengubah.</p>
             </div>
 
             <!-- Submit Buttons -->

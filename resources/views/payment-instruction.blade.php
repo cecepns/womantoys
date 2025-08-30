@@ -527,12 +527,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return false;
             }
             
-            // Validate file size (10MB)
-            if (file.size > 10 * 1024 * 1024) {
-                e.preventDefault();
-                alert('Ukuran file terlalu besar. Maksimal 10MB.');
-                return false;
-            }
+
             
             console.log('File selected:', file.name);
             
@@ -557,11 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Validate file size (10MB)
-        if (file.size > 10 * 1024 * 1024) {
-            alert('Ukuran file terlalu besar. Maksimal 10MB.');
-            return;
-        }
+
         
         // Create preview URL
         const fileUrl = URL.createObjectURL(file);

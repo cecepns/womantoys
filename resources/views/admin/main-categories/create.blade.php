@@ -80,7 +80,7 @@
                 @error('cover_image')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <p class="mt-1 text-sm text-gray-500">Format: JPG, PNG, WEBP. Maks 2MB.</p>
+                <p class="mt-1 text-sm text-gray-500">Format: JPG, PNG, WEBP.</p>
             </div>
 
             <!-- Submit Buttons -->
