@@ -204,7 +204,11 @@
                             <p class="font-medium text-sm md:text-base text-gray-800 truncate">{{ $order->order_number }}</p>
                             <p class="text-xs md:text-sm text-gray-600 truncate">
                                 @if($order->orderItems->count() > 0)
-                                    {{ $order->orderItems->first()->product->name }}
+                                    @php
+                                        $firstItem = $order->orderItems->first();
+                                        $productName = $firstItem->product ? $firstItem->product->name : 'Produk tidak ditemukan';
+                                    @endphp
+                                    {{ $productName }}
                                     @if($order->orderItems->count() > 1)
                                         +{{ $order->orderItems->count() - 1 }} item lainnya
                                     @endif

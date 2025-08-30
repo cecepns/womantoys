@@ -64,6 +64,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Category routes
         Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class);
         
+        // Main Category routes
+        Route::resource('main-categories', App\Http\Controllers\Admin\MainCategoryController::class);
+        
         // Order routes
         Route::get('/orders', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/export', [App\Http\Controllers\Admin\OrderController::class, 'export'])->name('orders.export');

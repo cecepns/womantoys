@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\MainCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -14,7 +15,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::orderBy('name', 'asc')->get();
+        $categories = Category::with(['mainCategory', 'products'])->orderBy('name', 'asc')->get();
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -23,7 +24,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('admin.categories.create');
+        $mainCategories = MainCategory::orderBy('name', 'asc')->get();
+        return view('admin.categories.create', compact('mainCategories'));
     }
 
     /**
@@ -33,7 +35,11 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
+            'main_category_id' => 'required|exists:main_categories,id',
             'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+        ], [
+            'main_category_id.required' => 'Kategori utama wajib dipilih.',
+            'main_category_id.exists' => 'Kategori utama yang dipilih tidak valid.',
         ]);
 
         $coverImagePath = null;
@@ -44,6 +50,7 @@ class CategoryController extends Controller
         Category::create([
             'name' => $validated['name'],
             'slug' => Str::slug($validated['name']),
+            'main_category_id' => $validated['main_category_id'],
             'cover_image' => $coverImagePath,
         ]);
 
@@ -56,7 +63,8 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        return view('admin.categories.edit', compact('category'));
+        $mainCategories = MainCategory::orderBy('name', 'asc')->get();
+        return view('admin.categories.edit', compact('category', 'mainCategories'));
     }
 
     /**
@@ -66,12 +74,17 @@ class CategoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'main_category_id' => 'required|exists:main_categories,id',
             'cover_image' => 'nullable|image|mimes:jpeg,jpg,png,webp|max:2048',
+        ], [
+            'main_category_id.required' => 'Kategori utama wajib dipilih.',
+            'main_category_id.exists' => 'Kategori utama yang dipilih tidak valid.',
         ]);
 
         $updateData = [
             'name' => $validated['name'],
             'slug' => Str::slug($validated['name']),
+            'main_category_id' => $validated['main_category_id'],
         ];
 
         if ($request->hasFile('cover_image')) {

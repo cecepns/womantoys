@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class Category extends Model
+class MainCategory extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -16,7 +16,6 @@ class Category extends Model
         'name',
         'slug',
         'cover_image',
-        'main_category_id',
     ];
 
     /**
@@ -27,38 +26,30 @@ class Category extends Model
         parent::boot();
 
         // Auto-generate slug from name if not provided
-        static::creating(function ($category) {
-            if (empty($category->slug)) {
-                $category->slug = Str::slug($category->name);
+        static::creating(function ($mainCategory) {
+            if (empty($mainCategory->slug)) {
+                $mainCategory->slug = Str::slug($mainCategory->name);
             }
         });
 
         // Update slug when name is updated
-        static::updating(function ($category) {
-            if ($category->isDirty('name') && !$category->isDirty('slug')) {
-                $category->slug = Str::slug($category->name);
+        static::updating(function ($mainCategory) {
+            if ($mainCategory->isDirty('name') && !$mainCategory->isDirty('slug')) {
+                $mainCategory->slug = Str::slug($mainCategory->name);
             }
         });
     }
 
     /**
-     * Get the products for the category.
+     * Get the categories for the main category.
      */
-    public function products()
+    public function categories()
     {
-        return $this->hasMany(Product::class);
+        return $this->hasMany(Category::class);
     }
 
     /**
-     * Get the main category that owns the category.
-     */
-    public function mainCategory()
-    {
-        return $this->belongsTo(MainCategory::class);
-    }
-
-    /**
-     * Scope a query to only include categories with cover images.
+     * Scope a query to only include main categories with cover images.
      */
     public function scopeWithCoverImage($query)
     {
@@ -76,7 +67,7 @@ class Category extends Model
     }
 
     /**
-     * Check if the category has a cover image.
+     * Check if the main category has a cover image.
      *
      * @return bool
      */

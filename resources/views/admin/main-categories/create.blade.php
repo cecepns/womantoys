@@ -1,18 +1,18 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Tambah Kategori - Admin Panel')
+@section('title', 'Tambah Kategori Utama - Admin Panel')
 
-@section('page-title', 'Tambah Kategori')
-@section('page-description', 'Buat kategori produk baru')
+@section('page-title', 'Tambah Kategori Utama')
+@section('page-description', 'Buat kategori utama baru')
 
 @section('content')
 <!-- Header Section -->
 <div class="flex justify-between items-center mb-6 flex-col sm:flex-row gap-4 sm:gap-0">
     <div>
-        <h1 class="text-2xl font-bold text-gray-800">Tambah Kategori</h1>
-        <p class="text-gray-600">Buat kategori produk baru</p>
+        <h1 class="text-2xl font-bold text-gray-800">Tambah Kategori Utama</h1>
+        <p class="text-gray-600">Buat kategori utama baru</p>
     </div>
-    <a href="{{ route('admin.categories.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 w-full sm:w-auto text-center">
+    <a href="{{ route('admin.main-categories.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 w-full sm:w-auto text-center">
         <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
         </svg>
@@ -23,49 +23,25 @@
 <!-- Form Section -->
 <div class="bg-white rounded-lg shadow-md border border-gray-200">
     <div class="p-6">
-        <form action="{{ route('admin.categories.store') }}" method="POST" id="categoryForm" enctype="multipart/form-data">
+        <form action="{{ route('admin.main-categories.store') }}" method="POST" id="mainCategoryForm" enctype="multipart/form-data">
             @csrf
             
-            <!-- Category Name -->
+            <!-- Main Category Name -->
             <div class="mb-6">
                 <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                    Nama Kategori <span class="text-red-500">*</span>
+                    Nama Kategori Utama <span class="text-red-500">*</span>
                 </label>
                 <input type="text" 
                        id="name" 
                        name="name" 
                        value="{{ old('name') }}"
                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-500 @enderror"
-                       placeholder="Masukkan nama kategori"
+                       placeholder="Masukkan nama kategori utama"
                        required>
                 @error('name')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
-                <p class="mt-1 text-sm text-gray-500">Nama kategori akan otomatis diubah menjadi slug untuk URL.</p>
-            </div>
-
-            <!-- Main Category (required) -->
-            <div class="mb-6">
-                <label for="main_category_id" class="block text-sm font-medium text-gray-700 mb-2">
-                    Kategori Utama <span class="text-red-500">*</span>
-                </label>
-                <select
-                    id="main_category_id"
-                    name="main_category_id"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('main_category_id') border-red-500 @enderror"
-                    required
-                >
-                    <option value="">Pilih Kategori Utama</option>
-                    @foreach($mainCategories ?? [] as $mainCategory)
-                        <option value="{{ $mainCategory->id }}" {{ old('main_category_id') == $mainCategory->id ? 'selected' : '' }}>
-                            {{ $mainCategory->name }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('main_category_id')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-                <p class="mt-1 text-sm text-gray-500">Setiap kategori harus masuk ke dalam kategori utama.</p>
+                <p class="mt-1 text-sm text-gray-500">Nama kategori utama akan otomatis diubah menjadi slug untuk URL.</p>
             </div>
 
             <!-- Preview Slug -->
@@ -76,7 +52,7 @@
                 <div class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-600" id="slugPreview">
                     slug-akan-muncul-disini
                 </div>
-                <p class="mt-1 text-sm text-gray-500">Slug akan otomatis dibuat dari nama kategori.</p>
+                <p class="mt-1 text-sm text-gray-500">Slug akan otomatis dibuat dari nama kategori utama.</p>
             </div>
 
             <!-- Cover Image (optional) -->
@@ -109,14 +85,14 @@
 
             <!-- Submit Buttons -->
             <div class="flex justify-end flex-col sm:flex-row gap-2 sm:gap-3">
-                <a href="{{ route('admin.categories.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 w-full sm:w-auto text-center">
+                <a href="{{ route('admin.main-categories.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 w-full sm:w-auto text-center">
                     Batal
                 </a>
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 w-full sm:w-auto">
                     <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                     </svg>
-                    Simpan Kategori
+                    Simpan Kategori Utama
                 </button>
             </div>
         </form>
@@ -127,7 +103,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const nameInput = document.getElementById('name');
     const slugPreview = document.getElementById('slugPreview');
-    const form = document.getElementById('categoryForm');
+    const form = document.getElementById('mainCategoryForm');
 
     // Update slug preview when name changes
     nameInput.addEventListener('input', function() {
@@ -144,19 +120,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form validation
     form.addEventListener('submit', function(e) {
         const name = nameInput.value.trim();
-        const mainCategoryId = document.getElementById('main_category_id').value;
         
         if (!name) {
             e.preventDefault();
-            alert('Nama kategori harus diisi!');
+            alert('Nama kategori utama harus diisi!');
             nameInput.focus();
-            return false;
-        }
-        
-        if (!mainCategoryId) {
-            e.preventDefault();
-            alert('Kategori utama wajib dipilih!');
-            document.getElementById('main_category_id').focus();
             return false;
         }
     });
