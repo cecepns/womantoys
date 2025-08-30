@@ -98,6 +98,10 @@ class ProductController extends Controller
         // Create product with main image
         $productData = $request->except(['main_image', 'gallery_images']);
         $productData['main_image'] = $mainImagePath;
+        
+        // Ensure is_featured is properly cast to boolean
+        $productData['is_featured'] = $request->boolean('is_featured');
+        
         $product = Product::create($productData);
 
         // Handle gallery images upload
@@ -176,7 +180,13 @@ class ProductController extends Controller
             'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $product->update($request->except(['main_image', 'gallery_images', 'remove_main_image']));
+        // Prepare update data
+        $updateData = $request->except(['main_image', 'gallery_images', 'remove_main_image']);
+        
+        // Ensure is_featured is properly cast to boolean
+        $updateData['is_featured'] = $request->boolean('is_featured');
+        
+        $product->update($updateData);
 
         // Handle remove main image flag
         if ($request->boolean('remove_main_image')) {

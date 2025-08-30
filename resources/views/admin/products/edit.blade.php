@@ -92,7 +92,6 @@
                             class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('price') border-red-500 @enderror"
                             placeholder="0"
                             min="0"
-                            step="1000"
                             required
                         >
                     </div>
@@ -404,6 +403,8 @@
         <!-- Featured Product Setting -->
         <div class="mt-6">
             <div class="flex items-center">
+                <!-- Hidden input to ensure the field is always sent -->
+                <input type="hidden" name="is_featured" value="0">
                 <input
                     type="checkbox"
                     id="is_featured"
