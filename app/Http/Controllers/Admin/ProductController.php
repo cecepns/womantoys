@@ -37,6 +37,11 @@ class ProductController extends Controller
             $query->where('status', $request->status);
         }
 
+        // Featured filter
+        if ($request->filled('featured')) {
+            $query->where('is_featured', $request->featured);
+        }
+
         // Get products with pagination
         $products = $query->orderBy('created_at', 'desc')->paginate(10);
         
@@ -71,6 +76,7 @@ class ProductController extends Controller
             'weight' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,draft,out_of_stock',
+            'is_featured' => 'nullable|boolean',
             'main_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
@@ -165,6 +171,7 @@ class ProductController extends Controller
             'weight' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,draft,out_of_stock',
+            'is_featured' => 'nullable|boolean',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);

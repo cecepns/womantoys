@@ -25,6 +25,7 @@ class Product extends Model
         'status',
         'stock',
         'weight',
+        'is_featured',
     ];
 
     /**
@@ -173,6 +174,34 @@ class Product extends Model
         return $query->where('name', 'like', "%{$search}%")
                     ->orWhere('short_description', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
+    }
+
+    /**
+     * Scope a query to only include featured products.
+     */
+    public function scopeFeatured($query)
+    {
+        return $query->where('is_featured', true);
+    }
+
+    /**
+     * Get the featured status label for display.
+     *
+     * @return string
+     */
+    public function getFeaturedStatusLabelAttribute()
+    {
+        return $this->is_featured ? 'Unggulan' : 'Biasa';
+    }
+
+    /**
+     * Get the featured status badge class for display.
+     *
+     * @return string
+     */
+    public function getFeaturedStatusBadgeClassAttribute()
+    {
+        return $this->is_featured ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800';
     }
 
     /**

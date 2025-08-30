@@ -50,10 +50,17 @@
                 <option value="out_of_stock" {{ request('status') == 'out_of_stock' ? 'selected' : '' }}>Stok Habis</option>
             </select>
         </div>
+        <div class="md:w-48">
+            <select name="featured" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                <option value="">Semua Produk</option>
+                <option value="1" {{ request('featured') == '1' ? 'selected' : '' }}>Produk Unggulan</option>
+                <option value="0" {{ request('featured') == '0' ? 'selected' : '' }}>Produk Biasa</option>
+            </select>
+        </div>
         <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors duration-200">
             Filter
         </button>
-        @if(request('search') || request('category') || request('status'))
+        @if(request('search') || request('category') || request('status') || request('featured'))
             <a href="{{ route('admin.products.index') }}" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
                 Reset
             </a>
@@ -84,6 +91,9 @@
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Unggulan
                     </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Sisa Stok
@@ -161,6 +171,11 @@
                             {{ $product->status_label }}
                         </span>
                     </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 py-1 text-xs font-medium {{ $product->featured_status_badge_class }} rounded-full">
+                            {{ $product->featured_status_label }}
+                        </span>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {{ $product->stock }}
                     </td>
@@ -179,7 +194,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
+                    <td colspan="9" class="px-6 py-4 text-center text-gray-500">
                         Tidak ada produk yang ditemukan.
                     </td>
                 </tr>

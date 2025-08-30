@@ -8,6 +8,7 @@ Route::get('/', function () {
     $featuredProducts = App\Models\Product::with(['category'])
         ->active()
         ->inStock()
+        ->featured()
         ->orderBy('created_at', 'desc')
         ->limit(4)
         ->get();

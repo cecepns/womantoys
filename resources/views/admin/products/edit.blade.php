@@ -400,6 +400,27 @@
                 @enderror
             </div>
         </div>
+
+        <!-- Featured Product Setting -->
+        <div class="mt-6">
+            <div class="flex items-center">
+                <input
+                    type="checkbox"
+                    id="is_featured"
+                    name="is_featured"
+                    value="1"
+                    {{ old('is_featured', $product->is_featured) ? 'checked' : '' }}
+                    class="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded"
+                >
+                <label for="is_featured" class="ml-3 block text-sm font-medium text-gray-700">
+                    Atur Sebagai Produk Unggulan
+                </label>
+            </div>
+            <p class="text-gray-500 text-xs mt-1 ml-7">Produk unggulan akan ditampilkan di halaman utama website</p>
+            @error('is_featured')
+                <p class="text-red-500 text-sm mt-1 ml-7">{{ $message }}</p>
+            @enderror
+        </div>
     </div>
 
     <!-- Action Buttons -->
