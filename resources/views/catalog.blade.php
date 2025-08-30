@@ -29,32 +29,69 @@
         
         <!-- Control Bar -->
         <div class="flex flex-col gap-4 mb-6 md:mb-8">
-            <!-- Filter Kategori -->
+            <!-- Filter Kategori Utama (Main Categories) -->
             <div class="w-full">
-                <!-- Mobile: Horizontal scrollable filters -->
-                <div class="md:hidden">
-                    <div class="flex overflow-x-auto space-x-3 py-2 scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none;">
-                        <a href="{{ route('catalog') }}{{ request('search') ? '?search=' . request('search') : '' }}" class="px-3 py-2 {{ request('category') === null || request('category') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-full font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200 whitespace-nowrap text-sm">
-                            Semua
-                        </a>
+                <div class="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
+                    <h2 class="text-sm md:text-base font-semibold text-gray-700 mb-2">Kategori Utama</h2>
+                    <!-- Mobile: Horizontal scrollable main filters -->
+                    <div class="md:hidden mb-2">
+                        <div class="flex overflow-x-auto space-x-3 py-2 scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none;">
+                            <a href="{{ route('catalog') }}{{ request('search') ? '?search=' . request('search') : '' }}" class="px-3 py-2 {{ request('main') === null || request('main') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-full font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200 whitespace-nowrap text-sm">
+                                Semua Utama
+                            </a>
+                            @if(isset($mainCategories))
+                                @foreach($mainCategories as $main)
+                                    <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug, 'category' => 'all'])) }}" class="px-3 py-2 {{ request('main') === $main->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-full font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200 whitespace-nowrap text-sm">
+                                        {{ $main->name }}
+                                    </a>
+                                @endforeach
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Desktop: Full width main filters -->
+                    <div class="hidden md:flex flex-wrap gap-3">
+                        <a href="{{ route('catalog') }}{{ request('search') ? '?search=' . request('search') : '' }}" class="px-4 py-2 {{ request('main') === null || request('main') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">Semua Utama</a>
+                        @if(isset($mainCategories))
+                            @foreach($mainCategories as $main)
+                                <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug, 'category' => 'all'])) }}" class="px-4 py-2 {{ request('main') === $main->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">
+                                    {{ $main->name }}
+                                </a>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Sub Kategori (Categories) -->
+            <div class="w-full">
+                <div class="bg-white border border-gray-200 rounded-lg p-3 md:p-4">
+                    <h2 class="text-sm md:text-base font-semibold text-gray-700 mb-2">Sub Kategori</h2>
+                    <!-- Mobile: Horizontal scrollable subcategory filters -->
+                    <div class="md:hidden">
+                        <div class="flex overflow-x-auto space-x-3 py-2 scrollbar-hide" style="scrollbar-width: none; -ms-overflow-style: none;">
+                            <a href="{{ route('catalog', array_merge(request()->query(), ['category' => 'all'])) }}" class="px-3 py-2 {{ request('category') === null || request('category') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-full font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200 whitespace-nowrap text-sm">
+                                Semua
+                            </a>
+                            @foreach($categories as $category)
+                                <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $category->slug])) }}" class="px-3 py-2 {{ request('category') === $category->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-full font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200 whitespace-nowrap text-sm">
+                                    {{ $category->name }}
+                                    <span class="ml-1 text-xs">({{ $category->products_count }})</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Desktop: Full width subcategory filters -->
+                    <div class="hidden md:flex flex-wrap gap-3">
+                        <a href="{{ route('catalog', array_merge(request()->query(), ['category' => 'all'])) }}" class="px-4 py-2 {{ request('category') === null || request('category') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">Semua Sub</a>
                         @foreach($categories as $category)
-                            <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $category->slug])) }}" class="px-3 py-2 {{ request('category') === $category->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-full font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200 whitespace-nowrap text-sm">
+                            <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $category->slug])) }}" class="px-4 py-2 {{ request('category') === $category->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">
                                 {{ $category->name }}
                                 <span class="ml-1 text-xs">({{ $category->products_count }})</span>
                             </a>
                         @endforeach
                     </div>
-                </div>
-                
-                <!-- Desktop: Full width filters -->
-                <div class="hidden md:flex flex-wrap gap-3">
-                    <a href="{{ route('catalog') }}{{ request('search') ? '?search=' . request('search') : '' }}" class="px-4 py-2 {{ request('category') === null || request('category') === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">Semua</a>
-                    @foreach($categories as $category)
-                        <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $category->slug])) }}" class="px-4 py-2 {{ request('category') === $category->slug ? 'bg-pink-600 text-white' : 'bg-gray-200 text-gray-700' }} rounded-lg font-medium hover:bg-pink-700 hover:text-white transition-colors duration-200">
-                            {{ $category->name }}
-                            <span class="ml-1 text-xs">({{ $category->products_count }})</span>
-                        </a>
-                    @endforeach
                 </div>
             </div>
         </div>

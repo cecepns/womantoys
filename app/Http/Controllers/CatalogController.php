@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\MainCategory;
 use Illuminate\Http\Request;
 
 class CatalogController extends Controller
@@ -38,11 +39,22 @@ class CatalogController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        // Get all categories for filter
-        $categories = Category::withCount(['products' => function ($query) {
-            $query->active()->inStock();
-        }])->get();
+        // Get main categories for filter bar
+        $mainCategories = MainCategory::orderBy('name', 'asc')->get();
 
-        return view('catalog', compact('products', 'categories'));
+        // Get categories (sub categories) for filter, optionally scoped by selected main
+        $categoriesQuery = Category::withCount(['products' => function ($productsQuery) {
+            $productsQuery->active()->inStock();
+        }])->orderBy('name', 'asc');
+
+        if ($request->has('main') && $request->main !== 'all') {
+            $categoriesQuery->whereHas('mainCategory', function ($q) use ($request) {
+                $q->where('slug', $request->main);
+            });
+        }
+
+        $categories = $categoriesQuery->get();
+
+        return view('catalog', compact('products', 'categories', 'mainCategories'));
     }
 }
