@@ -145,6 +145,7 @@
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
                     <p class="text-gray-500 text-xs mt-1" id="value-help">Masukkan nilai persentase (contoh: 50 untuk 50%)</p>
+                    <p class="text-red-500 text-xs mt-1 hidden" id="value-validation-error"></p>
                 </div>
 
                 <!-- Minimum Pembelian -->
@@ -208,9 +209,9 @@
                     <label for="starts_at" class="block text-sm font-medium text-gray-700 mb-2">
                         Tanggal Mulai
                     </label>
-                    <input type="datetime-local" 
+                    <input type="date" 
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('starts_at') border-red-500 @enderror" 
-                           id="starts_at" name="starts_at" value="{{ old('starts_at', $voucher->starts_at ? $voucher->starts_at->format('Y-m-d\TH:i') : '') }}">
+                           id="starts_at" name="starts_at" value="{{ old('starts_at', $voucher->starts_at ? $voucher->starts_at->format('Y-m-d') : '') }}">
                     @error('starts_at')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -222,9 +223,9 @@
                     <label for="expires_at" class="block text-sm font-medium text-gray-700 mb-2">
                         Tanggal Berakhir
                     </label>
-                    <input type="datetime-local" 
+                    <input type="date" 
                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('expires_at') border-red-500 @enderror" 
-                           id="expires_at" name="expires_at" value="{{ old('expires_at', $voucher->expires_at ? $voucher->expires_at->format('Y-m-d\TH:i') : '') }}">
+                           id="expires_at" name="expires_at" value="{{ old('expires_at', $voucher->expires_at ? $voucher->expires_at->format('Y-m-d') : '') }}">
                     @error('expires_at')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -334,6 +335,17 @@
 </div>
 
 @push('scripts')
+<style>
+/* Custom styling for date input */
+input[type="date"] {
+    font-family: monospace;
+}
+
+/* Custom styling for better date input appearance */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+}
+</style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Update help text based on type
@@ -346,23 +358,35 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'percentage':
                 valueHelp.textContent = 'Masukkan nilai persentase (contoh: 50 untuk 50%)';
                 maxDiscountGroup.classList.remove('hidden');
+                valueInput.min = '1';
                 valueInput.max = '100';
                 break;
             case 'fixed_amount':
-                valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah';
+                valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah (min. Rp100)';
                 maxDiscountGroup.classList.add('hidden');
+                valueInput.min = '100';
                 valueInput.max = '';
                 break;
             case 'free_shipping':
-                valueHelp.textContent = 'Nilai akan diabaikan untuk gratis ongkir';
+                valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah (min. Rp100)';
                 maxDiscountGroup.classList.add('hidden');
+                valueInput.min = '100';
                 valueInput.max = '';
                 break;
             default:
                 valueHelp.textContent = 'Pilih jenis diskon terlebih dahulu';
                 maxDiscountGroup.classList.add('hidden');
+                valueInput.min = '0';
                 valueInput.max = '';
         }
+        
+        // Clear validation error when type changes
+        const validationError = document.getElementById('value-validation-error');
+        if (validationError) {
+            validationError.classList.add('hidden');
+            validationError.textContent = '';
+        }
+        
         updatePreview();
     });
 
@@ -427,6 +451,34 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById(id).addEventListener('input', updatePreview);
     });
 
+    // ANCHOR: Real-time validation for value input
+    document.getElementById('value').addEventListener('input', function() {
+        const type = document.getElementById('type').value;
+        const value = parseFloat(this.value) || 0;
+        const validationError = document.getElementById('value-validation-error');
+        
+        // Clear previous error
+        validationError.classList.add('hidden');
+        validationError.textContent = '';
+        
+        if (type === 'percentage') {
+            if (value < 1 || value > 100) {
+                validationError.textContent = 'Nilai diskon persentase harus antara 1% - 100%';
+                validationError.classList.remove('hidden');
+            }
+        } else if (type === 'fixed_amount') {
+            if (value < 100) {
+                validationError.textContent = 'Nilai diskon nominal minimal Rp100';
+                validationError.classList.remove('hidden');
+            }
+        } else if (type === 'free_shipping') {
+            if (value < 100) {
+                validationError.textContent = 'Nilai diskon nominal minimal Rp100';
+                validationError.classList.remove('hidden');
+            }
+        }
+    });
+
     // Format code to uppercase
     document.getElementById('code').addEventListener('input', function() {
         this.value = this.value.toUpperCase();
@@ -434,6 +486,32 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize form based on current voucher type
     document.getElementById('type').dispatchEvent(new Event('change'));
+
+    // ANCHOR: Validate date inputs
+    function validateDate() {
+        const startsAtInput = document.getElementById('starts_at');
+        const expiresAtInput = document.getElementById('expires_at');
+        
+        if (startsAtInput.value && expiresAtInput.value) {
+            const startsAt = new Date(startsAtInput.value);
+            const expiresAt = new Date(expiresAtInput.value);
+            
+            if (expiresAt <= startsAt) {
+                // Set expires_at to 1 day after starts_at
+                const oneDayLater = new Date(startsAt.getTime() + (24 * 60 * 60 * 1000));
+                const year = oneDayLater.getFullYear();
+                const month = String(oneDayLater.getMonth() + 1).padStart(2, '0');
+                const day = String(oneDayLater.getDate()).padStart(2, '0');
+                
+                const expDate = `${year}-${month}-${day}`;
+                expiresAtInput.value = expDate;
+            }
+        }
+    }
+
+    // Add validation to date inputs
+    document.getElementById('starts_at').addEventListener('change', validateDate);
+    document.getElementById('expires_at').addEventListener('change', validateDate);
 });
 </script>
 @endpush

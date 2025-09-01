@@ -3,7 +3,10 @@
 @section('title', 'Tambah Voucher')
 
 @section('content')
+<!-- SECTION: HTML Elements -->
 <div class="container mx-auto px-4">
+
+    <!-- ANCHOR: Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Tambah Voucher Baru</h1>
@@ -18,10 +21,12 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- SECTION: Main Form -->
         <div class="lg:col-span-2">
             <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 mb-6">
                 <h2 class="text-xl font-semibold text-gray-800 mb-6">Form Voucher</h2>
-                
+
+                <!-- ANCHOR: Form Errors -->
                 @if ($errors->any())
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
                         <ul class="list-disc list-inside space-y-1">
@@ -32,10 +37,11 @@
                     </div>
                 @endif
 
+                <!-- ANCHOR: Form -->
                 <form method="POST" action="{{ route('admin.vouchers.store') }}" class="space-y-6">
                     @csrf
                     
-                    <!-- Kode Voucher -->
+                    <!-- ANCHOR: Kode Voucher -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                         <label for="code" class="block text-sm font-medium text-gray-700">
                             Kode Voucher <span class="text-red-500">*</span>
@@ -60,7 +66,7 @@
                         </div>
                     </div>
 
-                    <!-- Nama Voucher -->
+                    <!-- ANCHOR: Nama Voucher -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                         <label for="name" class="block text-sm font-medium text-gray-700">
                             Nama Voucher <span class="text-red-500">*</span>
@@ -76,7 +82,7 @@
                         </div>
                     </div>
 
-                    <!-- Deskripsi -->
+                    <!-- ANCHOR: Deskripsi -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                         <label for="description" class="block text-sm font-medium text-gray-700">
                             Deskripsi
@@ -91,7 +97,7 @@
                         </div>
                     </div>
 
-                    <!-- Jenis Diskon -->
+                    <!-- ANCHOR: Jenis Diskon -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                         <label for="type" class="block text-sm font-medium text-gray-700">
                             Jenis Diskon <span class="text-red-500">*</span>
@@ -109,7 +115,7 @@
                         </div>
                     </div>
 
-                    <!-- Nilai Diskon -->
+                    <!-- ANCHOR: Nilai Diskon -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                         <label for="value" class="block text-sm font-medium text-gray-700">
                             Nilai Diskon <span class="text-red-500">*</span>
@@ -126,10 +132,11 @@
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                             <p class="text-gray-500 text-xs mt-1" id="value-help">Masukkan nilai persentase (contoh: 50 untuk 50%)</p>
+                            <p class="text-red-500 text-xs mt-1 hidden" id="value-validation-error"></p>
                         </div>
                     </div>
 
-                    <!-- Minimum Pembelian -->
+                    <!-- ANCHOR: Minimum Pembelian -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                         <label for="min_purchase" class="block text-sm font-medium text-gray-700">
                             Minimum Pembelian
@@ -149,7 +156,7 @@
                         </div>
                     </div>
 
-                    <!-- Maksimal Diskon -->
+                    <!-- ANCHOR: Maksimal Diskon -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center hidden" id="max-discount-group">
                         <label for="max_discount" class="block text-sm font-medium text-gray-700">
                             Maksimal Diskon
@@ -169,7 +176,7 @@
                         </div>
                     </div>
 
-                    <!-- Batas Penggunaan -->
+                    <!-- ANCHOR: Batas Penggunaan -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                         <label for="usage_limit" class="block text-sm font-medium text-gray-700">
                             Batas Penggunaan
@@ -186,13 +193,13 @@
                         </div>
                     </div>
 
-                    <!-- Tanggal Mulai -->
+                    <!-- ANCHOR: Tanggal Mulai -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                         <label for="starts_at" class="block text-sm font-medium text-gray-700">
                             Tanggal Mulai
                         </label>
                         <div class="md:col-span-2">
-                            <input type="datetime-local" 
+                            <input type="date" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('starts_at') border-red-500 @enderror" 
                                    id="starts_at" name="starts_at" value="{{ old('starts_at') }}">
                             @error('starts_at')
@@ -202,13 +209,13 @@
                         </div>
                     </div>
 
-                    <!-- Tanggal Berakhir -->
+                    <!-- ANCHOR: Tanggal Berakhir -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                         <label for="expires_at" class="block text-sm font-medium text-gray-700">
                             Tanggal Berakhir
                         </label>
                         <div class="md:col-span-2">
-                            <input type="datetime-local" 
+                            <input type="date" 
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('expires_at') border-red-500 @enderror" 
                                    id="expires_at" name="expires_at" value="{{ old('expires_at') }}">
                             @error('expires_at')
@@ -218,7 +225,7 @@
                         </div>
                     </div>
 
-                    <!-- Checkbox Options -->
+                    <!-- ANCHOR: Checkbox Options -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div></div>
                         <div class="md:col-span-2">
@@ -234,7 +241,7 @@
                         </div>
                     </div>
 
-                    <!-- Buttons -->
+                    <!-- ANCHOR: Buttons -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div></div>
                         <div class="md:col-span-2">
@@ -254,9 +261,11 @@
                 </form>
             </div>
         </div>
+        <!-- !SECTION: Main Form -->
 
+        <!-- SECTION: Preview Card -->
         <div class="lg:col-span-1">
-            <!-- Preview Card -->
+            <!-- ANCHOR: Preview Card -->
             <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6 mb-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Preview Voucher</h3>
                 <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 text-center">
@@ -277,7 +286,7 @@
                 </div>
             </div>
 
-            <!-- Tips Card -->
+            <!-- ANCHOR: Tips Card -->
             <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
                 <h3 class="text-lg font-semibold text-blue-600 mb-4">Tips Membuat Voucher</h3>
                 <ul class="space-y-3">
@@ -322,11 +331,26 @@
         </div>
     </div>
 </div>
+<!-- !SECTION: HTML Elements -->
 
-@push('scripts')
+<!-- SECTION: Styles -->
+<style>
+/* Custom styling for date input */
+input[type="date"] {
+    font-family: monospace;
+}
+
+/* Custom styling for better date input appearance */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+}
+</style>
+<!-- !SECTION: Styles -->
+
+<!-- SECTION: Scripts -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Generate code functionality
+    // ANCHOR: Generate code functionality
     document.getElementById('generate-code').addEventListener('click', function() {
         fetch('{{ route("admin.vouchers.generate-code") }}')
             .then(response => response.json())
@@ -337,42 +361,56 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(error => console.error('Error:', error));
     });
 
-    // Update value suffix and help text based on type
+    // ANCHOR: Update value suffix and help text based on type
     document.getElementById('type').addEventListener('change', function() {
         const valueSuffix = document.getElementById('value-suffix');
         const valueHelp = document.getElementById('value-help');
         const maxDiscountGroup = document.getElementById('max-discount-group');
         const valueInput = document.getElementById('value');
+        const validationError = document.getElementById('value-validation-error');
 
         switch(this.value) {
             case 'percentage':
+                valueSuffix.classList.remove('hidden');
                 valueSuffix.textContent = '%';
                 valueHelp.textContent = 'Masukkan nilai persentase (contoh: 50 untuk 50%)';
                 maxDiscountGroup.classList.remove('hidden');
+                valueInput.min = '1';
                 valueInput.max = '100';
                 break;
             case 'fixed_amount':
+                valueSuffix.classList.remove('hidden');
                 valueSuffix.textContent = 'Rp';
-                valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah';
+                valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah (min. Rp100)';
                 maxDiscountGroup.classList.add('hidden');
+                valueInput.min = '100';
                 valueInput.max = '';
                 break;
             case 'free_shipping':
-                valueSuffix.textContent = '';
-                valueHelp.textContent = 'Nilai akan diabaikan untuk gratis ongkir';
+                valueSuffix.classList.remove('hidden');
+                valueSuffix.textContent = 'Rp';
+                valueHelp.textContent = 'Masukkan nominal free ongkir dalam rupiah (min. Rp100)';
                 maxDiscountGroup.classList.add('hidden');
+                valueInput.min = '100';
                 valueInput.max = '';
                 break;
             default:
+                valueSuffix.classList.remove('hidden');
                 valueSuffix.textContent = '%';
                 valueHelp.textContent = 'Pilih jenis diskon terlebih dahulu';
                 maxDiscountGroup.classList.add('hidden');
+                valueInput.min = '0';
                 valueInput.max = '';
         }
+        
+        // Clear validation error when type changes
+        validationError.classList.add('hidden');
+        validationError.textContent = '';
+        
         updatePreview();
     });
 
-    // Update preview when form values change
+    // ANCHOR: Update preview when form values change
     function updatePreview() {
         const code = document.getElementById('code').value || 'KODE VOUCHER';
         const name = document.getElementById('name').value || 'Nama Voucher';
@@ -416,19 +454,104 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('preview-conditions').textContent = conditionsText;
     }
 
-    // Add event listeners for preview updates
+    // ANCHOR: Add event listeners for preview updates
     ['code', 'name', 'description', 'value', 'min_purchase', 'max_discount'].forEach(id => {
         document.getElementById(id).addEventListener('input', updatePreview);
     });
 
-    // Format code to uppercase
+    // ANCHOR: Real-time validation for value input
+    document.getElementById('value').addEventListener('input', function() {
+        const type = document.getElementById('type').value;
+        const value = parseFloat(this.value) || 0;
+        const validationError = document.getElementById('value-validation-error');
+        
+        // Clear previous error
+        validationError.classList.add('hidden');
+        validationError.textContent = '';
+        
+        if (type === 'percentage') {
+            if (value < 1 || value > 100) {
+                validationError.textContent = 'Nilai diskon persentase harus antara 1% - 100%';
+                validationError.classList.remove('hidden');
+            }
+        } else if (type === 'fixed_amount') {
+            if (value < 100) {
+                validationError.textContent = 'Nilai diskon nominal minimal Rp100';
+                validationError.classList.remove('hidden');
+            }
+        } else if (type === 'free_shipping') {
+            if (value < 100) {
+                validationError.textContent = 'Nilai diskon nominal minimal Rp100';
+                validationError.classList.remove('hidden');
+            }
+        }
+    });
+
+    // ANCHOR: Format code to uppercase
     document.getElementById('code').addEventListener('input', function() {
         this.value = this.value.toUpperCase();
     });
 
-    // Initial preview update
+    // ANCHOR: Initial preview update
     updatePreview();
+
+    // ANCHOR: Set default date values
+    function setDefaultDate() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        
+        const defaultDate = `${year}-${month}-${day}`;
+        
+        // Set default value for starts_at if empty
+        const startsAtInput = document.getElementById('starts_at');
+        if (!startsAtInput.value) {
+            startsAtInput.value = defaultDate;
+        }
+        
+        // Set default value for expires_at if empty (1 month from now)
+        const expiresAtInput = document.getElementById('expires_at');
+        if (!expiresAtInput.value) {
+            const oneMonthLater = new Date(now.getTime() + (30 * 24 * 60 * 60 * 1000));
+            const expYear = oneMonthLater.getFullYear();
+            const expMonth = String(oneMonthLater.getMonth() + 1).padStart(2, '0');
+            const expDay = String(oneMonthLater.getDate()).padStart(2, '0');
+            
+            const expDate = `${expYear}-${expMonth}-${expDay}`;
+            expiresAtInput.value = expDate;
+        }
+    }
+
+    // ANCHOR: Initialize date inputs
+    setDefaultDate();
+
+    // ANCHOR: Validate date inputs
+    function validateDate() {
+        const startsAtInput = document.getElementById('starts_at');
+        const expiresAtInput = document.getElementById('expires_at');
+        
+        if (startsAtInput.value && expiresAtInput.value) {
+            const startsAt = new Date(startsAtInput.value);
+            const expiresAt = new Date(expiresAtInput.value);
+            
+            if (expiresAt <= startsAt) {
+                // Set expires_at to 1 day after starts_at
+                const oneDayLater = new Date(startsAt.getTime() + (24 * 60 * 60 * 1000));
+                const year = oneDayLater.getFullYear();
+                const month = String(oneDayLater.getMonth() + 1).padStart(2, '0');
+                const day = String(oneDayLater.getDate()).padStart(2, '0');
+                
+                const expDate = `${year}-${month}-${day}`;
+                expiresAtInput.value = expDate;
+            }
+        }
+    }
+
+    // Add validation to date inputs
+    document.getElementById('starts_at').addEventListener('change', validateDate);
+    document.getElementById('expires_at').addEventListener('change', validateDate);
 });
 </script>
-@endpush
+<!-- !SECTION: Scripts -->
 @endsection

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Voucher;
 use App\Models\VoucherUsage;
+use App\Http\Requests\VoucherRequest;
+use App\Http\Requests\VoucherUpdateRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -90,29 +92,9 @@ class VoucherController extends Controller
     /**
      * Store a newly created voucher in storage.
      */
-    public function store(Request $request)
+    public function store(VoucherRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'code' => 'required|string|max:50|unique:vouchers,code',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'type' => 'required|in:percentage,fixed_amount,free_shipping',
-            'value' => 'required|numeric|min:0',
-            'min_purchase' => 'nullable|numeric|min:0',
-            'max_discount' => 'nullable|numeric|min:0',
-            'usage_limit' => 'nullable|integer|min:1',
-            'starts_at' => 'nullable|date|after_or_equal:now',
-            'expires_at' => 'nullable|date|after:starts_at',
-            'is_active' => 'boolean',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                           ->withErrors($validator)
-                           ->withInput();
-        }
-
-        $data = $validator->validated();
+        $data = $request->validated();
         
         // Convert to uppercase for code
         $data['code'] = strtoupper($data['code']);
@@ -154,35 +136,9 @@ class VoucherController extends Controller
     /**
      * Update the specified voucher in storage.
      */
-    public function update(Request $request, Voucher $voucher)
+    public function update(VoucherUpdateRequest $request, Voucher $voucher)
     {
-        // Check if voucher has been used
-        $hasBeenUsed = $voucher->hasBeenUsed();
-        
-        $validator = Validator::make($request->all(), [
-            'code' => 'required|string|max:50|unique:vouchers,code,' . $voucher->id,
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'type' => $hasBeenUsed ? 'prohibited' : 'required|in:percentage,fixed_amount,free_shipping',
-            'value' => $hasBeenUsed ? 'prohibited' : 'required|numeric|min:0',
-            'min_purchase' => 'nullable|numeric|min:0',
-            'max_discount' => 'nullable|numeric|min:0',
-            'usage_limit' => 'nullable|integer|min:1',
-            'starts_at' => 'nullable|date',
-            'expires_at' => 'nullable|date|after:starts_at',
-            'is_active' => 'boolean',
-        ], [
-            'type.prohibited' => 'Jenis diskon tidak dapat diubah karena voucher sudah pernah digunakan.',
-            'value.prohibited' => 'Nilai diskon tidak dapat diubah karena voucher sudah pernah digunakan.',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                           ->withErrors($validator)
-                           ->withInput();
-        }
-
-        $data = $validator->validated();
+        $data = $request->validated();
         
         // Convert to uppercase for code
         $data['code'] = strtoupper($data['code']);
@@ -192,7 +148,7 @@ class VoucherController extends Controller
         $data['min_purchase'] = $data['min_purchase'] ?? 0;
 
         // If voucher has been used, preserve original type and value
-        if ($hasBeenUsed) {
+        if ($voucher->hasBeenUsed()) {
             unset($data['type'], $data['value']);
         }
 
