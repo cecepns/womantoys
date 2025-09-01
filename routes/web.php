@@ -26,16 +26,22 @@ Route::get('/product/{product:slug}', [App\Http\Controllers\ProductController::c
 Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout', [App\Http\Controllers\CheckoutController::class, 'store'])->name('checkout.store');
 
-// RajaOngkir API Routes
-Route::prefix('api/rajaongkir')->group(function () {
-    Route::get('/search-destination', [App\Http\Controllers\RajaOngkirController::class, 'searchDestination']);
-    Route::post('/calculate-cost', [App\Http\Controllers\RajaOngkirController::class, 'calculateCost']);
+// API Routes
+Route::prefix('api')->group(function () {
+    // RajaOngkir API Routes
+    Route::prefix('rajaongkir')->group(function () {
+        Route::get('/search-destination', [App\Http\Controllers\RajaOngkirController::class, 'searchDestination']);
+        Route::post('/calculate-cost', [App\Http\Controllers\RajaOngkirController::class, 'calculateCost']);
+        
+        // Address API Routes
+        Route::get('/provinces', [App\Http\Controllers\RajaOngkirController::class, 'getProvinces']);
+        Route::get('/cities', [App\Http\Controllers\RajaOngkirController::class, 'getCities']);
+        Route::get('/cities/{city_id}', [App\Http\Controllers\RajaOngkirController::class, 'getCityById']);
+        Route::get('/provinces/{province_id}', [App\Http\Controllers\RajaOngkirController::class, 'getProvinceById']);
+    });
     
-    // Address API Routes
-    Route::get('/provinces', [App\Http\Controllers\RajaOngkirController::class, 'getProvinces']);
-    Route::get('/cities', [App\Http\Controllers\RajaOngkirController::class, 'getCities']);
-    Route::get('/cities/{city_id}', [App\Http\Controllers\RajaOngkirController::class, 'getCityById']);
-    Route::get('/provinces/{province_id}', [App\Http\Controllers\RajaOngkirController::class, 'getProvinceById']);
+    // Voucher API Routes
+    Route::post('/vouchers/validate', [App\Http\Controllers\VoucherController::class, 'validateVoucher'])->name('api.vouchers.validate');
 });
 
 Route::get('/payment-instruction', [App\Http\Controllers\PaymentController::class, 'show'])->name('payment-instruction');
@@ -81,6 +87,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/settings/password', [App\Http\Controllers\Admin\SettingController::class, 'updatePassword'])->name('settings.password');
         Route::put('/settings/store', [App\Http\Controllers\Admin\SettingController::class, 'updateStore'])->name('settings.store');
         Route::put('/settings/whatsapp', [App\Http\Controllers\Admin\SettingController::class, 'updateWhatsApp'])->name('settings.whatsapp');
+        
+        // Voucher routes
+        Route::resource('vouchers', App\Http\Controllers\VoucherController::class);
+        Route::post('/vouchers/{voucher}/toggle-status', [App\Http\Controllers\VoucherController::class, 'toggleStatus'])->name('vouchers.toggle-status');
+        Route::get('/vouchers/generate/code', [App\Http\Controllers\VoucherController::class, 'generateCode'])->name('vouchers.generate-code');
+        Route::post('/vouchers/bulk-action', [App\Http\Controllers\VoucherController::class, 'bulkAction'])->name('vouchers.bulk-action');
+        Route::get('/vouchers/export/excel', [App\Http\Controllers\VoucherController::class, 'export'])->name('vouchers.export');
     });
 });
 

@@ -48,6 +48,9 @@
                 @csrf
                 <input type="hidden" name="product_id" value="{{ $product->id }}">
                 <input type="hidden" name="quantity" id="hidden_quantity" value="{{ old('quantity', 1) }}">
+                <input type="hidden" name="voucher_id" id="hidden_voucher_id" value="">
+                <input type="hidden" name="voucher_code" id="hidden_voucher_code" value="">
+                <input type="hidden" name="discount_amount" id="hidden_discount_amount" value="0">
                 <input type="hidden" name="origin_id" id="origin_id" value="{{ isset($originId) ? $originId : 17473 }}">
                 <input type="hidden" name="destination_id" id="destination_id" value="">
                 <!-- Full Name -->
@@ -297,11 +300,69 @@
                     </div>
                 </div>
 
+                <!-- Voucher Section -->
+                <div class="mb-4 md:mb-6">
+                    <div class="flex items-center space-x-2 mb-3">
+                        <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                        </svg>
+                        <h3 class="font-medium text-gray-800">Kode Voucher</h3>
+                    </div>
+                    
+                    <div id="voucher-input-section">
+                        <div class="flex gap-2">
+                            <input 
+                                type="text" 
+                                id="voucher-code" 
+                                placeholder="Masukkan kode voucher" 
+                                class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                style="text-transform: uppercase;"
+                            >
+                            <button 
+                                type="button" 
+                                id="apply-voucher-btn"
+                                class="px-4 py-2 bg-pink-600 text-white rounded-lg text-sm font-medium hover:bg-pink-700 transition-colors duration-200 whitespace-nowrap"
+                            >
+                                Gunakan
+                            </button>
+                        </div>
+                        <div id="voucher-message" class="mt-2 text-sm hidden"></div>
+                    </div>
+                    
+                    <div id="voucher-applied-section" class="hidden">
+                        <div class="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <div>
+                                    <p class="font-medium text-green-800" id="applied-voucher-name"></p>
+                                    <p class="text-xs text-green-600" id="applied-voucher-code"></p>
+                                </div>
+                            </div>
+                            <button 
+                                type="button" 
+                                id="remove-voucher-btn"
+                                class="text-green-600 hover:text-green-800 transition-colors duration-200"
+                                title="Hapus voucher"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Cost Breakdown -->
                 <div class="space-y-2 md:space-y-3 mb-4 md:mb-6">
                     <div class="flex justify-between text-sm md:text-base text-gray-600">
                         <span>Subtotal</span>
                         <span id="subtotal">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                    </div>
+                    <div id="voucher-discount-row" class="flex justify-between text-sm md:text-base text-green-600 hidden">
+                        <span id="voucher-discount-label">Diskon Voucher</span>
+                        <span id="voucher-discount-amount">-Rp 0</span>
                     </div>
                     <div class="flex justify-between text-sm md:text-base text-gray-600">
                         <span>Biaya Pengiriman</span>
@@ -701,12 +762,16 @@ function displayShippingOptions(results, weight) {
 }
 
 function updatePricingWithShipping(shippingCost) {
-    const quantity = parseInt(document.getElementById('quantity').value) || 1;
-    const subtotal = productData.price * quantity;
-    const total = subtotal + shippingCost;
-    document.getElementById('subtotal').textContent = 'Rp ' + formatNumber(subtotal);
-    document.getElementById('shipping-cost').textContent = 'Rp ' + formatNumber(shippingCost);
-    document.getElementById('total-amount').textContent = 'Rp ' + formatNumber(total);
+    if (currentVoucher) {
+        updatePricingWithVoucher();
+    } else {
+        const quantity = parseInt(document.getElementById('quantity').value) || 1;
+        const subtotal = productData.price * quantity;
+        const total = subtotal + shippingCost;
+        document.getElementById('subtotal').textContent = 'Rp ' + formatNumber(subtotal);
+        document.getElementById('shipping-cost').textContent = 'Rp ' + formatNumber(shippingCost);
+        document.getElementById('total-amount').textContent = 'Rp ' + formatNumber(total);
+    }
 }
 
 function showShippingLoading() {
@@ -768,7 +833,11 @@ function updateQuantity(value) {
     if (destinationId) {
         calculateShippingCost();
     } else {
-        updatePricing(quantity);
+        if (currentVoucher) {
+            updatePricingWithVoucher();
+        } else {
+            updatePricing(quantity);
+        }
     }
 }
 
@@ -787,6 +856,162 @@ function updatePricing(quantity) {
     document.getElementById('total-amount').textContent = 'Rp ' + formatNumber(total);
 }
 
+// Voucher management
+let currentVoucher = null;
+
+function applyVoucher() {
+    const voucherCode = document.getElementById('voucher-code').value.trim().toUpperCase();
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const cartTotal = productData.price * quantity;
+    const customerEmail = document.getElementById('email').value;
+    
+    if (!voucherCode) {
+        showVoucherMessage('Masukkan kode voucher', 'error');
+        return;
+    }
+    
+    // Show loading state
+    const applyBtn = document.getElementById('apply-voucher-btn');
+    const originalText = applyBtn.textContent;
+    applyBtn.textContent = 'Memproses...';
+    applyBtn.disabled = true;
+    
+    fetch('/api/vouchers/validate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+            code: voucherCode,
+            cart_total: cartTotal,
+            customer_email: customerEmail
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.valid) {
+            // Apply voucher
+            currentVoucher = data.voucher;
+            
+            // Update hidden inputs
+            document.getElementById('hidden_voucher_id').value = currentVoucher.id;
+            document.getElementById('hidden_voucher_code').value = currentVoucher.code;
+            document.getElementById('hidden_discount_amount').value = currentVoucher.discount_amount;
+            
+            // Show applied voucher section
+            document.getElementById('voucher-input-section').classList.add('hidden');
+            document.getElementById('voucher-applied-section').classList.remove('hidden');
+            document.getElementById('applied-voucher-name').textContent = currentVoucher.name;
+            document.getElementById('applied-voucher-code').textContent = currentVoucher.code;
+            
+            // Show discount row
+            const discountRow = document.getElementById('voucher-discount-row');
+            const discountLabel = document.getElementById('voucher-discount-label');
+            const discountAmount = document.getElementById('voucher-discount-amount');
+            
+            discountRow.classList.remove('hidden');
+            if (currentVoucher.type === 'free_shipping') {
+                discountLabel.textContent = 'Gratis Ongkir';
+                discountAmount.textContent = 'Gratis';
+            } else {
+                discountLabel.textContent = 'Diskon Voucher';
+                discountAmount.textContent = '-' + currentVoucher.formatted_discount;
+            }
+            
+            // Update pricing
+            updatePricingWithVoucher();
+            
+            showVoucherMessage('Voucher berhasil diterapkan!', 'success');
+        } else {
+            showVoucherMessage(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showVoucherMessage('Terjadi kesalahan saat memvalidasi voucher', 'error');
+    })
+    .finally(() => {
+        applyBtn.textContent = originalText;
+        applyBtn.disabled = false;
+    });
+}
+
+function removeVoucher() {
+    currentVoucher = null;
+    
+    // Clear hidden inputs
+    document.getElementById('hidden_voucher_id').value = '';
+    document.getElementById('hidden_voucher_code').value = '';
+    document.getElementById('hidden_discount_amount').value = '0';
+    
+    // Clear voucher input
+    document.getElementById('voucher-code').value = '';
+    
+    // Show input section, hide applied section
+    document.getElementById('voucher-input-section').classList.remove('hidden');
+    document.getElementById('voucher-applied-section').classList.add('hidden');
+    
+    // Hide discount row
+    document.getElementById('voucher-discount-row').classList.add('hidden');
+    
+    // Update pricing
+    updatePricingWithVoucher();
+    
+    hideVoucherMessage();
+}
+
+function showVoucherMessage(message, type) {
+    const messageEl = document.getElementById('voucher-message');
+    messageEl.textContent = message;
+    messageEl.className = `mt-2 text-sm ${type === 'error' ? 'text-red-600' : 'text-green-600'}`;
+    messageEl.classList.remove('hidden');
+    
+    // Auto hide after 5 seconds
+    setTimeout(hideVoucherMessage, 5000);
+}
+
+function hideVoucherMessage() {
+    const messageEl = document.getElementById('voucher-message');
+    messageEl.classList.add('hidden');
+}
+
+function updatePricingWithVoucher() {
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const subtotal = productData.price * quantity;
+    
+    // Calculate discount
+    let discountAmount = 0;
+    if (currentVoucher) {
+        discountAmount = currentVoucher.discount_amount;
+    }
+    
+    // Update subtotal display
+    document.getElementById('subtotal').textContent = 'Rp ' + formatNumber(subtotal);
+    
+    // Get shipping cost
+    const shippingMethodInput = document.querySelector('input[name="shipping"]:checked');
+    let shippingCost = 0;
+    if (shippingMethodInput) {
+        const shippingValue = shippingMethodInput.value;
+        const shippingData = shippingValue.split('_');
+        shippingCost = parseInt(shippingData[2] || 0);
+        
+        // Apply free shipping if voucher type is free_shipping
+        if (currentVoucher && currentVoucher.type === 'free_shipping') {
+            shippingCost = 0;
+            document.getElementById('shipping-cost').textContent = 'Gratis';
+        } else {
+            document.getElementById('shipping-cost').textContent = 'Rp ' + formatNumber(shippingCost);
+        }
+    }
+    
+    // Calculate total
+    const total = Math.max(0, subtotal - discountAmount + shippingCost);
+    document.getElementById('total-amount').textContent = 'Rp ' + formatNumber(total);
+}
+
 function formatNumber(num) {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
@@ -800,12 +1025,34 @@ document.addEventListener('DOMContentLoaded', function() {
     
     updatePricing(initialQuantity);
     initRajaOngkirAutocomplete();
+    
+    // Voucher event listeners
+    document.getElementById('apply-voucher-btn').addEventListener('click', applyVoucher);
+    document.getElementById('remove-voucher-btn').addEventListener('click', removeVoucher);
+    
+    // Allow Enter key to apply voucher
+    document.getElementById('voucher-code').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            applyVoucher();
+        }
+    });
+    
+    // Auto uppercase voucher code
+    document.getElementById('voucher-code').addEventListener('input', function(e) {
+        e.target.value = e.target.value.toUpperCase();
+    });
+    
     document.addEventListener('change', function(e) {
         if (e.target.name === 'shipping') {
             const shippingValue = e.target.value;
             const shippingData = shippingValue.split('_');
             const shippingCost = parseInt(shippingData[2] || 0);
-            updatePricingWithShipping(shippingCost);
+            if (currentVoucher) {
+                updatePricingWithVoucher();
+            } else {
+                updatePricingWithShipping(shippingCost);
+            }
         }
     });
 });

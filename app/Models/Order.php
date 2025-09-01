@@ -34,6 +34,10 @@ class Order extends Model
         'total_amount',
         'status',
         'payment_proof_path',
+        'voucher_id',
+        'voucher_code',
+        'discount_amount',
+        'subtotal',
     ];
 
     /**
@@ -90,6 +94,22 @@ class Order extends Model
     }
 
     /**
+     * Get the voucher that was used for this order.
+     */
+    public function voucher()
+    {
+        return $this->belongsTo(Voucher::class);
+    }
+
+    /**
+     * Get the voucher usage for this order.
+     */
+    public function voucherUsage()
+    {
+        return $this->hasOne(VoucherUsage::class);
+    }
+
+    /**
      * Get the formatted total amount.
      *
      * @return string
@@ -107,6 +127,26 @@ class Order extends Model
     public function getFormattedShippingCostAttribute()
     {
         return 'Rp ' . number_format($this->shipping_cost, 0, ',', '.');
+    }
+
+    /**
+     * Get the formatted subtotal amount.
+     *
+     * @return string
+     */
+    public function getFormattedSubtotalAttribute()
+    {
+        return 'Rp ' . number_format($this->subtotal, 0, ',', '.');
+    }
+
+    /**
+     * Get the formatted discount amount.
+     *
+     * @return string
+     */
+    public function getFormattedDiscountAmountAttribute()
+    {
+        return 'Rp ' . number_format($this->discount_amount, 0, ',', '.');
     }
 
     /**

@@ -134,11 +134,24 @@
                 <div class="pt-3 md:pt-4 border-t border-gray-200">
                     <div class="flex justify-between text-xs md:text-sm text-gray-600 mb-2">
                         <span>Subtotal:</span>
-                        <span>{{ 'Rp ' . number_format($order->total_amount - $order->shipping_cost, 0, ',', '.') }}</span>
+                        <span>{{ $order->subtotal ? $order->formatted_subtotal : 'Rp ' . number_format($order->total_amount - $order->shipping_cost, 0, ',', '.') }}</span>
                     </div>
+                    @if($order->voucher_id && $order->discount_amount > 0)
+                    <div class="flex justify-between text-xs md:text-sm text-green-600 mb-2">
+                        <span>Diskon Voucher ({{ $order->voucher_code }}):</span>
+                        <span>-{{ $order->formatted_discount_amount }}</span>
+                    </div>
+                    @endif
                     <div class="flex justify-between text-xs md:text-sm text-gray-600 mb-2">
                         <span>Ongkir ({{ $order->shipping_method }}):</span>
-                        <span>{{ $order->formatted_shipping_cost }}</span>
+                        <span>
+                            @if($order->voucher && $order->voucher->type === 'free_shipping')
+                                <span class="line-through text-gray-400">{{ 'Rp ' . number_format($order->discount_amount, 0, ',', '.') }}</span>
+                                <span class="text-green-600 ml-1">Gratis</span>
+                            @else
+                                {{ $order->formatted_shipping_cost }}
+                            @endif
+                        </span>
                     </div>
                     <div class="flex justify-between text-base md:text-lg font-bold text-gray-800">
                         <span>Total:</span>
