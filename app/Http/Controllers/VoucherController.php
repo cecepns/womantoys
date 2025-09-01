@@ -91,7 +91,6 @@ class VoucherController extends Controller
             'starts_at' => 'nullable|date|after_or_equal:now',
             'expires_at' => 'nullable|date|after:starts_at',
             'is_active' => 'boolean',
-            'first_time_only' => 'boolean',
         ]);
 
         if ($validator->fails()) {
@@ -107,7 +106,6 @@ class VoucherController extends Controller
         
         // Set defaults
         $data['is_active'] = $request->has('is_active');
-        $data['first_time_only'] = $request->has('first_time_only');
         $data['min_purchase'] = $data['min_purchase'] ?? 0;
 
         Voucher::create($data);
@@ -157,7 +155,6 @@ class VoucherController extends Controller
             'starts_at' => 'nullable|date',
             'expires_at' => 'nullable|date|after:starts_at',
             'is_active' => 'boolean',
-            'first_time_only' => 'boolean',
         ]);
 
         if ($validator->fails()) {
@@ -173,7 +170,6 @@ class VoucherController extends Controller
         
         // Set defaults
         $data['is_active'] = $request->has('is_active');
-        $data['first_time_only'] = $request->has('first_time_only');
         $data['min_purchase'] = $data['min_purchase'] ?? 0;
 
         $voucher->update($data);

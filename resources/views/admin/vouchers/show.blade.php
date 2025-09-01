@@ -157,16 +157,7 @@
                             </p>
                         </div>
                         
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Pelanggan Baru</label>
-                            <p class="text-gray-900">
-                                @if($voucher->first_time_only)
-                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded">Ya</span>
-                                @else
-                                    <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded">Tidak</span>
-                                @endif
-                            </p>
-                        </div>
+
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Dibuat</label>

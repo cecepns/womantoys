@@ -28,7 +28,6 @@ return new class extends Migration
             $table->json('applicable_categories')->nullable();
             $table->json('applicable_products')->nullable();
             $table->json('exclude_products')->nullable();
-            $table->boolean('first_time_only')->default(false);
             $table->timestamps();
         });
     }

@@ -35,7 +35,6 @@ class Voucher extends Model
         'applicable_categories',
         'applicable_products',
         'exclude_products',
-        'first_time_only',
     ];
 
     /**
@@ -47,7 +46,6 @@ class Voucher extends Model
         'starts_at' => 'datetime',
         'expires_at' => 'datetime',
         'is_active' => 'boolean',
-        'first_time_only' => 'boolean',
         'applicable_categories' => 'array',
         'applicable_products' => 'array',
         'exclude_products' => 'array',
@@ -136,13 +134,7 @@ class Voucher extends Model
             ];
         }
 
-        // Check first time only
-        if ($this->first_time_only && $customerEmail) {
-            $hasUsed = VoucherUsage::where('customer_email', $customerEmail)->exists();
-            if ($hasUsed) {
-                return ['valid' => false, 'message' => 'Voucher hanya untuk pelanggan baru'];
-            }
-        }
+
 
         return ['valid' => true, 'voucher' => $this];
     }

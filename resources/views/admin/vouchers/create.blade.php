@@ -201,12 +201,7 @@
                                         Voucher Aktif
                                     </label>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="first_time_only" name="first_time_only" value="1" {{ old('first_time_only') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="first_time_only">
-                                        Hanya untuk pelanggan baru
-                                    </label>
-                                </div>
+
                             </div>
                         </div>
 

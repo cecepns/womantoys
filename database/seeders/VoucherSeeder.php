@@ -26,7 +26,6 @@ class VoucherSeeder extends Seeder
                 'starts_at' => now(),
                 'expires_at' => now()->addDays(30),
                 'is_active' => true,
-                'first_time_only' => true,
             ],
             [
                 'code' => 'SAVE10K',
@@ -41,7 +40,6 @@ class VoucherSeeder extends Seeder
                 'starts_at' => now(),
                 'expires_at' => now()->addDays(15),
                 'is_active' => true,
-                'first_time_only' => false,
             ],
             [
                 'code' => 'FREESHIP',
@@ -56,7 +54,6 @@ class VoucherSeeder extends Seeder
                 'starts_at' => now(),
                 'expires_at' => now()->addDays(60),
                 'is_active' => true,
-                'first_time_only' => false,
             ],
             [
                 'code' => 'SUMMER20',
@@ -71,7 +68,6 @@ class VoucherSeeder extends Seeder
                 'starts_at' => now()->subDays(30),
                 'expires_at' => now()->subDays(1), // Expired
                 'is_active' => false,
-                'first_time_only' => false,
             ],
             [
                 'code' => 'LOYALTY15',
@@ -86,7 +82,6 @@ class VoucherSeeder extends Seeder
                 'starts_at' => now(),
                 'expires_at' => null, // Permanent
                 'is_active' => true,
-                'first_time_only' => false,
             ],
             [
                 'code' => 'MIDNIGHT50',
@@ -101,7 +96,6 @@ class VoucherSeeder extends Seeder
                 'starts_at' => now()->addDays(1),
                 'expires_at' => now()->addDays(2),
                 'is_active' => true,
-                'first_time_only' => false,
             ],
         ];
 

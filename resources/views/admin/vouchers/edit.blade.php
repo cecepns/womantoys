@@ -2,318 +2,324 @@
 
 @section('title', 'Edit Voucher')
 
+@section('page-title', 'Edit Voucher')
+@section('page-description', 'Edit detail voucher yang sudah ada')
+
 @section('content')
-<div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Edit Voucher: {{ $voucher->code }}</h1>
-        <a href="{{ route('admin.vouchers.index') }}" class="btn btn-secondary btn-sm">
-            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Kembali
+<!-- Header Section -->
+<div class="mb-6 md:mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Edit Voucher: {{ $voucher->code }}</h1>
+            <p class="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Ubah detail voucher sesuai kebutuhan</p>
+        </div>
+        <a href="{{ route('admin.vouchers.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-3 md:px-4 rounded-lg transition-colors duration-200 flex items-center justify-center sm:justify-start w-full sm:w-auto">
+            <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            <span class="text-sm md:text-base">Kembali</span>
         </a>
     </div>
+</div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Form Edit Voucher</h6>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+    <!-- Main Form Section -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">Form Edit Voucher</h2>
+            
+            @if ($errors->any())
+                <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+                    <ul class="list-disc list-inside space-y-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
-                <div class="card-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <ul class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    <form method="POST" action="{{ route('admin.vouchers.update', $voucher) }}">
-                        @csrf
-                        @method('PUT')
-                        
-                        <!-- Kode Voucher -->
-                        <div class="form-group row">
-                            <label for="code" class="col-sm-3 col-form-label">Kode Voucher <span class="text-danger">*</span></label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control @error('code') is-invalid @enderror" 
-                                       id="code" name="code" value="{{ old('code', $voucher->code) }}" 
-                                       placeholder="Masukkan kode voucher" style="text-transform: uppercase;">
-                                @error('code')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="form-text text-muted">Kode harus unik dan akan digunakan pelanggan</small>
-                            </div>
-                        </div>
-
-                        <!-- Nama Voucher -->
-                        <div class="form-group row">
-                            <label for="name" class="col-sm-3 col-form-label">Nama Voucher <span class="text-danger">*</span></label>
-                            <div class="col-sm-9">
-                                <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                       id="name" name="name" value="{{ old('name', $voucher->name) }}" 
-                                       placeholder="Masukkan nama voucher">
-                                @error('name')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- Deskripsi -->
-                        <div class="form-group row">
-                            <label for="description" class="col-sm-3 col-form-label">Deskripsi</label>
-                            <div class="col-sm-9">
-                                <textarea class="form-control @error('description') is-invalid @enderror" 
-                                          id="description" name="description" rows="3" 
-                                          placeholder="Masukkan deskripsi voucher">{{ old('description', $voucher->description) }}</textarea>
-                                @error('description')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- Jenis Diskon -->
-                        <div class="form-group row">
-                            <label for="type" class="col-sm-3 col-form-label">Jenis Diskon <span class="text-danger">*</span></label>
-                            <div class="col-sm-9">
-                                <select class="form-control @error('type') is-invalid @enderror" id="type" name="type">
-                                    <option value="">Pilih jenis diskon</option>
-                                    <option value="percentage" {{ old('type', $voucher->type) == 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
-                                    <option value="fixed_amount" {{ old('type', $voucher->type) == 'fixed_amount' ? 'selected' : '' }}>Nominal (Rp)</option>
-                                    <option value="free_shipping" {{ old('type', $voucher->type) == 'free_shipping' ? 'selected' : '' }}>Gratis Ongkir</option>
-                                </select>
-                                @error('type')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <!-- Nilai Diskon -->
-                        <div class="form-group row">
-                            <label for="value" class="col-sm-3 col-form-label">Nilai Diskon <span class="text-danger">*</span></label>
-                            <div class="col-sm-9">
-                                <div class="input-group">
-                                    <input type="number" class="form-control @error('value') is-invalid @enderror" 
-                                           id="value" name="value" value="{{ old('value', $voucher->value) }}" 
-                                           placeholder="0" step="0.01" min="0">
-                                    <div class="input-group-append">
-                                        <span class="input-group-text" id="value-suffix">%</span>
-                                    </div>
-                                </div>
-                                @error('value')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="form-text text-muted" id="value-help">Masukkan nilai persentase (contoh: 50 untuk 50%)</small>
-                            </div>
-                        </div>
-
-                        <!-- Minimum Pembelian -->
-                        <div class="form-group row">
-                            <label for="min_purchase" class="col-sm-3 col-form-label">Minimum Pembelian</label>
-                            <div class="col-sm-9">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">Rp</span>
-                                    </div>
-                                    <input type="number" class="form-control @error('min_purchase') is-invalid @enderror" 
-                                           id="min_purchase" name="min_purchase" value="{{ old('min_purchase', $voucher->min_purchase) }}" 
-                                           placeholder="0" min="0">
-                                </div>
-                                @error('min_purchase')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="form-text text-muted">Kosongkan jika tidak ada minimum pembelian</small>
-                            </div>
-                        </div>
-
-                        <!-- Maksimal Diskon -->
-                        <div class="form-group row" id="max-discount-group" style="display: none;">
-                            <label for="max_discount" class="col-sm-3 col-form-label">Maksimal Diskon</label>
-                            <div class="col-sm-9">
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">Rp</span>
-                                    </div>
-                                    <input type="number" class="form-control @error('max_discount') is-invalid @enderror" 
-                                           id="max_discount" name="max_discount" value="{{ old('max_discount', $voucher->max_discount) }}" 
-                                           placeholder="0" min="0">
-                                </div>
-                                @error('max_discount')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="form-text text-muted">Kosongkan jika tidak ada batasan maksimal diskon</small>
-                            </div>
-                        </div>
-
-                        <!-- Batas Penggunaan -->
-                        <div class="form-group row">
-                            <label for="usage_limit" class="col-sm-3 col-form-label">Batas Penggunaan</label>
-                            <div class="col-sm-9">
-                                <input type="number" class="form-control @error('usage_limit') is-invalid @enderror" 
-                                       id="usage_limit" name="usage_limit" value="{{ old('usage_limit', $voucher->usage_limit) }}" 
-                                       placeholder="0" min="1">
-                                @error('usage_limit')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="form-text text-muted">
-                                    Kosongkan untuk penggunaan tidak terbatas. 
-                                    @if($voucher->used_count > 0)
-                                        <strong>Sudah digunakan: {{ $voucher->used_count }} kali</strong>
-                                    @endif
-                                </small>
-                            </div>
-                        </div>
-
-                        <!-- Tanggal Mulai -->
-                        <div class="form-group row">
-                            <label for="starts_at" class="col-sm-3 col-form-label">Tanggal Mulai</label>
-                            <div class="col-sm-9">
-                                <input type="datetime-local" class="form-control @error('starts_at') is-invalid @enderror" 
-                                       id="starts_at" name="starts_at" value="{{ old('starts_at', $voucher->starts_at ? $voucher->starts_at->format('Y-m-d\TH:i') : '') }}">
-                                @error('starts_at')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="form-text text-muted">Kosongkan untuk berlaku segera</small>
-                            </div>
-                        </div>
-
-                        <!-- Tanggal Berakhir -->
-                        <div class="form-group row">
-                            <label for="expires_at" class="col-sm-3 col-form-label">Tanggal Berakhir</label>
-                            <div class="col-sm-9">
-                                <input type="datetime-local" class="form-control @error('expires_at') is-invalid @enderror" 
-                                       id="expires_at" name="expires_at" value="{{ old('expires_at', $voucher->expires_at ? $voucher->expires_at->format('Y-m-d\TH:i') : '') }}">
-                                @error('expires_at')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="form-text text-muted">Kosongkan untuk voucher permanen</small>
-                            </div>
-                        </div>
-
-                        <!-- Checkbox Options -->
-                        <div class="form-group row">
-                            <div class="col-sm-3"></div>
-                            <div class="col-sm-9">
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" 
-                                           {{ old('is_active', $voucher->is_active) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="is_active">
-                                        Voucher Aktif
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="first_time_only" name="first_time_only" value="1" 
-                                           {{ old('first_time_only', $voucher->first_time_only) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="first_time_only">
-                                        Hanya untuk pelanggan baru
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Buttons -->
-                        <div class="form-group row">
-                            <div class="col-sm-3"></div>
-                            <div class="col-sm-9">
-                                <button type="submit" class="btn btn-primary mr-2">
-                                    <i class="fas fa-save"></i> Update Voucher
-                                </button>
-                                <a href="{{ route('admin.vouchers.index') }}" class="btn btn-secondary">
-                                    <i class="fas fa-times"></i> Batal
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <!-- Voucher Stats Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Statistik Voucher</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6">
-                            <div class="border-right">
-                                <h5 class="font-weight-bold text-primary">{{ $voucher->used_count }}</h5>
-                                <small class="text-muted">Kali Digunakan</small>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <h5 class="font-weight-bold text-success">
-                                @if($voucher->usage_limit)
-                                    {{ $voucher->usage_limit - $voucher->used_count }}
-                                @else
-                                    ∞
-                                @endif
-                            </h5>
-                            <small class="text-muted">Sisa Kuota</small>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="text-center">
-                        <p class="mb-1"><strong>Status:</strong> 
-                            <span class="badge {{ str_replace(['bg-', 'text-'], ['badge-', ''], $voucher->status_badge_class) }}">
-                                {{ $voucher->status_label }}
-                            </span>
-                        </p>
-                        <p class="mb-0"><strong>Dibuat:</strong> {{ $voucher->created_at->format('d/m/Y H:i') }}</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Preview Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Preview Voucher</h6>
-                </div>
-                <div class="card-body">
-                    <div class="voucher-preview border rounded p-3 bg-light text-center">
-                        <div class="voucher-icon mb-2">
-                            <i class="fas fa-ticket-alt fa-3x text-primary"></i>
-                        </div>
-                        <h5 class="voucher-code font-weight-bold text-uppercase" id="preview-code">{{ $voucher->code }}</h5>
-                        <p class="voucher-name mb-2" id="preview-name">{{ $voucher->name }}</p>
-                        <p class="voucher-description text-muted small" id="preview-description">{{ $voucher->description }}</p>
-                        <div class="voucher-value">
-                            <span class="badge badge-success p-2" id="preview-value">{{ $voucher->formatted_value }}</span>
-                        </div>
-                        <div class="voucher-conditions mt-2">
-                            <small class="text-muted" id="preview-conditions">
-                                @php
-                                    $conditions = [];
-                                    if($voucher->min_purchase) {
-                                        $conditions[] = 'Min. belanja Rp ' . number_format($voucher->min_purchase, 0, ',', '.');
-                                    }
-                                    if($voucher->type === 'percentage' && $voucher->max_discount) {
-                                        $conditions[] = 'Maks. diskon Rp ' . number_format($voucher->max_discount, 0, ',', '.');
-                                    }
-                                @endphp
-                                {{ implode(' • ', $conditions) ?: 'Tidak ada syarat khusus' }}
-                            </small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            @if($voucher->used_count > 0)
-            <!-- Warning Card -->
-            <div class="card shadow mb-4 border-warning">
-                <div class="card-header py-3 bg-warning">
-                    <h6 class="m-0 font-weight-bold text-white">
-                        <i class="fas fa-exclamation-triangle"></i> Peringatan
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <p class="mb-0">Voucher ini sudah digunakan <strong>{{ $voucher->used_count }} kali</strong>. 
-                    Perubahan pada jenis diskon dan nilai mungkin akan mempengaruhi perhitungan order yang sudah ada.</p>
-                </div>
-            </div>
             @endif
+
+            <form method="POST" action="{{ route('admin.vouchers.update', $voucher) }}" class="space-y-6">
+                @csrf
+                @method('PUT')
+                
+                <!-- Kode Voucher -->
+                <div>
+                    <label for="code" class="block text-sm font-medium text-gray-700 mb-2">
+                        Kode Voucher <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('code') border-red-500 @enderror" 
+                           id="code" name="code" value="{{ old('code', $voucher->code) }}" 
+                           placeholder="Masukkan kode voucher" 
+                           style="text-transform: uppercase;">
+                    @error('code')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                    <p class="text-gray-500 text-xs mt-1">Kode harus unik dan akan digunakan pelanggan</p>
+                </div>
+
+                <!-- Nama Voucher -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nama Voucher <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('name') border-red-500 @enderror" 
+                           id="name" name="name" value="{{ old('name', $voucher->name) }}" 
+                           placeholder="Masukkan nama voucher">
+                    @error('name')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Deskripsi -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        Deskripsi
+                    </label>
+                    <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror" 
+                              id="description" name="description" rows="3" 
+                              placeholder="Masukkan deskripsi voucher">{{ old('description', $voucher->description) }}</textarea>
+                    @error('description')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Jenis Diskon -->
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-2">
+                        Jenis Diskon <span class="text-red-500">*</span>
+                    </label>
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('type') border-red-500 @enderror" 
+                            id="type" name="type">
+                        <option value="">Pilih jenis diskon</option>
+                        <option value="percentage" {{ old('type', $voucher->type) == 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
+                        <option value="fixed_amount" {{ old('type', $voucher->type) == 'fixed_amount' ? 'selected' : '' }}>Nominal (Rp)</option>
+                        <option value="free_shipping" {{ old('type', $voucher->type) == 'free_shipping' ? 'selected' : '' }}>Gratis Ongkir</option>
+                    </select>
+                    @error('type')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Nilai Diskon -->
+                <div>
+                    <label for="value" class="block text-sm font-medium text-gray-700 mb-2">
+                        Nilai Diskon <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input type="number" 
+                               class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('value') border-red-500 @enderror" 
+                               id="value" name="value" value="{{ old('value', $voucher->value) }}" 
+                               placeholder="0" step="0.01" min="0">
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" id="value-suffix">%</span>
+                    </div>
+                    @error('value')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                    <p class="text-gray-500 text-xs mt-1" id="value-help">Masukkan nilai persentase (contoh: 50 untuk 50%)</p>
+                </div>
+
+                <!-- Minimum Pembelian -->
+                <div>
+                    <label for="min_purchase" class="block text-sm font-medium text-gray-700 mb-2">
+                        Minimum Pembelian
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                        <input type="number" 
+                               class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('min_purchase') border-red-500 @enderror" 
+                               id="min_purchase" name="min_purchase" value="{{ old('min_purchase', $voucher->min_purchase) }}" 
+                               placeholder="0" min="0">
+                    </div>
+                    @error('min_purchase')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                    <p class="text-gray-500 text-xs mt-1">Kosongkan jika tidak ada minimum pembelian</p>
+                </div>
+
+                <!-- Maksimal Diskon -->
+                <div id="max-discount-group" class="hidden">
+                    <label for="max_discount" class="block text-sm font-medium text-gray-700 mb-2">
+                        Maksimal Diskon
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
+                        <input type="number" 
+                               class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('max_discount') border-red-500 @enderror" 
+                               id="max_discount" name="max_discount" value="{{ old('max_discount', $voucher->max_discount) }}" 
+                               placeholder="0" min="0">
+                    </div>
+                    @error('max_discount')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                    <p class="text-gray-500 text-xs mt-1">Kosongkan jika tidak ada batasan maksimal diskon</p>
+                </div>
+
+                <!-- Batas Penggunaan -->
+                <div>
+                    <label for="usage_limit" class="block text-sm font-medium text-gray-700 mb-2">
+                        Batas Penggunaan
+                    </label>
+                    <input type="number" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('usage_limit') border-red-500 @enderror" 
+                           id="usage_limit" name="usage_limit" value="{{ old('usage_limit', $voucher->usage_limit) }}" 
+                           placeholder="0" min="1">
+                    @error('usage_limit')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                    <p class="text-gray-500 text-xs mt-1">
+                        Kosongkan untuk penggunaan tidak terbatas. 
+                        @if($voucher->used_count > 0)
+                            <strong>Sudah digunakan: {{ $voucher->used_count }} kali</strong>
+                        @endif
+                    </p>
+                </div>
+
+                <!-- Tanggal Mulai -->
+                <div>
+                    <label for="starts_at" class="block text-sm font-medium text-gray-700 mb-2">
+                        Tanggal Mulai
+                    </label>
+                    <input type="datetime-local" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('starts_at') border-red-500 @enderror" 
+                           id="starts_at" name="starts_at" value="{{ old('starts_at', $voucher->starts_at ? $voucher->starts_at->format('Y-m-d\TH:i') : '') }}">
+                    @error('starts_at')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                    <p class="text-gray-500 text-xs mt-1">Kosongkan untuk berlaku segera</p>
+                </div>
+
+                <!-- Tanggal Berakhir -->
+                <div>
+                    <label for="expires_at" class="block text-sm font-medium text-gray-700 mb-2">
+                        Tanggal Berakhir
+                    </label>
+                    <input type="datetime-local" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('expires_at') border-red-500 @enderror" 
+                           id="expires_at" name="expires_at" value="{{ old('expires_at', $voucher->expires_at ? $voucher->expires_at->format('Y-m-d\TH:i') : '') }}">
+                    @error('expires_at')
+                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                    @enderror
+                    <p class="text-gray-500 text-xs mt-1">Kosongkan untuk voucher permanen</p>
+                </div>
+
+                <!-- Checkbox Options -->
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <input type="hidden" name="is_active" value="0">
+                        <input class="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded" 
+                               type="checkbox" id="is_active" name="is_active" value="1" 
+                               {{ old('is_active', $voucher->is_active) ? 'checked' : '' }}>
+                        <label class="ml-3 block text-sm font-medium text-gray-700" for="is_active">
+                            Voucher Aktif
+                        </label>
+                    </div>
+
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6">
+                    <a href="{{ route('admin.vouchers.index') }}" 
+                       class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 md:py-2 px-4 rounded-lg transition-colors duration-200 text-center text-sm md:text-base order-2 sm:order-1">
+                        Batal
+                    </a>
+                    <button type="submit" 
+                            class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2.5 md:py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm md:text-base order-1 sm:order-2">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Update Voucher</span>
+                    </button>
+                </div>
+            </form>
         </div>
+    </div>
+
+    <!-- Sidebar Section -->
+    <div class="space-y-6">
+        <!-- Voucher Stats Card -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Statistik Voucher</h3>
+            <div class="grid grid-cols-2 gap-4 text-center">
+                <div class="border-r border-gray-200">
+                    <h4 class="text-2xl font-bold text-pink-600">{{ $voucher->used_count }}</h4>
+                    <p class="text-gray-500 text-sm">Kali Digunakan</p>
+                </div>
+                <div>
+                    <h4 class="text-2xl font-bold text-green-600">
+                        @if($voucher->usage_limit)
+                            {{ $voucher->usage_limit - $voucher->used_count }}
+                        @else
+                            ∞
+                        @endif
+                    </h4>
+                    <p class="text-gray-500 text-sm">Sisa Kuota</p>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center space-y-2">
+                <p class="text-sm">
+                    <span class="font-medium">Status:</span> 
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ str_replace(['bg-', 'text-'], ['bg-', 'text-'], $voucher->status_badge_class) }}">
+                        {{ $voucher->status_label }}
+                    </span>
+                </p>
+                <p class="text-sm text-gray-600">
+                    <span class="font-medium">Dibuat:</span> {{ $voucher->created_at->format('d/m/Y H:i') }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">Preview Voucher</h3>
+            <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 text-center">
+                <div class="mb-3">
+                    <svg class="w-12 h-12 text-pink-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
+                    </svg>
+                </div>
+                <h5 class="font-bold text-lg text-gray-800 uppercase" id="preview-code">{{ $voucher->code }}</h5>
+                <p class="text-gray-700 mb-2" id="preview-name">{{ $voucher->name }}</p>
+                <p class="text-gray-500 text-sm mb-3" id="preview-description">{{ $voucher->description }}</p>
+                <div class="mb-3">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800" id="preview-value">
+                        {{ $voucher->formatted_value }}
+                    </span>
+                </div>
+                <div>
+                    <p class="text-gray-500 text-xs" id="preview-conditions">
+                        @php
+                            $conditions = [];
+                            if($voucher->min_purchase) {
+                                $conditions[] = 'Min. belanja Rp ' . number_format($voucher->min_purchase, 0, ',', '.');
+                            }
+                            if($voucher->type === 'percentage' && $voucher->max_discount) {
+                                $conditions[] = 'Maks. diskon Rp ' . number_format($voucher->max_discount, 0, ',', '.');
+                            }
+                        @endphp
+                        {{ implode(' • ', $conditions) ?: 'Tidak ada syarat khusus' }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        @if($voucher->used_count > 0)
+        <!-- Warning Card -->
+        <div class="bg-white rounded-lg shadow-md border border-yellow-300 p-4 md:p-6">
+            <div class="flex items-center mb-3">
+                <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <h3 class="text-lg font-semibold text-yellow-800">Peringatan</h3>
+            </div>
+            <p class="text-yellow-700 text-sm">
+                Voucher ini sudah digunakan <strong>{{ $voucher->used_count }} kali</strong>. 
+                Perubahan pada jenis diskon dan nilai mungkin akan mempengaruhi perhitungan order yang sudah ada.
+            </p>
+        </div>
+        @endif
     </div>
 </div>
 
@@ -331,25 +337,25 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'percentage':
                 valueSuffix.textContent = '%';
                 valueHelp.textContent = 'Masukkan nilai persentase (contoh: 50 untuk 50%)';
-                maxDiscountGroup.style.display = 'flex';
+                maxDiscountGroup.classList.remove('hidden');
                 valueInput.max = '100';
                 break;
             case 'fixed_amount':
                 valueSuffix.textContent = 'Rp';
                 valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah';
-                maxDiscountGroup.style.display = 'none';
+                maxDiscountGroup.classList.add('hidden');
                 valueInput.max = '';
                 break;
             case 'free_shipping':
                 valueSuffix.textContent = '';
                 valueHelp.textContent = 'Nilai akan diabaikan untuk gratis ongkir';
-                maxDiscountGroup.style.display = 'none';
+                maxDiscountGroup.classList.add('hidden');
                 valueInput.max = '';
                 break;
             default:
                 valueSuffix.textContent = '%';
                 valueHelp.textContent = 'Pilih jenis diskon terlebih dahulu';
-                maxDiscountGroup.style.display = 'none';
+                maxDiscountGroup.classList.add('hidden');
                 valueInput.max = '';
         }
         updatePreview();
