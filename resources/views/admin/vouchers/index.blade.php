@@ -12,30 +12,8 @@
         <h1 class="text-3xl font-bold text-gray-800">Manajemen Voucher</h1>
         <p class="text-gray-600 mt-2">Kelola semua voucher dan diskon untuk pelanggan</p>
     </div>
-    <div class="flex items-center flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
-        <!-- Search Form -->
-        <form method="GET" action="{{ route('admin.vouchers.index') }}" class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
-            <div class="relative flex-1 sm:flex-none">
-                <input
-                    type="text"
-                    name="search"
-                    value="{{ request('search') }}"
-                    placeholder="Cari voucher..."
-                    class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent w-full"
-                >
-                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-            </div>
-            <input type="hidden" name="status" value="{{ request('status', 'all') }}">
-            <input type="hidden" name="type" value="{{ request('type', 'all') }}">
-            <input type="hidden" name="period" value="{{ request('period', 'all') }}">
-            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center w-full sm:w-auto justify-center">
-                Cari
-            </button>
-        </form>
-        
-        <a href="{{ route('admin.vouchers.create') }}" class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center w-full sm:w-auto justify-center">
+    <div class="flex items-center gap-4">
+        <a href="{{ route('admin.vouchers.create') }}" class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -103,50 +81,50 @@
     </div>
 </div>
 
-<!-- Advanced Filters -->
-<div class="mb-6 bg-white rounded-lg shadow-md border border-gray-200 p-6">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Filter Voucher</h3>
-    <form method="GET" action="{{ route('admin.vouchers.index') }}" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <input type="hidden" name="search" value="{{ request('search') }}">
-        
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-            <select name="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
-                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>Semua Status</option>
+<!-- Search and Filter Section -->
+<div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-8">
+    <form method="GET" action="{{ route('admin.vouchers.index') }}" class="flex flex-col md:flex-row gap-4">
+        <div class="flex-1">
+            <input 
+                type="text" 
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Cari voucher..." 
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+            >
+        </div>
+        <div class="md:w-48">
+            <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                <option value="">Semua Status</option>
                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Aktif</option>
                 <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Nonaktif</option>
             </select>
         </div>
-        
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Voucher</label>
-            <select name="type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
-                <option value="all" {{ request('type') == 'all' ? 'selected' : '' }}>Semua Jenis</option>
+        <div class="md:w-48">
+            <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                <option value="">Semua Jenis</option>
                 <option value="percentage" {{ request('type') == 'percentage' ? 'selected' : '' }}>Persentase</option>
                 <option value="fixed_amount" {{ request('type') == 'fixed_amount' ? 'selected' : '' }}>Nominal</option>
                 <option value="free_shipping" {{ request('type') == 'free_shipping' ? 'selected' : '' }}>Gratis Ongkir</option>
             </select>
         </div>
-        
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Periode</label>
-            <select name="period" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
-                <option value="all" {{ request('period') == 'all' ? 'selected' : '' }}>Semua Periode</option>
+        <div class="md:w-48">
+            <select name="period" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                <option value="">Semua Periode</option>
                 <option value="today" {{ request('period') == 'today' ? 'selected' : '' }}>Hari Ini</option>
                 <option value="week" {{ request('period') == 'week' ? 'selected' : '' }}>Minggu Ini</option>
                 <option value="month" {{ request('period') == 'month' ? 'selected' : '' }}>Bulan Ini</option>
                 <option value="expired" {{ request('period') == 'expired' ? 'selected' : '' }}>Expired</option>
             </select>
         </div>
-        
-        <div class="flex items-end gap-2">
-            <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
-                Filter
-            </button>
-            <a href="{{ route('admin.vouchers.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200">
+        <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors duration-200">
+            Filter
+        </button>
+        @if(request('search') || request('status') || request('type') || request('period'))
+            <a href="{{ route('admin.vouchers.index') }}" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
                 Reset
             </a>
-        </div>
+        @endif
     </form>
 </div>
 
