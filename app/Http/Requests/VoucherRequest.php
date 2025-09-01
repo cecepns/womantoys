@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class VoucherRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * ANCHOR: Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
@@ -15,7 +15,7 @@ class VoucherRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * ANCHOR: Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
@@ -45,7 +45,7 @@ class VoucherRequest extends FormRequest
     }
 
     /**
-     * Get custom messages for validator errors.
+     * ANCHOR: Get custom messages for validator errors.
      *
      * @return array
      */
@@ -76,7 +76,7 @@ class VoucherRequest extends FormRequest
     }
 
     /**
-     * Configure the validator instance.
+     * ANCHOR: Configure the validator instance with custom validation logic.
      *
      * @param  \Illuminate\Validation\Validator  $validator
      * @return void
@@ -87,15 +87,20 @@ class VoucherRequest extends FormRequest
             $type = $this->input('type');
             $value = $this->input('value');
 
+            // Validate percentage type (1-100%)
             if ($type === 'percentage') {
                 if ($value < 1 || $value > 100) {
                     $validator->errors()->add('value', 'Nilai diskon persentase harus antara 1% - 100%');
                 }
-            } elseif ($type === 'fixed_amount') {
+            } 
+            // Validate fixed amount type (min Rp100)
+            elseif ($type === 'fixed_amount') {
                 if ($value < 100) {
                     $validator->errors()->add('value', 'Nilai diskon nominal minimal Rp100');
                 }
-            } elseif ($type === 'free_shipping') {
+            } 
+            // Validate free shipping type (min Rp100)
+            elseif ($type === 'free_shipping') {
                 if ($value < 100) {
                     $validator->errors()->add('value', 'Nilai diskon nominal minimal Rp100');
                 }

@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    /**
+     * ANCHOR: Display product detail page with related products.
+     */
     public function show(Product $product)
     {
         // Load the product with its relationships

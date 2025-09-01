@@ -414,6 +414,7 @@ let selectedLocationId = null;
 let lastQuery = '';
 let currentController = null;
 
+// ANCHOR: Debounce function for search optimization
 function debounce(func, wait) {
     let timeout;
     return function(...args) {
@@ -422,6 +423,7 @@ function debounce(func, wait) {
     };
 }
 
+// ANCHOR: Cancel previous request to prevent race conditions
 function cancelPreviousRequest() {
     if (currentController) {
         currentController.abort();
@@ -429,6 +431,7 @@ function cancelPreviousRequest() {
     }
 }
 
+// ANCHOR: Initialize RajaOngkir address autocomplete
 function initRajaOngkirAutocomplete() {
     const addressInput = document.getElementById('address-autocomplete');
     const dropdown = document.getElementById('address-dropdown');
@@ -441,51 +444,55 @@ function initRajaOngkirAutocomplete() {
         }
     }, 2000);
 
-        addressInput.addEventListener('input', function() {
-            const query = this.value.trim();
-            if (query.length < 2) {
-                hideDropdown();
+    // ANCHOR: Input event handler for address search
+    addressInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        if (query.length < 2) {
+            hideDropdown();
             lastQuery = '';
-                return;
-            }
+            return;
+        }
         showLoadingState();
         debouncedSearch(query);
     });
 
-        document.addEventListener('click', function(e) {
-            if (!addressInput.contains(e.target) && !dropdown.contains(e.target)) {
-                hideDropdown();
-            }
-        });
-        
-        addressInput.addEventListener('focus', function() {
-            const query = this.value.trim();
-            if (query.length >= 2) {
-                searchAddress(query);
-            }
-        });
-        
-        addressInput.addEventListener('keydown', function(e) {
-            const options = dropdown.querySelectorAll('.address-option');
-            const currentIndex = Array.from(options).findIndex(option => option.classList.contains('bg-pink-50'));
+    // ANCHOR: Click outside handler to close dropdown
+    document.addEventListener('click', function(e) {
+        if (!addressInput.contains(e.target) && !dropdown.contains(e.target)) {
+            hideDropdown();
+        }
+    });
+    
+    // ANCHOR: Focus event handler for address search
+    addressInput.addEventListener('focus', function() {
+        const query = this.value.trim();
+        if (query.length >= 2) {
+            searchAddress(query);
+        }
+    });
+    
+    // ANCHOR: Keyboard navigation handler
+    addressInput.addEventListener('keydown', function(e) {
+        const options = dropdown.querySelectorAll('.address-option');
+        const currentIndex = Array.from(options).findIndex(option => option.classList.contains('bg-pink-50'));
         if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    if (options.length > 0) {
-                        const nextIndex = currentIndex < options.length - 1 ? currentIndex + 1 : 0;
-                        highlightOption(options, nextIndex);
-                    }
+            e.preventDefault();
+            if (options.length > 0) {
+                const nextIndex = currentIndex < options.length - 1 ? currentIndex + 1 : 0;
+                highlightOption(options, nextIndex);
+            }
         } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (options.length > 0) {
-                        const prevIndex = currentIndex > 0 ? currentIndex - 1 : options.length - 1;
-                        highlightOption(options, prevIndex);
-                    }
+            e.preventDefault();
+            if (options.length > 0) {
+                const prevIndex = currentIndex > 0 ? currentIndex - 1 : options.length - 1;
+                highlightOption(options, prevIndex);
+            }
         } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (currentIndex >= 0 && options[currentIndex]) {
-                        const option = options[currentIndex];
-                        const id = option.getAttribute('data-id');
-                        const label = option.getAttribute('data-label');
+            e.preventDefault();
+            if (currentIndex >= 0 && options[currentIndex]) {
+                const option = options[currentIndex];
+                const id = option.getAttribute('data-id');
+                const label = option.getAttribute('data-label');
                 selectAddress(id, label);
             }
         } else if (e.key === 'Escape') {
@@ -494,6 +501,7 @@ function initRajaOngkirAutocomplete() {
     });
 }
 
+// ANCHOR: Highlight selected option in dropdown
 function highlightOption(options, index) {
     options.forEach((option, i) => {
         if (i === index) {

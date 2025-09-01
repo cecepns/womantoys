@@ -51,7 +51,7 @@ class Product extends Model
     }
 
     /**
-     * Get the category that owns the product.
+     * ANCHOR: Get the category that owns the product.
      */
     public function category()
     {
@@ -59,7 +59,7 @@ class Product extends Model
     }
 
     /**
-     * Get the order items for the product.
+     * ANCHOR: Get the order items for the product.
      */
     public function orderItems()
     {
@@ -67,7 +67,7 @@ class Product extends Model
     }
 
     /**
-     * Get the images for the product.
+     * ANCHOR: Get the images for the product.
      */
     public function images()
     {
@@ -75,7 +75,7 @@ class Product extends Model
     }
 
     /**
-     * Get the route key for the model.
+     * ANCHOR: Get the route key for the model.
      *
      * @return string
      */
@@ -85,7 +85,7 @@ class Product extends Model
     }
 
     /**
-     * Get the formatted price.
+     * ANCHOR: Get the formatted price.
      *
      * @return string
      */
@@ -95,7 +95,7 @@ class Product extends Model
     }
 
     /**
-     * Get the formatted weight.
+     * ANCHOR: Get the formatted weight.
      *
      * @return string|null
      */

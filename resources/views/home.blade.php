@@ -3,13 +3,13 @@
 @section('title', 'Beranda - WomanToys')
 
 @section('content')
-<!-- Carousel Section -->
+<!-- SECTION: Hero Carousel Section -->
 @if($carouselSlides && $carouselSlides->count() > 0)
     <div class="relative h-96 md:h-[500px] overflow-hidden">
         <div class="owl-carousel owl-theme hero-carousel" id="heroCarousel">
             @foreach($carouselSlides as $slide)
                 <div class="item relative h-96 md:h-[500px]">
-                    <!-- Background Image -->
+                    <!-- ANCHOR: Background Image -->
                     <div class="absolute inset-0">
                     
                         @if($slide->image_path)
@@ -19,7 +19,7 @@
                                 class="w-full h-full object-cover"
                                 onerror="console.log('Image failed to load:', this.src); this.style.display='none'; this.nextElementSibling.style.display='flex';"
                             >
-                            <!-- Fallback div (hidden by default, shown when image fails) -->
+                            <!-- ANCHOR: Fallback Background -->
                             <div class="w-full h-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center" style="display: none;">
                                 <svg class="w-24 h-24 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -32,11 +32,11 @@
                                 </svg>
                             </div>
                         @endif
-                        <!-- Overlay -->
+                        <!-- ANCHOR: Overlay -->
                         <div class="absolute inset-0 bg-black opacity-40"></div>
                     </div>
                     
-                    <!-- Slide Content -->
+                    <!-- ANCHOR: Slide Content -->
                     <div class="relative z-10 flex items-center justify-center h-full text-center text-white px-4">
                         <div class="max-w-4xl">
                             @if($slide->title)
@@ -65,20 +65,20 @@
         </div>
     </div>
 @else
-    <!-- Fallback Hero Section -->
+    <!-- ANCHOR: Fallback Hero Section -->
     <div class="relative h-96 md:h-[500px] overflow-hidden">
-        <!-- Background Image -->
+        <!-- ANCHOR: Background Image -->
         <div class="absolute inset-0">
             <img 
                 src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
                 alt="WomanToys Hero" 
                 class="w-full h-full object-cover"
             >
-            <!-- Overlay -->
+            <!-- ANCHOR: Overlay -->
             <div class="absolute inset-0 bg-black bg-opacity-40"></div>
         </div>
         
-        <!-- Hero Content -->
+        <!-- ANCHOR: Hero Content -->
         <div class="relative z-10 flex items-center justify-center h-full text-center text-white px-4">
             <div class="max-w-4xl">
                 <h1 class="text-4xl md:text-6xl font-bold mb-6">
@@ -94,8 +94,9 @@
         </div>
     </div>
 @endif
+<!-- !SECTION: Hero Carousel Section -->
 
-<!-- Trust & Guarantee Section -->
+<!-- SECTION: Trust & Guarantee Section -->
 <div class="bg-white py-16">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">

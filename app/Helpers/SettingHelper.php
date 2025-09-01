@@ -7,7 +7,7 @@ use App\Models\Setting;
 class SettingHelper
 {
     /**
-     * Get WhatsApp number from settings
+     * ANCHOR: Get WhatsApp number from settings.
      */
     public static function getWhatsAppNumber(): string
     {
@@ -15,7 +15,7 @@ class SettingHelper
     }
 
     /**
-     * Get WhatsApp message from settings
+     * ANCHOR: Get WhatsApp message from settings.
      */
     public static function getWhatsAppMessage(): string
     {
@@ -23,7 +23,7 @@ class SettingHelper
     }
 
     /**
-     * Get store name from settings
+     * ANCHOR: Get store name from settings.
      */
     public static function getStoreName(): string
     {

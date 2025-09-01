@@ -12,7 +12,7 @@ use Carbon\Carbon;
 class DashboardController extends Controller
 {
     /**
-     * Display the admin dashboard.
+     * ANCHOR: Display the admin dashboard with statistics and analytics.
      */
     public function index()
     {
@@ -21,14 +21,14 @@ class DashboardController extends Controller
         $previousMonth = Carbon::now()->subMonth()->startOfMonth();
         $previousMonthEnd = Carbon::now()->subMonth()->endOfMonth();
 
-        // Total orders
+        // Total orders statistics
         $totalOrders = Order::count();
         $currentMonthOrders = Order::where('created_at', '>=', $currentMonth)->count();
         $previousMonthOrders = Order::whereBetween('created_at', [$previousMonth, $previousMonthEnd])->count();
         $orderGrowth = $previousMonthOrders > 0 ? 
             round((($currentMonthOrders - $previousMonthOrders) / $previousMonthOrders) * 100, 1) : 0;
 
-        // Total products
+        // Total products statistics
         $totalProducts = Product::count();
         $newProductsThisMonth = Product::where('created_at', '>=', $currentMonth)->count();
 
@@ -87,7 +87,7 @@ class DashboardController extends Controller
             'cancelled' => Order::where('status', Order::STATUS_CANCELLED)->count(),
         ];
 
-        // Recent orders
+        // Recent orders for quick overview
         $recentOrders = Order::with('orderItems.product')
             ->orderBy('created_at', 'desc')
             ->limit(3)
@@ -115,7 +115,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Format currency for display.
+     * ANCHOR: Format currency for display with abbreviation.
      */
     private function formatCurrency($amount)
     {

@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * ANCHOR: Display a listing of the products with filtering and search.
      */
     public function index(Request $request)
     {
@@ -52,7 +52,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * ANCHOR: Show the form for creating a new product.
      */
     public function create()
     {
@@ -61,7 +61,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * ANCHOR: Store a newly created product in storage.
      */
     public function store(Request $request)
     {

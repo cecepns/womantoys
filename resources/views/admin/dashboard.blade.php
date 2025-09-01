@@ -6,15 +6,16 @@
 @section('page-description', 'Ringkasan performa toko Anda')
 
 @section('content')
-<!-- Welcome Section -->
+<!-- SECTION: Welcome Section -->
 <div class="mb-6 md:mb-8">
     <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Dashboard</h1>
     <p class="text-base md:text-lg text-gray-600">Selamat Datang Kembali, Admin!</p>
 </div>
+<!-- !SECTION: Welcome Section -->
 
-<!-- Statistics Cards -->
+<!-- SECTION: Statistics Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-    <!-- Total Orders Card -->
+    <!-- ANCHOR: Total Orders Card -->
     <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border border-gray-200">
         <div class="flex items-center justify-between">
             <div class="min-w-0 flex-1">
@@ -33,7 +34,7 @@
         </div>
     </div>
 
-    <!-- Total Products Card -->
+    <!-- ANCHOR: Total Products Card -->
     <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border border-gray-200">
         <div class="flex items-center justify-between">
             <div class="min-w-0 flex-1">
@@ -52,7 +53,7 @@
         </div>
     </div>
 
-    <!-- Revenue Card -->
+    <!-- ANCHOR: Revenue Card -->
     <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border border-gray-200">
         <div class="flex items-center justify-between">
             <div class="min-w-0 flex-1">
@@ -71,7 +72,7 @@
         </div>
     </div>
 
-    <!-- Pending Orders Card -->
+    <!-- ANCHOR: Pending Orders Card -->
     <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border border-gray-200 ">
         <div class="flex items-center justify-between">
             <div class="min-w-0 flex-1">
@@ -90,10 +91,11 @@
         </div>
     </div>
 </div>
+<!-- !SECTION: Statistics Cards -->
 
-<!-- Revenue Breakdown Section -->
+<!-- SECTION: Revenue Breakdown Section -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8">
-    <!-- Today's Revenue -->
+    <!-- ANCHOR: Today's Revenue -->
     <div class="bg-white rounded-lg shadow-md p-4 md:p-6 border border-gray-200">
         <div class="flex items-center justify-between">
             <div class="min-w-0 flex-1">
@@ -141,8 +143,9 @@
         </div>
     </div>
 </div>
+<!-- !SECTION: Revenue Breakdown Section -->
 
-<!-- Order Status Breakdown Section -->
+<!-- SECTION: Order Status Breakdown Section -->
 <div class="bg-white rounded-lg shadow-md border border-gray-200 mb-6 md:mb-8">
     <div class="p-4 md:p-6 border-b border-gray-200">
         <h3 class="text-base md:text-lg font-semibold text-gray-800">Breakdown Status Pesanan</h3>
@@ -188,8 +191,9 @@
         </div>
     </div>
 </div>
+<!-- !SECTION: Order Status Breakdown Section -->
 
-<!-- Recent Activity Section -->
+<!-- SECTION: Recent Activity Section -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
     <!-- Recent Orders -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200">
@@ -289,4 +293,5 @@
         </div>
     </div>
 </div>
+<!-- !SECTION: Recent Activity Section -->
 @endsection

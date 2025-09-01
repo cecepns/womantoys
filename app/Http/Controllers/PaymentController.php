@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 class PaymentController extends Controller
 {
     /**
-     * Show payment instruction page
+     * ANCHOR: Show payment instruction page for specific order.
      */
     public function show(Request $request)
     {
@@ -31,7 +31,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Handle payment confirmation with proof upload
+     * ANCHOR: Handle payment confirmation with proof upload.
      */
     public function confirmPayment(Request $request)
     {
@@ -69,12 +69,12 @@ class PaymentController extends Controller
         }
 
         try {
-            // Handle file upload
+            // Handle file upload with unique naming
             $file = $request->file('payment_proof');
             $fileName = 'payment_proof_' . $order->order_number . '_' . time() . '.' . $file->getClientOriginalExtension();
             $filePath = $file->storeAs('payment_proofs', $fileName, 'public');
 
-            // Update order
+            // Update order status to paid
             $order->update([
                 'payment_proof_path' => $filePath,
                 'status' => Order::STATUS_PAID,

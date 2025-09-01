@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 
 class CatalogController extends Controller
 {
+    /**
+     * ANCHOR: Display catalog page with filtering and search functionality.
+     */
     public function index(Request $request)
     {
         $query = Product::with(['category', 'images'])
