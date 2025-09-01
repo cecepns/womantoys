@@ -244,7 +244,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
                                 </svg>
                                 <p class="mt-2 text-sm text-gray-500">Tidak ada voucher ditemukan.</p>
-                                @if(request('search') || request('status', 'all') !== 'all' || request('type', 'all') !== 'all' || request('period', 'all') !== 'all')
+                                @if(request('search') || request('status') || request('type') || request('period'))
                                     <a href="{{ route('admin.vouchers.index') }}" class="mt-2 inline-flex items-center text-sm text-pink-600 hover:text-pink-500">
                                         <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>

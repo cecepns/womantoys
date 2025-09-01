@@ -22,7 +22,7 @@ class VoucherController extends Controller
         }
 
         // Filter by status
-        if ($request->has('status') && $request->status !== 'all') {
+        if ($request->filled('status')) {
             if ($request->status === 'active') {
                 $query->active();
             } elseif ($request->status === 'inactive') {
@@ -31,12 +31,12 @@ class VoucherController extends Controller
         }
 
         // Filter by type
-        if ($request->has('type') && $request->type !== 'all') {
+        if ($request->filled('type')) {
             $query->where('type', $request->type);
         }
 
         // Filter by period
-        if ($request->has('period') && $request->period !== 'all') {
+        if ($request->filled('period')) {
             switch ($request->period) {
                 case 'today':
                     $query->whereDate('created_at', today());
@@ -53,7 +53,7 @@ class VoucherController extends Controller
             }
         }
 
-        $vouchers = $query->orderBy('created_at', 'desc')->paginate(10);
+        $vouchers = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
         // Statistics for dashboard
         $statistics = [
