@@ -17,7 +17,7 @@
             <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
             </svg>
-            <span class="text-sm md:text-base">Kembali</span>
+            <span class="text-sm md:text-base">Kembali ke Daftar</span>
         </a>
     </div>
 </div>
@@ -41,7 +41,7 @@
             @if($voucher->hasBeenUsed())
                 <div class="mb-6 p-4 bg-orange-50 border border-orange-200 text-orange-700 rounded-lg">
                     <div class="flex items-start">
-                        <svg class="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
                         </svg>
                         <div>
@@ -54,210 +54,219 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('admin.vouchers.update', $voucher) }}" class="space-y-6">
+            <form method="POST" action="{{ route('admin.vouchers.update', $voucher) }}" class="space-y-6" id="voucher-edit-form">
                 @csrf
                 @method('PUT')
                 
                 <!-- Kode Voucher -->
-                <div>
-                    <label for="code" class="block text-sm font-medium text-gray-700 mb-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label for="code" class="block text-sm font-medium text-gray-700">
                         Kode Voucher <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('code') border-red-500 @enderror" 
-                           id="code" name="code" value="{{ old('code', $voucher->code) }}" 
-                           placeholder="Masukkan kode voucher" 
-                           style="text-transform: uppercase;">
-                    @error('code')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                    <p class="text-gray-500 text-xs mt-1">Kode harus unik dan akan digunakan pelanggan</p>
+                    <div class="md:col-span-2">
+                        <input type="text" 
+                               readonly
+                               class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('code') border-red-500 @enderror text-sm sm:text-base bg-gray-50" 
+                               id="code" name="code" value="{{ old('code', $voucher->code) }}" 
+                               placeholder="Masukkan kode voucher" 
+                               style="text-transform: uppercase;">
+                        <p class="text-gray-500 text-xs mt-1">Kode harus unik tidak bisa diubah</p>
+                    </div>
                 </div>
 
                 <!-- Nama Voucher -->
-                <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label for="name" class="block text-sm font-medium text-gray-700">
                         Nama Voucher <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('name') border-red-500 @enderror" 
-                           id="name" name="name" value="{{ old('name', $voucher->name) }}" 
-                           placeholder="Masukkan nama voucher">
-                    @error('name')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                    <div class="md:col-span-2">
+                        <input type="text" 
+                               class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('name') border-red-500 @enderror text-sm sm:text-base" 
+                               id="name" name="name" value="{{ old('name', $voucher->name) }}" 
+                               placeholder="Masukkan nama voucher">
+                        @error('name')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
                 <!-- Deskripsi -->
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                    <label for="description" class="block text-sm font-medium text-gray-700">
                         Deskripsi
                     </label>
-                    <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror" 
-                              id="description" name="description" rows="3" 
-                              placeholder="Masukkan deskripsi voucher">{{ old('description', $voucher->description) }}</textarea>
-                    @error('description')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                    <div class="md:col-span-2">
+                        <textarea class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none @error('description') border-red-500 @enderror text-sm sm:text-base" 
+                                  id="description" name="description" rows="3" 
+                                  placeholder="Masukkan deskripsi voucher">{{ old('description', $voucher->description) }}</textarea>
+                        @error('description')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
                 <!-- Jenis Diskon -->
-                <div>
-                    <label for="type" class="block text-sm font-medium text-gray-700 mb-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label for="type" class="block text-sm font-medium text-gray-700">
                         Jenis Diskon <span class="text-red-500">*</span>
                         @if($voucher->hasBeenUsed())
                             <span class="text-orange-600 text-xs ml-2">(Tidak dapat diubah karena sudah digunakan)</span>
                         @endif
                     </label>
-                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('type') border-red-500 @enderror {{ $voucher->hasBeenUsed() ? 'bg-gray-100 cursor-not-allowed' : '' }}" 
-                            id="type" name="type" {{ $voucher->hasBeenUsed() ? 'disabled' : '' }}>
-                        <option value="">Pilih jenis diskon</option>
-                        <option value="percentage" {{ old('type', $voucher->type) == 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
-                        <option value="fixed_amount" {{ old('type', $voucher->type) == 'fixed_amount' ? 'selected' : '' }}>Nominal (Rp)</option>
-                        <option value="free_shipping" {{ old('type', $voucher->type) == 'free_shipping' ? 'selected' : '' }}>Gratis Ongkir</option>
-                    </select>
-                    @if($voucher->hasBeenUsed())
-                        <input type="hidden" name="type" value="{{ $voucher->type }}">
-                    @endif
-                    @error('type')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
+                    <div class="md:col-span-2">
+                        <select class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('type') border-red-500 @enderror text-sm sm:text-base {{ $voucher->hasBeenUsed() ? 'bg-gray-100 cursor-not-allowed' : '' }}" 
+                                id="type" name="type" {{ $voucher->hasBeenUsed() ? 'disabled' : '' }}>
+                            <option value="">Pilih jenis diskon</option>
+                            <option value="percentage" {{ old('type', $voucher->type) == 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
+                            <option value="fixed_amount" {{ old('type', $voucher->type) == 'fixed_amount' ? 'selected' : '' }}>Nominal (Rp)</option>
+                            <option value="free_shipping" {{ old('type', $voucher->type) == 'free_shipping' ? 'selected' : '' }}>Gratis Ongkir</option>
+                        </select>
+                        @if($voucher->hasBeenUsed())
+                            <input type="hidden" name="type" value="{{ $voucher->type }}">
+                        @endif
+                        @error('type')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
                 <!-- Nilai Diskon -->
-                <div>
-                    <label for="value" class="block text-sm font-medium text-gray-700 mb-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label for="value" class="block text-sm font-medium text-gray-700">
                         Nilai Diskon <span class="text-red-500">*</span>
                         @if($voucher->hasBeenUsed())
                             <span class="text-orange-600 text-xs ml-2">(Tidak dapat diubah karena sudah digunakan)</span>
                         @endif
                     </label>
-                    <div class="relative">
-                        <input type="number" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('value') border-red-500 @enderror {{ $voucher->hasBeenUsed() ? 'bg-gray-100 cursor-not-allowed' : '' }}" 
-                               id="value" name="value" value="{{ old('value', $voucher->value) }}" 
-                               placeholder="0" step="0.01" min="0" {{ $voucher->hasBeenUsed() ? 'disabled' : '' }}>
+                    <div class="md:col-span-2">
+                        <div class="flex">
+                            <input type="number" 
+                                   class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('value') border-red-500 @enderror text-sm sm:text-base {{ $voucher->hasBeenUsed() ? 'bg-gray-100 cursor-not-allowed' : '' }}" 
+                                   id="value" name="value" value="{{ old('value', $voucher->value) }}" 
+                                   placeholder="0" step="0.01" min="0" {{ $voucher->hasBeenUsed() ? 'disabled' : '' }}>
+                            <span class="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border border-l-0 border-gray-300 rounded-r-lg text-gray-700 text-sm sm:text-base" id="value-suffix">
+                                @if($voucher->type === 'percentage') % @else Rp @endif
+                            </span>
+                        </div>
+                        @if($voucher->hasBeenUsed())
+                            <input type="hidden" name="value" value="{{ $voucher->value }}">
+                        @endif
+                        @error('value')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                        <p class="text-gray-500 text-xs mt-1" id="value-help">Masukkan nilai persentase (contoh: 50 untuk 50%)</p>
+                        <p class="text-red-500 text-xs mt-1 hidden" id="value-validation-error"></p>
                     </div>
-                    @if($voucher->hasBeenUsed())
-                        <input type="hidden" name="value" value="{{ $voucher->value }}">
-                    @endif
-                    @error('value')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                    <p class="text-gray-500 text-xs mt-1" id="value-help">Masukkan nilai persentase (contoh: 50 untuk 50%)</p>
-                    <p class="text-red-500 text-xs mt-1 hidden" id="value-validation-error"></p>
                 </div>
 
                 <!-- Minimum Pembelian -->
-                <div>
-                    <label for="min_purchase" class="block text-sm font-medium text-gray-700 mb-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label for="min_purchase" class="block text-sm font-medium text-gray-700">
                         Minimum Pembelian
                     </label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
-                        <input type="number" 
-                               class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('min_purchase') border-red-500 @enderror" 
-                               id="min_purchase" name="min_purchase" value="{{ old('min_purchase', $voucher->min_purchase) }}" 
-                               placeholder="0" min="0">
+                    <div class="md:col-span-2">
+                        <div class="flex">
+                            <span class="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-l-lg text-gray-700 text-sm sm:text-base">Rp</span>
+                            <input type="number" 
+                                   class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-l-0 border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('min_purchase') border-red-500 @enderror text-sm sm:text-base" 
+                                   id="min_purchase" name="min_purchase" value="{{ old('min_purchase', $voucher->min_purchase) }}" 
+                                   placeholder="0" min="0">
+                        </div>
+                        @error('min_purchase')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                        <p class="text-gray-500 text-xs mt-1">Kosongkan jika tidak ada minimum pembelian</p>
                     </div>
-                    @error('min_purchase')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                    <p class="text-gray-500 text-xs mt-1">Kosongkan jika tidak ada minimum pembelian</p>
                 </div>
 
                 <!-- Maksimal Diskon -->
-                <div id="max-discount-group" class="hidden">
-                    <label for="max_discount" class="block text-sm font-medium text-gray-700 mb-2">
+                <div id="max-discount-group" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center {{ $voucher->type === 'percentage' ? '' : 'hidden' }}">
+                    <label for="max_discount" class="block text-sm font-medium text-gray-700">
                         Maksimal Diskon
                     </label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">Rp</span>
-                        <input type="number" 
-                               class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('max_discount') border-red-500 @enderror" 
-                               id="max_discount" name="max_discount" value="{{ old('max_discount', $voucher->max_discount) }}" 
-                               placeholder="0" min="0">
+                    <div class="md:col-span-2">
+                        <div class="flex">
+                            <span class="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-l-lg text-gray-700 text-sm sm:text-base">Rp</span>
+                            <input type="number" 
+                                   class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-l-0 border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('max_discount') border-red-500 @enderror text-sm sm:text-base" 
+                                   id="max_discount" name="max_discount" value="{{ old('max_discount', $voucher->max_discount) }}" 
+                                   placeholder="0" min="0">
+                        </div>
+                        @error('max_discount')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                        <p class="text-gray-500 text-xs mt-1">Kosongkan jika tidak ada batasan maksimal diskon</p>
                     </div>
-                    @error('max_discount')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                    <p class="text-gray-500 text-xs mt-1">Kosongkan jika tidak ada batasan maksimal diskon</p>
                 </div>
 
                 <!-- Batas Penggunaan -->
-                <div>
-                    <label for="usage_limit" class="block text-sm font-medium text-gray-700 mb-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label for="usage_limit" class="block text-sm font-medium text-gray-700">
                         Batas Penggunaan
                     </label>
-                    <input type="number" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('usage_limit') border-red-500 @enderror" 
-                           id="usage_limit" name="usage_limit" value="{{ old('usage_limit', $voucher->usage_limit) }}" 
-                           placeholder="0" min="1">
-                    @error('usage_limit')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                    <p class="text-gray-500 text-xs mt-1">
-                        Kosongkan untuk penggunaan tidak terbatas. 
-                        @if($voucher->hasBeenUsed())
-                            <strong>Sudah digunakan: {{ $voucher->getUsageCount() }} kali</strong>
-                        @endif
-                    </p>
-                </div>
-
-                <!-- Tanggal Mulai -->
-                <div>
-                    <label for="starts_at" class="block text-sm font-medium text-gray-700 mb-2">
-                        Tanggal Mulai
-                    </label>
-                    <input type="date" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('starts_at') border-red-500 @enderror" 
-                           id="starts_at" name="starts_at" value="{{ old('starts_at', $voucher->starts_at ? $voucher->starts_at->format('Y-m-d') : '') }}">
-                    @error('starts_at')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                    <p class="text-gray-500 text-xs mt-1">Kosongkan untuk berlaku segera</p>
-                </div>
-
-                <!-- Tanggal Berakhir -->
-                <div>
-                    <label for="expires_at" class="block text-sm font-medium text-gray-700 mb-2">
-                        Tanggal Berakhir
-                    </label>
-                    <input type="date" 
-                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('expires_at') border-red-500 @enderror" 
-                           id="expires_at" name="expires_at" value="{{ old('expires_at', $voucher->expires_at ? $voucher->expires_at->format('Y-m-d') : '') }}">
-                    @error('expires_at')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                    <p class="text-gray-500 text-xs mt-1">Kosongkan untuk voucher permanen</p>
-                </div>
-
-                <!-- Checkbox Options -->
-                <div class="space-y-4">
-                    <div class="flex items-center">
-                        <input type="hidden" name="is_active" value="0">
-                        <input class="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded" 
-                               type="checkbox" id="is_active" name="is_active" value="1" 
-                               {{ old('is_active', $voucher->is_active) ? 'checked' : '' }}>
-                        <label class="ml-3 block text-sm font-medium text-gray-700" for="is_active">
-                            Voucher Aktif
-                        </label>
+                    <div class="md:col-span-2">
+                        <input type="number" 
+                               class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('usage_limit') border-red-500 @enderror text-sm sm:text-base" 
+                               id="usage_limit" name="usage_limit" value="{{ old('usage_limit', $voucher->usage_limit) }}" 
+                               placeholder="0" min="1">
+                        @error('usage_limit')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                        <p class="text-gray-500 text-xs mt-1">
+                            Kosongkan untuk penggunaan tidak terbatas. 
+                            @if($voucher->hasBeenUsed())
+                                <strong>Sudah digunakan: {{ $voucher->getUsageCount() }} kali</strong>
+                            @endif
+                        </p>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6">
-                    <a href="{{ route('admin.vouchers.index') }}" 
-                       class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 md:py-2 px-4 rounded-lg transition-colors duration-200 text-center text-sm md:text-base order-2 sm:order-1">
-                        Batal
-                    </a>
-                    <button type="submit" 
-                            class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2.5 md:py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm md:text-base order-1 sm:order-2">
-                        <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        <span>Update Voucher</span>
-                    </button>
+                <!-- Tanggal Mulai -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label for="starts_at" class="block text-sm font-medium text-gray-700">
+                        Tanggal Mulai
+                    </label>
+                    <div class="md:col-span-2">
+                        <input type="date" 
+                               class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('starts_at') border-red-500 @enderror text-sm sm:text-base" 
+                               id="starts_at" name="starts_at" value="{{ old('starts_at', $voucher->starts_at ? $voucher->starts_at->format('Y-m-d') : '') }}">
+                        @error('starts_at')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                        <p class="text-gray-500 text-xs mt-1">Kosongkan untuk berlaku segera</p>
+                    </div>
+                </div>
+
+                <!-- Tanggal Berakhir -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                    <label for="expires_at" class="block text-sm font-medium text-gray-700">
+                        Tanggal Berakhir
+                    </label>
+                    <div class="md:col-span-2">
+                        <input type="date" 
+                               class="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('expires_at') border-red-500 @enderror text-sm sm:text-base" 
+                               id="expires_at" name="expires_at" value="{{ old('expires_at', $voucher->expires_at ? $voucher->expires_at->format('Y-m-d') : '') }}">
+                        @error('expires_at')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                        <p class="text-gray-500 text-xs mt-1">Kosongkan untuk voucher permanen</p>
+                    </div>
+                </div>
+
+                <!-- Checkbox Options -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div></div>
+                    <div class="md:col-span-2">
+                        <div class="flex items-center">
+                            <input type="hidden" name="is_active" value="0">
+                            <input class="h-4 w-4 text-pink-600 focus:ring-pink-500 border-gray-300 rounded" 
+                                   type="checkbox" id="is_active" name="is_active" value="1" 
+                                   {{ old('is_active', $voucher->is_active) ? 'checked' : '' }}>
+                            <label class="ml-3 block text-sm font-medium text-gray-700" for="is_active">
+                                Voucher Aktif
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -270,29 +279,29 @@
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Statistik Voucher</h3>
             <div class="grid grid-cols-2 gap-4 text-center">
                 <div class="border-r border-gray-200">
-                    <h4 class="text-2xl font-bold text-pink-600">{{ $voucher->getUsageCount() }}</h4>
-                    <p class="text-gray-500 text-sm">Kali Digunakan</p>
+                    <h4 class="text-xl sm:text-2xl font-bold text-pink-600">{{ $voucher->getUsageCount() }}</h4>
+                    <p class="text-gray-500 text-xs sm:text-sm">Kali Digunakan</p>
                 </div>
                 <div>
-                    <h4 class="text-2xl font-bold text-green-600">
+                    <h4 class="text-xl sm:text-2xl font-bold text-green-600">
                         @if($voucher->usage_limit)
                             {{ $voucher->usage_limit - $voucher->getUsageCount() }}
                         @else
                             ∞
                         @endif
                     </h4>
-                    <p class="text-gray-500 text-sm">Sisa Kuota</p>
+                    <p class="text-gray-500 text-xs sm:text-sm">Sisa Kuota</p>
                 </div>
             </div>
             <hr class="my-4">
             <div class="text-center space-y-2">
-                <p class="text-sm">
+                <p class="text-xs sm:text-sm">
                     <span class="font-medium">Status:</span> 
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ str_replace(['bg-', 'text-'], ['bg-', 'text-'], $voucher->status_badge_class) }}">
                         {{ $voucher->status_label }}
                     </span>
                 </p>
-                <p class="text-sm text-gray-600">
+                <p class="text-xs sm:text-sm text-gray-600">
                     <span class="font-medium">Dibuat:</span> {{ $voucher->created_at->format('d/m/Y H:i') }}
                 </p>
             </div>
@@ -301,17 +310,17 @@
         <!-- Preview Card -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Preview Voucher</h3>
-            <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 text-center">
+            <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 text-center">
                 <div class="mb-3">
-                    <svg class="w-12 h-12 text-pink-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-10 h-10 sm:w-12 sm:h-12 text-pink-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
                     </svg>
                 </div>
-                <h5 class="font-bold text-lg text-gray-800 uppercase" id="preview-code">{{ $voucher->code }}</h5>
-                <p class="text-gray-700 mb-2" id="preview-name">{{ $voucher->name }}</p>
-                <p class="text-gray-500 text-sm mb-3" id="preview-description">{{ $voucher->description }}</p>
+                <h5 class="font-bold text-base sm:text-lg text-gray-800 uppercase" id="preview-code">{{ $voucher->code }}</h5>
+                <p class="text-gray-700 mb-2 text-sm sm:text-base" id="preview-name">{{ $voucher->name }}</p>
+                <p class="text-gray-500 text-xs sm:text-sm mb-3" id="preview-description">{{ $voucher->description }}</p>
                 <div class="mb-3">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800" id="preview-value">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-green-100 text-green-800" id="preview-value">
                         {{ $voucher->formatted_value }}
                     </span>
                 </div>
@@ -334,6 +343,21 @@
     </div>
 </div>
 
+<!-- ANCHOR: Action Buttons -->
+<div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-8">
+    <a href="{{ route('admin.vouchers.index') }}" 
+       class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 md:py-3 px-4 md:px-6 rounded-lg transition-colors duration-200 text-center text-sm md:text-base order-2 sm:order-1">
+        Batal
+    </a>
+    <button type="submit" form="voucher-edit-form"
+            class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2.5 md:py-3 px-4 md:px-8 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm md:text-base order-1 sm:order-2">
+        <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span>Update Voucher</span>
+    </button>
+</div>
+
 @push('scripts')
 <style>
 /* Custom styling for date input */
@@ -353,6 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const valueHelp = document.getElementById('value-help');
         const maxDiscountGroup = document.getElementById('max-discount-group');
         const valueInput = document.getElementById('value');
+        const valueSuffix = document.getElementById('value-suffix');
 
         switch(this.value) {
             case 'percentage':
@@ -360,24 +385,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 maxDiscountGroup.classList.remove('hidden');
                 valueInput.min = '1';
                 valueInput.max = '100';
+                valueSuffix.textContent = '%';
                 break;
             case 'fixed_amount':
                 valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah (min. Rp100)';
                 maxDiscountGroup.classList.add('hidden');
                 valueInput.min = '100';
                 valueInput.max = '';
+                valueSuffix.textContent = 'Rp';
                 break;
             case 'free_shipping':
                 valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah (min. Rp100)';
                 maxDiscountGroup.classList.add('hidden');
                 valueInput.min = '100';
                 valueInput.max = '';
+                valueSuffix.textContent = 'Rp';
                 break;
             default:
                 valueHelp.textContent = 'Pilih jenis diskon terlebih dahulu';
                 maxDiscountGroup.classList.add('hidden');
                 valueInput.min = '0';
                 valueInput.max = '';
+                valueSuffix.textContent = '%';
         }
         
         // Clear validation error when type changes
