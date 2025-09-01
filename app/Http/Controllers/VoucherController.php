@@ -112,8 +112,8 @@ class VoucherController extends Controller
 
         Voucher::create($data);
 
-        return redirect()->route('admin.vouchers.index')
-                        ->with('success', 'Voucher berhasil dibuat!');
+        notify()->success('Voucher berhasil dibuat!', 'Berhasil');
+        return redirect()->route('admin.vouchers.index');
     }
 
     /**
@@ -178,8 +178,8 @@ class VoucherController extends Controller
 
         $voucher->update($data);
 
-        return redirect()->route('admin.vouchers.index')
-                        ->with('success', 'Voucher berhasil diperbarui!');
+        notify()->success('Voucher berhasil diperbarui!', 'Berhasil');
+        return redirect()->route('admin.vouchers.index');
     }
 
     /**
@@ -189,14 +189,14 @@ class VoucherController extends Controller
     {
         // Check if voucher has been used
         if ($voucher->voucherUsages()->exists()) {
-            return redirect()->back()
-                           ->with('error', 'Voucher tidak dapat dihapus karena sudah pernah digunakan.');
+            notify()->error('Voucher tidak dapat dihapus karena sudah pernah digunakan.', 'Gagal');
+            return redirect()->back();
         }
 
         $voucher->delete();
 
-        return redirect()->route('admin.vouchers.index')
-                        ->with('success', 'Voucher berhasil dihapus!');
+        notify()->success('Voucher berhasil dihapus!', 'Berhasil');
+        return redirect()->route('admin.vouchers.index');
     }
 
     /**
@@ -208,8 +208,8 @@ class VoucherController extends Controller
 
         $status = $voucher->is_active ? 'diaktifkan' : 'dinonaktifkan';
         
-        return redirect()->back()
-                        ->with('success', "Voucher berhasil {$status}!");
+        notify()->success("Voucher berhasil {$status}!", 'Berhasil');
+        return redirect()->back();
     }
 
     /**
@@ -232,8 +232,8 @@ class VoucherController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()
-                           ->withErrors($validator);
+            notify()->error('Data yang dimasukkan tidak valid.', 'Gagal');
+            return redirect()->back()->withErrors($validator);
         }
 
         $vouchers = Voucher::whereIn('id', $request->voucher_ids);
@@ -251,15 +251,16 @@ class VoucherController extends Controller
                 // Check if any voucher has been used
                 $usedVouchers = $vouchers->whereHas('voucherUsages')->count();
                 if ($usedVouchers > 0) {
-                    return redirect()->back()
-                                   ->with('error', 'Beberapa voucher tidak dapat dihapus karena sudah pernah digunakan.');
+                    notify()->error('Beberapa voucher tidak dapat dihapus karena sudah pernah digunakan.', 'Gagal');
+                    return redirect()->back();
                 }
                 $vouchers->delete();
                 $message = 'Voucher yang dipilih berhasil dihapus!';
                 break;
         }
 
-        return redirect()->back()->with('success', $message);
+        notify()->success($message, 'Berhasil');
+        return redirect()->back();
     }
 
     /**
@@ -269,8 +270,8 @@ class VoucherController extends Controller
     {
         // This would typically use a package like Laravel Excel
         // For now, we'll just redirect back
-        return redirect()->back()
-                        ->with('info', 'Fitur export akan segera tersedia.');
+        notify()->info('Fitur export akan segera tersedia.', 'Informasi');
+        return redirect()->back();
     }
 
     /**
