@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 class VoucherController extends Controller
 {
     /**
-     * Display a listing of the vouchers.
+     * ANCHOR: Display a listing of the vouchers.
      */
     public function index(Request $request)
     {
@@ -82,7 +82,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Show the form for creating a new voucher.
+     * ANCHOR: Show the form for creating a new voucher.
      */
     public function create()
     {
@@ -90,7 +90,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Store a newly created voucher in storage.
+     * ANCHOR: Store a newly created voucher in storage.
      */
     public function store(VoucherRequest $request)
     {
@@ -110,7 +110,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Display the specified voucher.
+     * ANCHOR: Display the specified voucher.
      */
     public function show(Voucher $voucher)
     {
@@ -126,7 +126,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Show the form for editing the specified voucher.
+     * ANCHOR: Show the form for editing the specified voucher.
      */
     public function edit(Voucher $voucher)
     {
@@ -134,7 +134,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Update the specified voucher in storage.
+     * ANCHOR: Update the specified voucher in storage.
      */
     public function update(VoucherUpdateRequest $request, Voucher $voucher)
     {
@@ -159,7 +159,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Remove the specified voucher from storage.
+     * ANCHOR: Remove the specified voucher from storage.
      */
     public function destroy(Voucher $voucher)
     {
@@ -176,7 +176,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Toggle voucher status.
+     * ANCHOR: Toggle voucher status.
      */
     public function toggleStatus(Voucher $voucher)
     {
@@ -189,7 +189,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Generate random voucher code.
+     * ANCHOR: Generate random voucher code.
      */
     public function generateCode()
     {
@@ -197,7 +197,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Bulk actions for vouchers.
+     * ANCHOR: Bulk actions for vouchers.
      */
     public function bulkAction(Request $request)
     {
@@ -240,7 +240,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Export vouchers to Excel.
+     * ANCHOR: Export vouchers to Excel.
      */
     public function export()
     {
@@ -251,7 +251,7 @@ class VoucherController extends Controller
     }
 
     /**
-     * Validate voucher code for checkout.
+     * ANCHOR:  Validate voucher code for checkout.
      */
     public function validateVoucher(Request $request)
     {
