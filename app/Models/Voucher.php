@@ -283,5 +283,41 @@ class Voucher extends Model
                     ->orWhere('name', 'like', "%{$search}%")
                     ->orWhere('description', 'like', "%{$search}%");
     }
+
+    /**
+     * Scope a query to only include used vouchers.
+     */
+    public function scopeUsed($query)
+    {
+        return $query->where('used_count', '>', 0);
+    }
+
+    /**
+     * Scope a query to only include unused vouchers.
+     */
+    public function scopeUnused($query)
+    {
+        return $query->where('used_count', 0);
+    }
+
+    /**
+     * Check if voucher has been used.
+     *
+     * @return bool
+     */
+    public function hasBeenUsed()
+    {
+        return $this->used_count > 0;
+    }
+
+    /**
+     * Get the usage count.
+     *
+     * @return int
+     */
+    public function getUsageCount()
+    {
+        return $this->used_count;
+    }
 }
 

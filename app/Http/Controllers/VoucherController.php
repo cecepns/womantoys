@@ -53,6 +53,18 @@ class VoucherController extends Controller
             }
         }
 
+        // Filter by usage status
+        if ($request->filled('usage')) {
+            switch ($request->usage) {
+                case 'used':
+                    $query->used();
+                    break;
+                case 'unused':
+                    $query->unused();
+                    break;
+            }
+        }
+
         $vouchers = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
         // Statistics for dashboard
@@ -61,6 +73,7 @@ class VoucherController extends Controller
             'active' => Voucher::active()->count(),
             'expired' => Voucher::where('expires_at', '<', now())->count(),
             'total_discount' => VoucherUsage::sum('discount_amount'),
+            'used' => Voucher::used()->count(),
         ];
 
         return view('admin.vouchers.index', compact('vouchers', 'statistics'));
@@ -122,9 +135,9 @@ class VoucherController extends Controller
         $voucher->load('voucherUsages.order');
         
         $statistics = [
-            'total_used' => $voucher->voucherUsages->count(),
+            'total_used' => $voucher->getUsageCount(),
             'total_discount_given' => $voucher->voucherUsages->sum('discount_amount'),
-            'remaining_usage' => $voucher->usage_limit ? ($voucher->usage_limit - $voucher->used_count) : '-',
+            'remaining_usage' => $voucher->usage_limit ? ($voucher->usage_limit - $voucher->getUsageCount()) : '-',
         ];
 
         return view('admin.vouchers.show', compact('voucher', 'statistics'));
@@ -143,18 +156,24 @@ class VoucherController extends Controller
      */
     public function update(Request $request, Voucher $voucher)
     {
+        // Check if voucher has been used
+        $hasBeenUsed = $voucher->hasBeenUsed();
+        
         $validator = Validator::make($request->all(), [
             'code' => 'required|string|max:50|unique:vouchers,code,' . $voucher->id,
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:percentage,fixed_amount,free_shipping',
-            'value' => 'required|numeric|min:0',
+            'type' => $hasBeenUsed ? 'prohibited' : 'required|in:percentage,fixed_amount,free_shipping',
+            'value' => $hasBeenUsed ? 'prohibited' : 'required|numeric|min:0',
             'min_purchase' => 'nullable|numeric|min:0',
             'max_discount' => 'nullable|numeric|min:0',
             'usage_limit' => 'nullable|integer|min:1',
             'starts_at' => 'nullable|date',
             'expires_at' => 'nullable|date|after:starts_at',
             'is_active' => 'boolean',
+        ], [
+            'type.prohibited' => 'Jenis diskon tidak dapat diubah karena voucher sudah pernah digunakan.',
+            'value.prohibited' => 'Nilai diskon tidak dapat diubah karena voucher sudah pernah digunakan.',
         ]);
 
         if ($validator->fails()) {
@@ -172,6 +191,11 @@ class VoucherController extends Controller
         $data['is_active'] = $request->has('is_active');
         $data['min_purchase'] = $data['min_purchase'] ?? 0;
 
+        // If voucher has been used, preserve original type and value
+        if ($hasBeenUsed) {
+            unset($data['type'], $data['value']);
+        }
+
         $voucher->update($data);
 
         notify()->success('Voucher berhasil diperbarui!', 'Berhasil');
@@ -184,7 +208,7 @@ class VoucherController extends Controller
     public function destroy(Voucher $voucher)
     {
         // Check if voucher has been used
-        if ($voucher->voucherUsages()->exists()) {
+        if ($voucher->hasBeenUsed()) {
             notify()->error('Voucher tidak dapat dihapus karena sudah pernah digunakan.', 'Gagal');
             return redirect()->back();
         }
@@ -245,7 +269,7 @@ class VoucherController extends Controller
                 break;
             case 'delete':
                 // Check if any voucher has been used
-                $usedVouchers = $vouchers->whereHas('voucherUsages')->count();
+                $usedVouchers = $vouchers->where('used_count', '>', 0)->count();
                 if ($usedVouchers > 0) {
                     notify()->error('Beberapa voucher tidak dapat dihapus karena sudah pernah digunakan.', 'Gagal');
                     return redirect()->back();

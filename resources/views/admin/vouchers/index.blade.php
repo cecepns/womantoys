@@ -79,6 +79,20 @@
             </div>
         </div>
     </div>
+
+    <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+        <div class="flex items-center">
+            <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
+                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-sm font-medium text-gray-600">Sudah Digunakan</p>
+                <p class="text-2xl font-bold text-gray-800">{{ $statistics['used'] }}</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Search and Filter Section -->
@@ -117,10 +131,17 @@
                 <option value="expired" {{ request('period') == 'expired' ? 'selected' : '' }}>Expired</option>
             </select>
         </div>
+        <div class="md:w-48">
+            <select name="usage" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+                <option value="">Semua Penggunaan</option>
+                <option value="used" {{ request('usage') == 'used' ? 'selected' : '' }}>Sudah Digunakan</option>
+                <option value="unused" {{ request('usage') == 'unused' ? 'selected' : '' }}>Belum Digunakan</option>
+            </select>
+        </div>
         <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors duration-200">
             Filter
         </button>
-        @if(request('search') || request('status') || request('type') || request('period'))
+        @if(request('search') || request('status') || request('type') || request('period') || request('usage'))
             <a href="{{ route('admin.vouchers.index') }}" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
                 Reset
             </a>
@@ -194,7 +215,7 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                             <div class="text-sm text-gray-900">
-                                {{ $voucher->used_count }}
+                                {{ $voucher->getUsageCount() }}
                                 @if($voucher->usage_limit)
                                     / {{ $voucher->usage_limit }}
                                 @endif
@@ -216,13 +237,19 @@
                             <a href="{{ route('admin.vouchers.edit', $voucher) }}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
                                 Edit
                             </a>
-                            <form action="{{ route('admin.vouchers.destroy', $voucher) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus voucher ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                            @if($voucher->hasBeenUsed())
+                                <span class="bg-gray-400 text-white px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed" title="Tidak dapat dihapus karena sudah digunakan">
                                     Hapus
-                                </button>
-                            </form>
+                                </span>
+                            @else
+                                <form action="{{ route('admin.vouchers.destroy', $voucher) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus voucher ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                        Hapus
+                                    </button>
+                                </form>
+                            @endif
                         </td>
                     </tr>
                 @empty
@@ -233,7 +260,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path>
                                 </svg>
                                 <p class="mt-2 text-sm text-gray-500">Tidak ada voucher ditemukan.</p>
-                                @if(request('search') || request('status') || request('type') || request('period'))
+                                @if(request('search') || request('status') || request('type') || request('period') || request('usage'))
                                     <a href="{{ route('admin.vouchers.index') }}" class="mt-2 inline-flex items-center text-sm text-pink-600 hover:text-pink-500">
                                         <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>

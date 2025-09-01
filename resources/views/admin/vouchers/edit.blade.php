@@ -38,6 +38,22 @@
                 </div>
             @endif
 
+            @if($voucher->hasBeenUsed())
+                <div class="mb-6 p-4 bg-orange-50 border border-orange-200 text-orange-700 rounded-lg">
+                    <div class="flex items-start">
+                        <svg class="w-5 h-5 text-orange-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                        <div>
+                            <h6 class="text-sm font-semibold text-orange-800">Voucher Sudah Digunakan</h6>
+                            <p class="text-sm text-orange-700 mt-1">
+                                Jenis diskon dan nilai diskon tidak dapat diubah untuk menjaga konsistensi data transaksi.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <form method="POST" action="{{ route('admin.vouchers.update', $voucher) }}" class="space-y-6">
                 @csrf
                 @method('PUT')
@@ -89,14 +105,20 @@
                 <div>
                     <label for="type" class="block text-sm font-medium text-gray-700 mb-2">
                         Jenis Diskon <span class="text-red-500">*</span>
+                        @if($voucher->hasBeenUsed())
+                            <span class="text-orange-600 text-xs ml-2">(Tidak dapat diubah karena sudah digunakan)</span>
+                        @endif
                     </label>
-                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('type') border-red-500 @enderror" 
-                            id="type" name="type">
+                    <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('type') border-red-500 @enderror {{ $voucher->hasBeenUsed() ? 'bg-gray-100 cursor-not-allowed' : '' }}" 
+                            id="type" name="type" {{ $voucher->hasBeenUsed() ? 'disabled' : '' }}>
                         <option value="">Pilih jenis diskon</option>
                         <option value="percentage" {{ old('type', $voucher->type) == 'percentage' ? 'selected' : '' }}>Persentase (%)</option>
                         <option value="fixed_amount" {{ old('type', $voucher->type) == 'fixed_amount' ? 'selected' : '' }}>Nominal (Rp)</option>
                         <option value="free_shipping" {{ old('type', $voucher->type) == 'free_shipping' ? 'selected' : '' }}>Gratis Ongkir</option>
                     </select>
+                    @if($voucher->hasBeenUsed())
+                        <input type="hidden" name="type" value="{{ $voucher->type }}">
+                    @endif
                     @error('type')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -106,14 +128,19 @@
                 <div>
                     <label for="value" class="block text-sm font-medium text-gray-700 mb-2">
                         Nilai Diskon <span class="text-red-500">*</span>
+                        @if($voucher->hasBeenUsed())
+                            <span class="text-orange-600 text-xs ml-2">(Tidak dapat diubah karena sudah digunakan)</span>
+                        @endif
                     </label>
                     <div class="relative">
                         <input type="number" 
-                               class="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('value') border-red-500 @enderror" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('value') border-red-500 @enderror {{ $voucher->hasBeenUsed() ? 'bg-gray-100 cursor-not-allowed' : '' }}" 
                                id="value" name="value" value="{{ old('value', $voucher->value) }}" 
-                               placeholder="0" step="0.01" min="0">
-                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" id="value-suffix">%</span>
+                               placeholder="0" step="0.01" min="0" {{ $voucher->hasBeenUsed() ? 'disabled' : '' }}>
                     </div>
+                    @if($voucher->hasBeenUsed())
+                        <input type="hidden" name="value" value="{{ $voucher->value }}">
+                    @endif
                     @error('value')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror
@@ -170,8 +197,8 @@
                     @enderror
                     <p class="text-gray-500 text-xs mt-1">
                         Kosongkan untuk penggunaan tidak terbatas. 
-                        @if($voucher->used_count > 0)
-                            <strong>Sudah digunakan: {{ $voucher->used_count }} kali</strong>
+                        @if($voucher->hasBeenUsed())
+                            <strong>Sudah digunakan: {{ $voucher->getUsageCount() }} kali</strong>
                         @endif
                     </p>
                 </div>
@@ -215,7 +242,6 @@
                             Voucher Aktif
                         </label>
                     </div>
-
                 </div>
 
                 <!-- Action Buttons -->
@@ -243,13 +269,13 @@
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Statistik Voucher</h3>
             <div class="grid grid-cols-2 gap-4 text-center">
                 <div class="border-r border-gray-200">
-                    <h4 class="text-2xl font-bold text-pink-600">{{ $voucher->used_count }}</h4>
+                    <h4 class="text-2xl font-bold text-pink-600">{{ $voucher->getUsageCount() }}</h4>
                     <p class="text-gray-500 text-sm">Kali Digunakan</p>
                 </div>
                 <div>
                     <h4 class="text-2xl font-bold text-green-600">
                         @if($voucher->usage_limit)
-                            {{ $voucher->usage_limit - $voucher->used_count }}
+                            {{ $voucher->usage_limit - $voucher->getUsageCount() }}
                         @else
                             ∞
                         @endif
@@ -304,61 +330,52 @@
                 </div>
             </div>
         </div>
-
-        @if($voucher->used_count > 0)
-        <!-- Warning Card -->
-        <div class="bg-white rounded-lg shadow-md border border-yellow-300 p-4 md:p-6">
-            <div class="flex items-center mb-3">
-                <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                </svg>
-                <h3 class="text-lg font-semibold text-yellow-800">Peringatan</h3>
-            </div>
-            <p class="text-yellow-700 text-sm">
-                Voucher ini sudah digunakan <strong>{{ $voucher->used_count }} kali</strong>. 
-                Perubahan pada jenis diskon dan nilai mungkin akan mempengaruhi perhitungan order yang sudah ada.
-            </p>
-        </div>
-        @endif
     </div>
 </div>
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Update value suffix and help text based on type
+    // Update help text based on type
     document.getElementById('type').addEventListener('change', function() {
-        const valueSuffix = document.getElementById('value-suffix');
         const valueHelp = document.getElementById('value-help');
         const maxDiscountGroup = document.getElementById('max-discount-group');
         const valueInput = document.getElementById('value');
 
         switch(this.value) {
             case 'percentage':
-                valueSuffix.textContent = '%';
                 valueHelp.textContent = 'Masukkan nilai persentase (contoh: 50 untuk 50%)';
                 maxDiscountGroup.classList.remove('hidden');
                 valueInput.max = '100';
                 break;
             case 'fixed_amount':
-                valueSuffix.textContent = 'Rp';
                 valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah';
                 maxDiscountGroup.classList.add('hidden');
                 valueInput.max = '';
                 break;
             case 'free_shipping':
-                valueSuffix.textContent = '';
                 valueHelp.textContent = 'Nilai akan diabaikan untuk gratis ongkir';
                 maxDiscountGroup.classList.add('hidden');
                 valueInput.max = '';
                 break;
             default:
-                valueSuffix.textContent = '%';
                 valueHelp.textContent = 'Pilih jenis diskon terlebih dahulu';
                 maxDiscountGroup.classList.add('hidden');
                 valueInput.max = '';
         }
         updatePreview();
+    });
+
+    // Prevent form submission if disabled fields are modified
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const typeSelect = document.getElementById('type');
+        const valueInput = document.getElementById('value');
+        
+        if (typeSelect.disabled && valueInput.disabled) {
+            // Remove disabled attribute temporarily to allow form submission
+            typeSelect.disabled = false;
+            valueInput.disabled = false;
+        }
     });
 
     // Update preview when form values change

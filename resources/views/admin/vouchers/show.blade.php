@@ -132,7 +132,7 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Sudah Digunakan</label>
-                            <p class="text-gray-900">{{ $voucher->used_count }} kali</p>
+                            <p class="text-gray-900">{{ $voucher->getUsageCount() }} kali</p>
                         </div>
                         
                         <div>
@@ -156,8 +156,6 @@
                                 @endif
                             </p>
                         </div>
-                        
-
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Dibuat</label>
@@ -191,7 +189,7 @@
             </div>
             @endif
 
-            @if($voucher->usage_limit && $voucher->used_count >= $voucher->usage_limit)
+            @if($voucher->usage_limit && $voucher->getUsageCount() >= $voucher->usage_limit)
             <div class="mt-6 pt-6 border-t border-gray-200">
                 <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
                     <div class="flex items-center">
@@ -281,7 +279,7 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">Progress Penggunaan</label>
                     <div class="space-y-2">
                         @php
-                            $percentage = ($voucher->used_count / $voucher->usage_limit) * 100;
+                            $percentage = ($voucher->getUsageCount() / $voucher->usage_limit) * 100;
                             $progressClass = $percentage < 50 ? 'bg-green-500' : ($percentage < 80 ? 'bg-yellow-500' : 'bg-red-500');
                         @endphp
                         <div class="w-full bg-gray-200 rounded-full h-2">
