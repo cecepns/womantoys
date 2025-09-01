@@ -6,12 +6,15 @@
 @section('page-description', 'Kelola semua voucher dan diskon untuk pelanggan')
 
 @section('content')
-<!-- Header Section -->
+<!-- SECTION: Header Section -->
 <div class="flex justify-between items-center mb-8 flex-col sm:flex-row gap-4 sm:gap-0">
+    <!-- ANCHOR: Page Title -->
     <div>
         <h1 class="text-3xl font-bold text-gray-800">Manajemen Voucher</h1>
         <p class="text-gray-600 mt-2">Kelola semua voucher dan diskon untuk pelanggan</p>
     </div>
+    
+    <!-- ANCHOR: Action Buttons -->
     <div class="flex items-center gap-4">
         <a href="{{ route('admin.vouchers.create') }}" class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,9 +24,11 @@
         </a>
     </div>
 </div>
+<!-- !SECTION: Header Section -->
 
-<!-- Statistics Cards -->
+<!-- SECTION: Statistics Cards -->
 <div class="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- ANCHOR: Total Voucher Card -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
@@ -38,6 +43,7 @@
         </div>
     </div>
 
+    <!-- ANCHOR: Active Voucher Card -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
@@ -52,6 +58,7 @@
         </div>
     </div>
 
+    <!-- ANCHOR: Expired Voucher Card -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mr-4">
@@ -66,6 +73,7 @@
         </div>
     </div>
 
+    <!-- ANCHOR: Total Discount Card -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
@@ -80,6 +88,7 @@
         </div>
     </div>
 
+    <!-- ANCHOR: Used Voucher Card -->
     <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
         <div class="flex items-center">
             <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mr-4">
@@ -94,10 +103,13 @@
         </div>
     </div>
 </div>
+<!-- !SECTION: Statistics Cards -->
 
-<!-- Search and Filter Section -->
+<!-- SECTION: Search and Filter Section -->
 <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6 mb-8">
+    <!-- ANCHOR: Filter Form -->
     <form method="GET" action="{{ route('admin.vouchers.index') }}" class="flex flex-col md:flex-row gap-4">
+        <!-- ANCHOR: Search Field -->
         <div class="flex-1">
             <input 
                 type="text" 
@@ -107,6 +119,8 @@
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent"
             >
         </div>
+        
+        <!-- ANCHOR: Status Filter -->
         <div class="md:w-48">
             <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
                 <option value="">Semua Status</option>
@@ -114,6 +128,8 @@
                 <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Nonaktif</option>
             </select>
         </div>
+        
+        <!-- ANCHOR: Type Filter -->
         <div class="md:w-48">
             <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
                 <option value="">Semua Jenis</option>
@@ -122,6 +138,8 @@
                 <option value="free_shipping" {{ request('type') == 'free_shipping' ? 'selected' : '' }}>Gratis Ongkir</option>
             </select>
         </div>
+        
+        <!-- ANCHOR: Period Filter -->
         <div class="md:w-48">
             <select name="period" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
                 <option value="">Semua Periode</option>
@@ -131,6 +149,8 @@
                 <option value="expired" {{ request('period') == 'expired' ? 'selected' : '' }}>Expired</option>
             </select>
         </div>
+        
+        <!-- ANCHOR: Usage Filter -->
         <div class="md:w-48">
             <select name="usage" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
                 <option value="">Semua Penggunaan</option>
@@ -138,6 +158,8 @@
                 <option value="unused" {{ request('usage') == 'unused' ? 'selected' : '' }}>Belum Digunakan</option>
             </select>
         </div>
+        
+        <!-- ANCHOR: Filter Buttons -->
         <button type="submit" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg transition-colors duration-200">
             Filter
         </button>
@@ -148,12 +170,12 @@
         @endif
     </form>
 </div>
+<!-- !SECTION: Search and Filter Section -->
 
-
-
-<!-- Vouchers Table -->
+<!-- SECTION: Vouchers Table -->
 <div class="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
     <div class="overflow-x-auto">
+        <!-- ANCHOR: Table Header -->
         <table class="w-full">
             <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -183,25 +205,37 @@
                     </th>
                 </tr>
             </thead>
+            
+            <!-- ANCHOR: Table Body -->
             <tbody class="bg-white divide-y divide-gray-200">
                 @forelse($vouchers as $voucher)
                     <tr class="hover:bg-gray-50 transition-colors duration-200">
+                        <!-- ANCHOR: Voucher Code -->
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900">{{ $voucher->code }}</div>
                         </td>
+                        
+                        <!-- ANCHOR: Voucher Name -->
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm text-gray-900">{{ $voucher->name }}</div>
                         </td>
+                        
+                        <!-- ANCHOR: Voucher Type -->
                         <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                             <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
                                 {{ $voucher->type_label }}
                             </span>
                         </td>
+                        
+                        <!-- ANCHOR: Voucher Value -->
                         <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                             <div class="text-sm text-gray-900">{{ $voucher->formatted_value }}</div>
                         </td>
+                        
+                        <!-- ANCHOR: Voucher Status -->
                         <td class="px-6 py-4 whitespace-nowrap">
                             @php
+                                // Status classes untuk styling badge
                                 $statusClasses = [
                                     'active' => 'bg-green-100 text-green-800',
                                     'inactive' => 'bg-red-100 text-red-800',
@@ -213,6 +247,8 @@
                                 {{ $voucher->status_label }}
                             </span>
                         </td>
+                        
+                        <!-- ANCHOR: Usage Count -->
                         <td class="px-6 py-4 whitespace-nowrap hidden lg:table-cell">
                             <div class="text-sm text-gray-900">
                                 {{ $voucher->getUsageCount() }}
@@ -221,27 +257,38 @@
                                 @endif
                             </div>
                         </td>
+                        
+                        <!-- ANCHOR: Expiry Date -->
                         <td class="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                             <div class="text-sm text-gray-900">
                                 @if($voucher->expires_at)
-                                    {{ $voucher->expires_at->format('d/m/Y H:i') }}
+                                    {{ $voucher->expires_at->format('d/m/Y') }}
                                 @else
                                     <em class="text-gray-500">Tidak terbatas</em>
                                 @endif
                             </div>
                         </td>
+                        
+                        <!-- SECTION: Action Buttons -->
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <!-- ANCHOR: Detail Button -->
                             <a href="{{ route('admin.vouchers.show', $voucher) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
                                 Detail
                             </a>
+                            
+                            <!-- ANCHOR: Edit Button -->
                             <a href="{{ route('admin.vouchers.edit', $voucher) }}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
                                 Edit
                             </a>
+                            
+                            <!-- ANCHOR: Delete Button -->
                             @if($voucher->hasBeenUsed())
+                                <!-- Voucher yang sudah digunakan tidak bisa dihapus -->
                                 <span class="bg-gray-400 text-white px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed" title="Tidak dapat dihapus karena sudah digunakan">
                                     Hapus
                                 </span>
                             @else
+                                <!-- Form untuk menghapus voucher -->
                                 <form action="{{ route('admin.vouchers.destroy', $voucher) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus voucher ini?')">
                                     @csrf
                                     @method('DELETE')
@@ -251,8 +298,10 @@
                                 </form>
                             @endif
                         </td>
+                        <!-- !SECTION: Action Buttons -->
                     </tr>
                 @empty
+                    <!-- ANCHOR: Empty State -->
                     <tr>
                         <td colspan="8" class="px-6 py-4 text-center text-gray-500">
                             <div class="py-8">
@@ -276,14 +325,17 @@
         </table>
     </div>
 </div>
+<!-- !SECTION: Vouchers Table -->
 
-<!-- Pagination -->
+<!-- SECTION: Pagination -->
 @if($vouchers->hasPages())
     <div class="mt-6 flex items-center justify-between flex-col sm:flex-row gap-4 sm:gap-0">
+        <!-- ANCHOR: Pagination Info -->
         <div class="text-sm text-gray-700 text-center sm:text-left">
             Menampilkan <span class="font-medium">{{ $vouchers->firstItem() }}</span> sampai <span class="font-medium">{{ $vouchers->lastItem() }}</span> dari <span class="font-medium">{{ $vouchers->total() }}</span> voucher
         </div>
 
+        <!-- ANCHOR: Pagination Controls -->
         <div class="flex items-center space-x-2">
             {{-- Previous Page Link --}}
             @if ($vouchers->onFirstPage())
@@ -322,11 +374,12 @@
         </div>
     </div>
 @endif
+<!-- !SECTION: Pagination -->
 
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-submit search form when Enter is pressed
+    // ANCHOR: Auto-submit search form when Enter is pressed
     document.querySelector('input[name="search"]').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             this.closest('form').submit();
