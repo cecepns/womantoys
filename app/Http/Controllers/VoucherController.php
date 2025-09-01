@@ -126,7 +126,7 @@ class VoucherController extends Controller
         $statistics = [
             'total_used' => $voucher->voucherUsages->count(),
             'total_discount_given' => $voucher->voucherUsages->sum('discount_amount'),
-            'remaining_usage' => $voucher->usage_limit ? ($voucher->usage_limit - $voucher->used_count) : 'Unlimited',
+            'remaining_usage' => $voucher->usage_limit ? ($voucher->usage_limit - $voucher->used_count) : '-',
         ];
 
         return view('admin.vouchers.show', compact('voucher', 'statistics'));
