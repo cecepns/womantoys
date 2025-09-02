@@ -6,13 +6,14 @@
 @section('page-description', 'Edit detail voucher yang sudah ada')
 
 @section('content')
-<!-- Header Section -->
+<!-- SECTION: Header Section -->
 <div class="mb-6 md:mb-8">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Edit Voucher: {{ $voucher->code }}</h1>
             <p class="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Ubah detail voucher sesuai kebutuhan</p>
         </div>
+        <!-- ANCHOR: Back Button -->
         <a href="{{ route('admin.vouchers.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-3 md:px-4 rounded-lg transition-colors duration-200 flex items-center justify-center sm:justify-start w-full sm:w-auto">
             <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -21,13 +22,15 @@
         </a>
     </div>
 </div>
+<!-- !SECTION: Header Section -->
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-    <!-- Main Form Section -->
+    <!-- SECTION: Main Form Section -->
     <div class="lg:col-span-2">
         <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
             <h2 class="text-xl font-semibold text-gray-800 mb-6">Form Edit Voucher</h2>
             
+            <!-- ANCHOR: Error Messages -->
             @if ($errors->any())
                 <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
                     <ul class="list-disc list-inside space-y-1">
@@ -38,6 +41,7 @@
                 </div>
             @endif
 
+            <!-- ANCHOR: Usage Warning -->
             @if($voucher->hasBeenUsed())
                 <div class="mb-6 p-4 bg-orange-50 border border-orange-200 text-orange-700 rounded-lg">
                     <div class="flex items-start">
@@ -54,11 +58,12 @@
                 </div>
             @endif
 
+            <!-- ANCHOR: Edit Form -->
             <form method="POST" action="{{ route('admin.vouchers.update', $voucher) }}" class="space-y-6" id="voucher-edit-form">
                 @csrf
                 @method('PUT')
                 
-                <!-- Kode Voucher -->
+                <!-- ANCHOR: Kode Voucher -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label for="code" class="block text-sm font-medium text-gray-700">
                         Kode Voucher <span class="text-red-500">*</span>
@@ -74,7 +79,7 @@
                     </div>
                 </div>
 
-                <!-- Nama Voucher -->
+                <!-- ANCHOR: Nama Voucher -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label for="name" class="block text-sm font-medium text-gray-700">
                         Nama Voucher <span class="text-red-500">*</span>
@@ -90,7 +95,7 @@
                     </div>
                 </div>
 
-                <!-- Deskripsi -->
+                <!-- ANCHOR: Deskripsi -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                     <label for="description" class="block text-sm font-medium text-gray-700">
                         Deskripsi
@@ -105,7 +110,7 @@
                     </div>
                 </div>
 
-                <!-- Jenis Diskon -->
+                <!-- ANCHOR: Jenis Diskon -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label for="type" class="block text-sm font-medium text-gray-700">
                         Jenis Diskon <span class="text-red-500">*</span>
@@ -130,7 +135,7 @@
                     </div>
                 </div>
 
-                <!-- Nilai Diskon -->
+                <!-- ANCHOR: Nilai Diskon -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label for="value" class="block text-sm font-medium text-gray-700">
                         Nilai Diskon <span class="text-red-500">*</span>
@@ -159,7 +164,7 @@
                     </div>
                 </div>
 
-                <!-- Minimum Pembelian -->
+                <!-- ANCHOR: Minimum Pembelian -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label for="min_purchase" class="block text-sm font-medium text-gray-700">
                         Minimum Pembelian
@@ -179,7 +184,7 @@
                     </div>
                 </div>
 
-                <!-- Maksimal Diskon -->
+                <!-- ANCHOR: Maksimal Diskon -->
                 <div id="max-discount-group" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center {{ $voucher->type === 'percentage' ? '' : 'hidden' }}">
                     <label for="max_discount" class="block text-sm font-medium text-gray-700">
                         Maksimal Diskon
@@ -199,7 +204,7 @@
                     </div>
                 </div>
 
-                <!-- Batas Penggunaan -->
+                <!-- ANCHOR: Batas Penggunaan -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label for="usage_limit" class="block text-sm font-medium text-gray-700">
                         Batas Penggunaan
@@ -221,7 +226,7 @@
                     </div>
                 </div>
 
-                <!-- Tanggal Mulai -->
+                <!-- ANCHOR: Tanggal Mulai -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label for="starts_at" class="block text-sm font-medium text-gray-700">
                         Tanggal Mulai
@@ -237,7 +242,7 @@
                     </div>
                 </div>
 
-                <!-- Tanggal Berakhir -->
+                <!-- ANCHOR: Tanggal Berakhir -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                     <label for="expires_at" class="block text-sm font-medium text-gray-700">
                         Tanggal Berakhir
@@ -253,7 +258,7 @@
                     </div>
                 </div>
 
-                <!-- Checkbox Options -->
+                <!-- ANCHOR: Checkbox Options -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div></div>
                     <div class="md:col-span-2">
@@ -271,10 +276,11 @@
             </form>
         </div>
     </div>
+    <!-- !SECTION: Main Form Section -->
 
-    <!-- Sidebar Section -->
+    <!-- SECTION: Sidebar Section -->
     <div class="space-y-6">
-        <!-- Voucher Stats Card -->
+        <!-- ANCHOR: Voucher Stats Card -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Statistik Voucher</h3>
             <div class="grid grid-cols-2 gap-4 text-center">
@@ -307,7 +313,7 @@
             </div>
         </div>
 
-        <!-- Preview Card -->
+        <!-- ANCHOR: Preview Card -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200 p-4 md:p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Preview Voucher</h3>
             <div class="border border-gray-200 rounded-lg p-4 bg-gray-50 text-center">
@@ -341,14 +347,17 @@
             </div>
         </div>
     </div>
+    <!-- !SECTION: Sidebar Section -->
 </div>
 
-<!-- ANCHOR: Action Buttons -->
+<!-- SECTION: Action Buttons -->
 <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-8">
+    <!-- ANCHOR: Cancel Button -->
     <a href="{{ route('admin.vouchers.index') }}" 
        class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2.5 md:py-3 px-4 md:px-6 rounded-lg transition-colors duration-200 text-center text-sm md:text-base order-2 sm:order-1">
         Batal
     </a>
+    <!-- ANCHOR: Update Button -->
     <button type="submit" form="voucher-edit-form"
             class="bg-pink-600 hover:bg-pink-700 text-white font-medium py-2.5 md:py-3 px-4 md:px-8 rounded-lg transition-colors duration-200 flex items-center justify-center text-sm md:text-base order-1 sm:order-2">
         <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -357,8 +366,10 @@
         <span>Update Voucher</span>
     </button>
 </div>
+<!-- !SECTION: Action Buttons -->
 
 @push('scripts')
+<!-- SECTION: Custom Styles -->
 <style>
 /* Custom styling for date input */
 input[type="date"] {
@@ -370,9 +381,12 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
 }
 </style>
+<!-- !SECTION: Custom Styles -->
+
+<!-- SECTION: JavaScript Functionality -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Update help text based on type
+    // ANCHOR: Update help text based on type
     document.getElementById('type').addEventListener('change', function() {
         const valueHelp = document.getElementById('value-help');
         const maxDiscountGroup = document.getElementById('max-discount-group');
@@ -419,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePreview();
     });
 
-    // Prevent form submission if disabled fields are modified
+    // ANCHOR: Prevent form submission if disabled fields are modified
     document.querySelector('form').addEventListener('submit', function(e) {
         const typeSelect = document.getElementById('type');
         const valueInput = document.getElementById('value');
@@ -431,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Update preview when form values change
+    // ANCHOR: Update preview when form values change
     function updatePreview() {
         const code = document.getElementById('code').value || 'KODE VOUCHER';
         const name = document.getElementById('name').value || 'Nama Voucher';
@@ -508,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Format code to uppercase
+    // ANCHOR: Format code to uppercase
     document.getElementById('code').addEventListener('input', function() {
         this.value = this.value.toUpperCase();
     });
@@ -525,15 +539,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const startsAt = new Date(startsAtInput.value);
             const expiresAt = new Date(expiresAtInput.value);
             
-            if (expiresAt <= startsAt) {
-                // Set expires_at to 1 day after starts_at
-                const oneDayLater = new Date(startsAt.getTime() + (24 * 60 * 60 * 1000));
-                const year = oneDayLater.getFullYear();
-                const month = String(oneDayLater.getMonth() + 1).padStart(2, '0');
-                const day = String(oneDayLater.getDate()).padStart(2, '0');
-                
-                const expDate = `${year}-${month}-${day}`;
-                expiresAtInput.value = expDate;
+            // Start date tidak boleh lebih dari end date
+            if (startsAt > expiresAt) {
+                startsAtInput.setCustomValidity('Tanggal mulai tidak boleh lebih dari tanggal berakhir');
+            } else {
+                startsAtInput.setCustomValidity('');
+            }
+            
+            // End date tidak boleh kurang dari start date
+            if (expiresAt < startsAt) {
+                expiresAtInput.setCustomValidity('Tanggal berakhir tidak boleh kurang dari tanggal mulai');
+            } else {
+                expiresAtInput.setCustomValidity('');
             }
         }
     }
@@ -543,5 +560,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('expires_at').addEventListener('change', validateDate);
 });
 </script>
+<!-- !SECTION: JavaScript Functionality -->
 @endpush
 @endsection

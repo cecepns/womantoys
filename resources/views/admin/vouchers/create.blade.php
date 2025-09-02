@@ -531,15 +531,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const startsAt = new Date(startsAtInput.value);
             const expiresAt = new Date(expiresAtInput.value);
             
-            if (expiresAt <= startsAt) {
-                // Set expires_at to 1 day after starts_at
-                const oneDayLater = new Date(startsAt.getTime() + (24 * 60 * 60 * 1000));
-                const year = oneDayLater.getFullYear();
-                const month = String(oneDayLater.getMonth() + 1).padStart(2, '0');
-                const day = String(oneDayLater.getDate()).padStart(2, '0');
-                
-                const expDate = `${year}-${month}-${day}`;
-                expiresAtInput.value = expDate;
+            // Start date tidak boleh lebih dari end date
+            if (startsAt > expiresAt) {
+                startsAtInput.setCustomValidity('Tanggal mulai tidak boleh lebih dari tanggal berakhir');
+            } else {
+                startsAtInput.setCustomValidity('');
+            }
+            
+            // End date tidak boleh kurang dari start date
+            if (expiresAt < startsAt) {
+                expiresAtInput.setCustomValidity('Tanggal berakhir tidak boleh kurang dari tanggal mulai');
+            } else {
+                expiresAtInput.setCustomValidity('');
             }
         }
     }

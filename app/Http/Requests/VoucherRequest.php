@@ -31,7 +31,7 @@ class VoucherRequest extends FormRequest
             'max_discount' => 'nullable|numeric|min:0',
             'usage_limit' => 'nullable|integer|min:1',
             'starts_at' => 'nullable|date|after_or_equal:today',
-            'expires_at' => 'nullable|date|after:starts_at',
+            'expires_at' => 'nullable|date|after_or_equal:starts_at',
             'is_active' => 'boolean',
         ];
 
@@ -71,7 +71,7 @@ class VoucherRequest extends FormRequest
             'starts_at.date' => 'Tanggal mulai harus berupa tanggal yang valid.',
             'starts_at.after_or_equal' => 'Tanggal mulai harus sama dengan atau setelah hari ini.',
             'expires_at.date' => 'Tanggal berakhir harus berupa tanggal yang valid.',
-            'expires_at.after' => 'Tanggal berakhir harus setelah tanggal mulai.',
+            'expires_at.after_or_equal' => 'Tanggal berakhir harus sama dengan atau setelah tanggal mulai.',
         ];
     }
 
@@ -86,6 +86,8 @@ class VoucherRequest extends FormRequest
         $validator->after(function ($validator) {
             $type = $this->input('type');
             $value = $this->input('value');
+            $startsAt = $this->input('starts_at');
+            $expiresAt = $this->input('expires_at');
 
             // Validate percentage type (1-100%)
             if ($type === 'percentage') {
@@ -103,6 +105,14 @@ class VoucherRequest extends FormRequest
             elseif ($type === 'free_shipping') {
                 if ($value < 100) {
                     $validator->errors()->add('value', 'Nilai diskon nominal minimal Rp100');
+                }
+            }
+
+            // Validate date logic: Start date tidak boleh lebih dari end date
+            if ($startsAt && $expiresAt) {
+                if (strtotime($startsAt) > strtotime($expiresAt)) {
+                    $validator->errors()->add('starts_at', 'Tanggal mulai tidak boleh lebih dari tanggal berakhir');
+                    $validator->errors()->add('expires_at', 'Tanggal berakhir tidak boleh kurang dari tanggal mulai');
                 }
             }
         });

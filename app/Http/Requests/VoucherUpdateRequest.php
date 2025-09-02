@@ -31,21 +31,11 @@ class VoucherUpdateRequest extends FormRequest
             'description' => 'nullable|string',
             'min_purchase' => 'nullable|numeric|min:0',
             'max_discount' => 'nullable|numeric|min:0',
-            'usage_limit' => 'nullable|integer|min:1',
-            'starts_at' => 'nullable|date|after_or_equal:today',
-            'expires_at' => 'nullable|date|after:starts_at',
-            'is_active' => 'boolean',
+            'usae_limit' => 'nullable|integer|min:1',
+            'is_gactive' => 'boolean',
+            'type' => 'required|in:percentage,fixed_amount,free_shipping',
+            'value' => 'required|numeric|min:0',
         ];
-
-        // Jika voucher belum digunakan, tambahkan validasi untuk type dan value
-        if (!$hasBeenUsed) {
-            $rules['type'] = 'required|in:percentage,fixed_amount,free_shipping';
-            $rules['value'] = 'required|numeric|min:0';
-        } else {
-            // Jika sudah digunakan, type dan value tidak boleh diubah
-            $rules['type'] = 'prohibited';
-            $rules['value'] = 'prohibited';
-        }
 
         return $rules;
     }
@@ -65,20 +55,15 @@ class VoucherUpdateRequest extends FormRequest
             'name.max' => 'Nama voucher maksimal 255 karakter.',
             'type.required' => 'Jenis diskon wajib dipilih.',
             'type.in' => 'Jenis diskon tidak valid.',
-            'type.prohibited' => 'Jenis diskon tidak dapat diubah karena voucher sudah pernah digunakan.',
             'value.required' => 'Nilai diskon wajib diisi.',
             'value.numeric' => 'Nilai diskon harus berupa angka.',
             'value.min' => 'Nilai diskon minimal 0.',
-            'value.prohibited' => 'Nilai diskon tidak dapat diubah karena voucher sudah pernah digunakan.',
             'min_purchase.numeric' => 'Minimum pembelian harus berupa angka.',
             'min_purchase.min' => 'Minimum pembelian minimal 0.',
             'max_discount.numeric' => 'Maksimal diskon harus berupa angka.',
             'max_discount.min' => 'Maksimal diskon minimal 0.',
             'usage_limit.integer' => 'Batas penggunaan harus berupa angka bulat.',
             'usage_limit.min' => 'Batas penggunaan minimal 1.',
-            'starts_at.date' => 'Tanggal mulai harus berupa tanggal yang valid.',
-            'expires_at.date' => 'Tanggal berakhir harus berupa tanggal yang valid.',
-            'expires_at.after' => 'Tanggal berakhir harus setelah tanggal mulai.',
         ];
     }
 
@@ -93,6 +78,8 @@ class VoucherUpdateRequest extends FormRequest
         $validator->after(function ($validator) {
             $voucher = $this->route('voucher');
             $hasBeenUsed = $voucher->hasBeenUsed();
+            $startsAt = $this->input('starts_at');
+            $expiresAt = $this->input('expires_at');
 
             // Hanya validasi nilai diskon jika voucher belum digunakan
             if (!$hasBeenUsed) {
@@ -111,6 +98,14 @@ class VoucherUpdateRequest extends FormRequest
                     if ($value < 100) {
                         $validator->errors()->add('value', 'Nilai diskon nominal minimal Rp100');
                     }
+                }
+            }
+
+            // Validate date logic: Start date tidak boleh lebih dari end date
+            if ($startsAt && $expiresAt) {
+                if (strtotime($startsAt) > strtotime($expiresAt)) {
+                    $validator->errors()->add('starts_at', 'Tanggal mulai tidak boleh lebih dari tanggal berakhir');
+                    $validator->errors()->add('expires_at', 'Tanggal berakhir tidak boleh kurang dari tanggal mulai');
                 }
             }
         });
