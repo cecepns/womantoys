@@ -216,22 +216,30 @@
 <!-- About Us Section -->
 <div class="bg-gray-50 py-16">
     <div class="container mx-auto px-4">
-        <div class="max-w-4xl mx-auto text-center">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">Tentang Kami</h2>
-            <div class="text-lg text-gray-600 space-y-4">
-                <p>
-                    WomanToys adalah toko online terpercaya yang menyediakan produk dewasa berkualitas tinggi untuk memenuhi kebutuhan intim Anda. 
-                    Kami berkomitmen untuk memberikan pengalaman berbelanja yang aman, nyaman, dan rahasia.
-                </p>
-                <p>
-                    Semua produk kami telah melalui kurasi ketat untuk memastikan kualitas, keamanan, dan kepuasan pelanggan. 
-                    Dengan pengalaman bertahun-tahun di industri ini, kami memahami pentingnya privasi dan kepercayaan pelanggan.
-                </p>
-                <p>
-                    Bergabunglah dengan ribuan pelanggan yang telah mempercayai WomanToys untuk kebutuhan intim mereka. 
-                    Nikmati pengalaman berbelanja yang menyenangkan dengan layanan pelanggan yang responsif dan pengiriman cepat.
-                </p>
+        <div class="grid grid-cols-1 lg:grid-cols-2 items-center mx-auto gap-10">
+            <div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">Tentang Kami</h2>
+                <div class="text-lg text-gray-600 space-y-4">
+                    <p>
+                        WomanToys adalah toko online terpercaya yang menyediakan produk dewasa berkualitas tinggi untuk memenuhi kebutuhan intim Anda. 
+                        Kami berkomitmen untuk memberikan pengalaman berbelanja yang aman, nyaman, dan rahasia.
+                    </p>
+                    <p>
+                        Semua produk kami telah melalui kurasi ketat untuk memastikan kualitas, keamanan, dan kepuasan pelanggan. 
+                        Dengan pengalaman bertahun-tahun di industri ini, kami memahami pentingnya privasi dan kepercayaan pelanggan.
+                    </p>
+                    <p>
+                        Bergabunglah dengan ribuan pelanggan yang telah mempercayai WomanToys untuk kebutuhan intim mereka. 
+                        Nikmati pengalaman berbelanja yang menyenangkan dengan layanan pelanggan yang responsif dan pengiriman cepat.
+                    </p>
+                </div>
             </div>
+                <img 
+                    src="{{ asset('images\lauren-richmond-5Z3ugfTYYPI-unsplash (1).jpg') }}" 
+                    alt="Tentang Kami" 
+                    class="rounded-lg shadow-lg w-full h-full object-cover"
+                    style="min-width:0; min-height:0;"
+                >
         </div>
     </div>
 </div>
