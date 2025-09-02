@@ -7,25 +7,20 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * ANCHOR: Create categories table.
+     * Run the migrations.
      */
     public function up(): void
     {
         Schema::create('categories', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('main_category_id')->nullable();
             $table->string('name');
             $table->string('slug')->unique();
-            $table->string('cover_image')->nullable();
             $table->timestamps();
-
-            // Add foreign key to main_categories
-            $table->foreign('main_category_id')->references('id')->on('main_categories')->onDelete('set null');
         });
     }
 
     /**
-     * ANCHOR: Reverse the migration.
+     * Reverse the migrations.
      */
     public function down(): void
     {

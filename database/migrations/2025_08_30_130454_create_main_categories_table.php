@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * ANCHOR: Create main categories table.
+     * Run the migrations.
      */
     public function up(): void
     {
@@ -21,7 +21,7 @@ return new class extends Migration
     }
 
     /**
-     * ANCHOR: Reverse the migration.
+     * Reverse the migrations.
      */
     public function down(): void
     {

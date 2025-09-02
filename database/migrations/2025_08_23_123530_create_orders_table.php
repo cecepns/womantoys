@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * ANCHOR: Create orders table.
+     * Run the migrations.
      */
     public function up(): void
     {
@@ -24,14 +24,12 @@ return new class extends Migration
             $table->bigInteger('total_amount');
             $table->string('status');
             $table->string('payment_proof_path')->nullable();
-            $table->string('voucher_code')->nullable();
-            $table->bigInteger('voucher_discount')->default(0);
             $table->timestamps();
         });
     }
 
     /**
-     * ANCHOR: Reverse the migration.
+     * Reverse the migrations.
      */
     public function down(): void
     {

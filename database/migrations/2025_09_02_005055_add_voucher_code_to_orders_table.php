@@ -7,28 +7,29 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * ANCHOR: Add additional fields to orders table.
+     * Run the migrations.
+     */
+    /**
+     * ANCHOR: Add voucher_code field to orders table.
      */
     public function up(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            // Add fields that were in the original migrations
             if (!Schema::hasColumn('orders', 'voucher_code')) {
-                $table->string('voucher_code')->nullable()->after('payment_proof_path');
-            }
-            if (!Schema::hasColumn('orders', 'voucher_discount')) {
-                $table->bigInteger('voucher_discount')->default(0)->after('voucher_code');
+                $table->string('voucher_code')->nullable()->after('voucher_id');
             }
         });
     }
 
     /**
-     * ANCHOR: Reverse the migration.
+     * ANCHOR: Remove voucher_code field from orders table.
      */
     public function down(): void
     {
         Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn(['voucher_code', 'voucher_discount']);
+            if (Schema::hasColumn('orders', 'voucher_code')) {
+                $table->dropColumn('voucher_code');
+            }
         });
     }
 };

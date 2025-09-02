@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * ANCHOR: Create voucher usages table.
+     * Run the migrations.
      */
     public function up(): void
     {
@@ -20,17 +20,17 @@ return new class extends Migration
             $table->timestamp('used_at');
             $table->timestamps();
 
-            // Add foreign keys after tables are created
             $table->foreign('voucher_id')->references('id')->on('vouchers')->onDelete('cascade');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
         });
     }
 
     /**
-     * ANCHOR: Reverse the migration.
+     * Reverse the migrations.
      */
     public function down(): void
     {
         Schema::dropIfExists('voucher_usages');
     }
 };
+
