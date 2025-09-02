@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Instruksi Pembayaran - WomanToys')
+@section('title', 'Instruksi Pembayaran - ' . ($storeName ?? 'WomanToys'))
 
 @php
     use Illuminate\Support\Facades\Storage;
@@ -407,7 +407,7 @@
         <div class="mt-6 md:mt-8 text-center">
             <p class="text-sm md:text-base text-gray-600 mb-2">Butuh bantuan? Hubungi layanan pelanggan kami:</p>
             <p class="text-pink-600 font-medium text-sm md:text-base">WhatsApp: +62 812-3456-7890</p>
-            <p class="text-pink-600 font-medium text-sm md:text-base">Email: support@womantoys.com</p>
+            <p class="text-pink-600 font-medium text-sm md:text-base">Email: support@{{ strtolower(str_replace(' ', '', $storeName ?? 'womantoys')) }}.com</p>
         </div>
     </div>
 </div>

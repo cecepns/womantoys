@@ -37,7 +37,28 @@ class AppServiceProvider extends ServiceProvider
                 $q->orderBy('name', 'asc');
             }])->orderBy('name', 'asc')->get();
             
-            $view->with(compact('categories', 'mainCategories'));
+            // Get store name from settings
+            $storeName = \App\Helpers\SettingHelper::getStoreName();
+            
+            $view->with(compact('categories', 'mainCategories', 'storeName'));
+        });
+
+        // View Composer for admin layouts
+        View::composer('admin.layouts.app', function ($view) {
+            $storeName = \App\Helpers\SettingHelper::getStoreName();
+            $view->with(compact('storeName'));
+        });
+
+        // View Composer for admin login page
+        View::composer('admin.login', function ($view) {
+            $storeName = \App\Helpers\SettingHelper::getStoreName();
+            $view->with(compact('storeName'));
+        });
+
+        // View Composer for all views that might need store_name
+        View::composer(['home', 'catalog', 'product-detail', 'checkout', 'payment-instruction'], function ($view) {
+            $storeName = \App\Helpers\SettingHelper::getStoreName();
+            $view->with(compact('storeName'));
         });
     }
 }

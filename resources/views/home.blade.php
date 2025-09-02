@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Beranda - WomanToys')
+@section('title', 'Beranda - ' . ($storeName ?? 'WomanToys'))
 
 @section('content')
 <!-- SECTION: Hero Carousel Section -->
@@ -71,7 +71,7 @@
         <div class="absolute inset-0">
             <img 
                 src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80" 
-                alt="WomanToys Hero" 
+                alt="{{ $storeName ?? 'WomanToys' }} Hero" 
                 class="w-full h-full object-cover"
             >
             <!-- ANCHOR: Overlay -->
@@ -221,7 +221,7 @@
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-8">Tentang Kami</h2>
                 <div class="text-lg text-gray-600 space-y-4">
                     <p>
-                        WomanToys adalah toko online terpercaya yang menyediakan produk dewasa berkualitas tinggi untuk memenuhi kebutuhan intim Anda. 
+                        {{ $storeName ?? 'WomanToys' }} adalah toko online terpercaya yang menyediakan produk dewasa berkualitas tinggi untuk memenuhi kebutuhan intim Anda. 
                         Kami berkomitmen untuk memberikan pengalaman berbelanja yang aman, nyaman, dan rahasia.
                     </p>
                     <p>
@@ -229,7 +229,7 @@
                         Dengan pengalaman bertahun-tahun di industri ini, kami memahami pentingnya privasi dan kepercayaan pelanggan.
                     </p>
                     <p>
-                        Bergabunglah dengan ribuan pelanggan yang telah mempercayai WomanToys untuk kebutuhan intim mereka. 
+                        Bergabunglah dengan ribuan pelanggan yang telah mempercayai {{ $storeName ?? 'WomanToys' }} untuk kebutuhan intim mereka. 
                         Nikmati pengalaman berbelanja yang menyenangkan dengan layanan pelanggan yang responsif dan pengiriman cepat.
                     </p>
                 </div>

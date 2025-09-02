@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Panel Admin - WomanToys')</title>
+    <title>@yield('title', 'Panel Admin - ' . ($storeName ?? 'WomanToys'))</title>
     <script src="https://cdn.tailwindcss.com"></script>
     @notifyCss
     <!-- Alpine.js (required by Laravel Notify for interactions) -->
@@ -45,7 +45,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-lg md:text-xl font-bold">Panel Admin</h1>
-                        <p class="text-gray-400 text-xs md:text-sm mt-1">Manajemen WomanToys</p>
+                        <p class="text-gray-400 text-xs md:text-sm mt-1">Manajemen {{ $storeName ?? 'WomanToys' }}</p>
                     </div>
                     <!-- Mobile close button -->
                     <button id="close-sidebar" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700">
@@ -146,7 +146,7 @@
                     </div>
                     <div class="ml-2 md:ml-3 min-w-0 flex-1">
                         <p class="text-xs md:text-sm font-medium truncate">{{ Auth::guard('admin')->user() ? (Auth::guard('admin')->user()->name ?? 'Pengguna Admin') : 'Pengguna Admin' }}</p>
-                        <p class="text-xs text-gray-400 truncate">{{ Auth::guard('admin')->user() ? Auth::guard('admin')->user()->email : 'admin@womantoys.com' }}</p>
+                        <p class="text-xs text-gray-400 truncate">{{ Auth::guard('admin')->user() ? Auth::guard('admin')->user()->email : 'admin@' . strtolower(str_replace(' ', '', $storeName ?? 'womantoys')) . '.com' }}</p>
                     </div>
                 </div>
             </div>

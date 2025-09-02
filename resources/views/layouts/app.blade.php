@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'WomanToys - Mainan Dewasa Premium & Produk Intim')</title>
+    <title>@yield('title', ($storeName ?? 'WomanToys') . ' - Mainan Dewasa Premium & Produk Intim')</title>
     @vite('resources/css/app.css')
     
     <!-- Owl Carousel CSS -->
@@ -175,7 +175,7 @@
                 <!-- Logo -->
                 <div class="flex items-center w-full md:w-auto justify-between">
                     <a href="/" class="text-xl md:text-2xl font-bold text-pink-600 flex items-center">
-                        WomanToys
+                        {{ $storeName ?? 'WomanToys' }}
                     </a>
                 </div>
                 
@@ -281,7 +281,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 <!-- Company Info -->
                 <div class="sm:col-span-2 lg:col-span-1">
-                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4">WomanToys</h3>
+                    <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4">{{ $storeName ?? 'WomanToys' }}</h3>
                     <p class="text-gray-300 text-sm md:text-base leading-relaxed">Mainan dewasa premium dan produk intim untuk kesenangan dan kepuasan yang lebih baik.</p>
                 </div>
                 
@@ -299,7 +299,7 @@
                 <div>
                     <h4 class="text-base md:text-lg font-semibold mb-3 md:mb-4">Kontak</h4>
                     <div class="text-gray-300 space-y-2">
-                        <p class="text-sm md:text-base">Email: info@womantoys.com</p>
+                        <p class="text-sm md:text-base">Email: info@{{ strtolower(str_replace(' ', '', $storeName ?? 'womantoys')) }}.com</p>
                         <p class="text-sm md:text-base">Telepon: (021) 1234-5678</p>
                         <p class="text-sm md:text-base">Alamat: Jakarta, Indonesia</p>
                     </div>
@@ -308,7 +308,7 @@
             
             <!-- Copyright -->
             <div class="border-t border-gray-700 mt-6 md:mt-8 pt-6 md:pt-8 text-center">
-                <p class="text-gray-300 text-sm md:text-base">&copy; 2024 WomanToys. Semua hak dilindungi.</p>
+                <p class="text-gray-300 text-sm md:text-base">&copy; 2024 {{ $storeName ?? 'WomanToys' }}. Semua hak dilindungi.</p>
             </div>
         </div>
     </footer>
