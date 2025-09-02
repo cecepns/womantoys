@@ -14,7 +14,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AdminSeeder::class,
-            CarouselSlideSeeder::class,
             MainCategorySeeder::class,
             CategorySeeder::class,
             BankAccountSeeder::class,
