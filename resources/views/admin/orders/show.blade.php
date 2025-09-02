@@ -213,6 +213,61 @@
             </div>
         </div>
 
+        <!-- Voucher Information -->
+        @if($order->voucher_id || $order->voucher_code)
+            <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-5 h-5 mr-2 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 00 2 2h3l2 2h6l2-2h3a2 2 0 002-2V7a2 2 0 00-2-2H5z"></path>
+                    </svg>
+                    Informasi Voucher
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @if($order->voucher)
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kode Voucher</label>
+                            <p class="text-gray-900 font-medium">{{ $order->voucher->code }}</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Voucher</label>
+                            <p class="text-gray-900">{{ $order->voucher->name }}</p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Diskon</label>
+                            <p class="text-gray-900">
+                                @if($order->voucher->type === 'percentage')
+                                    Persentase ({{ $order->voucher->value }}%)
+                                @else
+                                    Nominal (Rp {{ number_format($order->voucher->value, 0, ',', '.') }})
+                                @endif
+                            </p>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Minimum Pembelian</label>
+                            <p class="text-gray-900">Rp {{ number_format($order->voucher->min_purchase, 0, ',', '.') }}</p>
+                        </div>
+                    @else
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Kode Voucher</label>
+                            <p class="text-gray-900 font-medium">{{ $order->voucher_code }}</p>
+                            <p class="text-sm text-gray-500 mt-1">Voucher tidak ditemukan dalam sistem</p>
+                        </div>
+                    @endif
+                    
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Diskon</label>
+                        <p class="text-gray-900 font-semibold text-green-600">
+                            - Rp {{ number_format($order->discount_amount, 0, ',', '.') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Order Summary -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200 p-6">
             <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
@@ -227,6 +282,14 @@
                     <span class="text-gray-600">Subtotal</span>
                     <span class="font-medium">{{ number_format($subtotal, 0, ',', '.') }}</span>
                 </div>
+                
+                @if($order->discount_amount > 0)
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Diskon Voucher</span>
+                        <span class="font-medium text-green-600">- {{ number_format($order->discount_amount, 0, ',', '.') }}</span>
+                    </div>
+                @endif
+                
                 <div class="flex justify-between">
                     <span class="text-gray-600">Ongkos Kirim</span>
                     <span class="font-medium">{{ number_format($order->shipping_cost, 0, ',', '.') }}</span>

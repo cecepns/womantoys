@@ -59,12 +59,12 @@ class OrderController extends Controller
     }
 
     /**
-     * Display the specified order.
+     * ANCHOR: Display the specified order.
      */
     public function show(Order $order)
     {
         // Load relationships
-        $order->load(['orderItems.product']);
+        $order->load(['orderItems.product', 'voucher']);
         
         // Calculate subtotal
         $subtotal = $order->orderItems->sum(function ($item) {
