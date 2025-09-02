@@ -299,7 +299,7 @@
                 <div>
                     <h4 class="text-base md:text-lg font-semibold mb-3 md:mb-4">Kontak</h4>
                     <div class="text-gray-300 space-y-2">
-                        <p class="text-sm md:text-base">Email: info@{{ strtolower(str_replace(' ', '', $storeName ?? 'womantoys')) }}.com</p>
+                        <p class="text-sm md:text-base">Email: info@support.com</p>
                         <p class="text-sm md:text-base">Telepon: (021) 1234-5678</p>
                         <p class="text-sm md:text-base">Alamat: Jakarta, Indonesia</p>
                     </div>
