@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Voucher;
+use App\Models\VoucherUsage;
 use Illuminate\Http\Request;
 use App\Models\Setting;
 
@@ -56,7 +58,10 @@ class CheckoutController extends Controller
             'shipping' => 'required|string',
             'quantity' => 'required|integer|min:1',
             'origin_id' => 'required|integer',
-            'destination_id' => 'required|integer'
+            'destination_id' => 'required|integer',
+            'voucher_id' => 'nullable|exists:vouchers,id',
+            'voucher_code' => 'nullable|string',
+            'discount_amount' => 'nullable|numeric|min:0'
         ]);
 
         // Get product
@@ -75,7 +80,41 @@ class CheckoutController extends Controller
         
         // Calculate order costs
         $subtotal = $product->price * $request->quantity;
-        $totalAmount = $subtotal + $shippingCost;
+        $discountAmount = 0;
+        $voucher = null;
+        
+        // Handle voucher if provided
+        if ($request->filled('voucher_id') && $request->filled('voucher_code')) {
+            $voucher = Voucher::find($request->voucher_id);
+            
+            if ($voucher && $voucher->code === $request->voucher_code) {
+                // Validate voucher for this specific order
+                $cart = [['total' => $subtotal]];
+                $validation = $voucher->validateForUse($cart, $request->email);
+                
+                if ($validation['valid']) {
+                    // Calculate discount
+                    if ($voucher->type === 'free_shipping') {
+                        $discountAmount = $shippingCost;
+                        $shippingCost = 0; // Set shipping to 0 for free shipping
+                    } else {
+                        $discountAmount = $voucher->calculateDiscount($subtotal, $shippingCost);
+                    }
+                } else {
+                    return back()->withErrors(['voucher' => $validation['message']])->withInput();
+                }
+            } else {
+                return back()->withErrors(['voucher' => 'Voucher tidak valid.'])->withInput();
+            }
+        }
+        
+        // Calculate final total
+        $totalAmount = $subtotal + $shippingCost - $discountAmount;
+        
+        // Ensure total is not negative
+        if ($totalAmount < 0) {
+            $totalAmount = 0;
+        }
 
         // Combine address fields for storage
         $fullAddress = $request->address_location . "\n" . $request->address_detail;
@@ -88,7 +127,10 @@ class CheckoutController extends Controller
             'shipping_address' => $fullAddress,
             'shipping_method' => $courier . ' - ' . $service,
             'shipping_cost' => $shippingCost,
+            'subtotal' => $subtotal,
+            'discount_amount' => $discountAmount,
             'total_amount' => $totalAmount,
+            'voucher_id' => $voucher ? $voucher->id : null,
         ]);
 
         // Create order item record
@@ -99,6 +141,19 @@ class CheckoutController extends Controller
             'price' => $product->price,
             'quantity' => $request->quantity,
         ]);
+
+        // Track voucher usage if voucher was used
+        if ($voucher) {
+            VoucherUsage::create([
+                'voucher_id' => $voucher->id,
+                'order_id' => $order->id,
+                'customer_email' => $request->email,
+                'discount_amount' => $discountAmount,
+            ]);
+            
+            // Increment voucher usage count
+            $voucher->increment('used_count');
+        }
 
         // Update product stock
         $product->decrement('stock', $request->quantity);
