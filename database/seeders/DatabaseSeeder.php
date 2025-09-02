@@ -18,9 +18,6 @@ class DatabaseSeeder extends Seeder
             MainCategorySeeder::class,
             CategorySeeder::class,
             BankAccountSeeder::class,
-            ProductSeeder::class,
-            ProductImageSeeder::class,
-            OrderSeeder::class,
             SettingSeeder::class,
         ]);
     }

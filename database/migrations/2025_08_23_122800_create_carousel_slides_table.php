@@ -7,24 +7,24 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * ANCHOR: Create carousel slides table.
      */
     public function up(): void
     {
         Schema::create('carousel_slides', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('image_path');
-            $table->string('title')->nullable();
+            $table->string('title');
             $table->text('description')->nullable();
-            $table->string('cta_text')->nullable();
-            $table->string('cta_link')->nullable();
-            $table->integer('order');
+            $table->string('image_path')->nullable();
+            $table->string('link_url')->nullable();
+            $table->integer('order')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.
+     * ANCHOR: Reverse the migration.
      */
     public function down(): void
     {

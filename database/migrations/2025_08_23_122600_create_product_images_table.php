@@ -7,29 +7,27 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * ANCHOR: Create product images table.
      */
     public function up(): void
     {
-        Schema::create('order_items', function (Blueprint $table) {
+        Schema::create('product_images', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('order_id');
             $table->unsignedBigInteger('product_id');
-            $table->string('product_name');
-            $table->bigInteger('price');
-            $table->integer('quantity')->default(1);
+            $table->string('image_path');
+            $table->integer('order')->default(0);
             $table->timestamps();
 
-            $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
+            // Add foreign key after products table is created
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
 
     /**
-     * Reverse the migrations.
+     * ANCHOR: Reverse the migration.
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_items');
+        Schema::dropIfExists('product_images');
     }
 };

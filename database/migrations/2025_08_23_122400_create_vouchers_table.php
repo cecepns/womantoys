@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * ANCHOR: Create vouchers table.
      */
     public function up(): void
     {
@@ -33,11 +33,10 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * ANCHOR: Reverse the migration.
      */
     public function down(): void
     {
         Schema::dropIfExists('vouchers');
     }
 };
-

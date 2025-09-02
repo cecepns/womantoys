@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * ANCHOR: Create products table.
      */
     public function up(): void
     {
@@ -21,15 +21,20 @@ return new class extends Migration
             $table->longText('specifications');
             $table->longText('care_instructions');
             $table->bigInteger('price');
-            $table->string('main_image');
+            $table->string('main_image')->nullable();
+            $table->integer('weight')->default(0);
+            $table->string('status')->default('active');
+            $table->integer('stock')->default(0);
+            $table->boolean('is_featured')->default(false);
             $table->timestamps();
 
+            // Add foreign key to categories
             $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
         });
     }
 
     /**
-     * Reverse the migrations.
+     * ANCHOR: Reverse the migration.
      */
     public function down(): void
     {

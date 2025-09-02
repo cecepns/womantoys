@@ -7,24 +7,25 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * ANCHOR: Add additional fields to categories table.
      */
     public function up(): void
     {
         Schema::table('categories', function (Blueprint $table) {
-            $table->unsignedBigInteger('main_category_id')->nullable()->after('id');
-            $table->foreign('main_category_id')->references('id')->on('main_categories')->onDelete('set null');
+            // Add fields that were in the original migrations
+            if (!Schema::hasColumn('categories', 'cover_image')) {
+                $table->string('cover_image')->nullable()->after('slug');
+            }
         });
     }
 
     /**
-     * Reverse the migrations.
+     * ANCHOR: Reverse the migration.
      */
     public function down(): void
     {
         Schema::table('categories', function (Blueprint $table) {
-            $table->dropForeign(['main_category_id']);
-            $table->dropColumn('main_category_id');
+            $table->dropColumn('cover_image');
         });
     }
 };

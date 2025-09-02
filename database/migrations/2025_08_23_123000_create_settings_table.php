@@ -6,20 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * ANCHOR: Create settings table.
+     */
     public function up(): void
     {
         Schema::create('settings', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
             $table->string('key')->unique();
-            $table->text('value')->nullable();
+            $table->text('value');
+            $table->string('type')->default('string');
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
 
+    /**
+     * ANCHOR: Reverse the migration.
+     */
     public function down(): void
     {
         Schema::dropIfExists('settings');
     }
 };
-
-
