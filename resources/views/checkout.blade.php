@@ -104,7 +104,7 @@
                 <!-- Complete Address -->
                 <div>
                     <label for="address-autocomplete" class="block text-sm font-medium text-gray-700 mb-1 md:mb-2">
-                        Alamat
+                        Kota / Kabupaten
                     </label>
                     <div class="relative">
                         <input 
