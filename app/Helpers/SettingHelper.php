@@ -14,6 +14,11 @@ class SettingHelper
         return Setting::getValue('whatsapp_number', '8100235004');
     }
 
+    public static function getAddress(): string
+    {
+        return Setting::getValue('store_city_label', 'Jakarta, Indonesia');
+    }
+
     /**
      * ANCHOR: Get WhatsApp message from settings.
      */

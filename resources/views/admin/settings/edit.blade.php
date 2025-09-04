@@ -6,8 +6,9 @@
 @section('page-description', 'Ganti sandi dan atur alamat toko')
 
 @section('content')
+    <!-- SECTION: SETTINGS PAGE -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Change Password Card -->
+        <!-- SECTION: CHANGE PASSWORD CARD -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200">
             <div class="p-4 sm:p-6 border-b border-gray-200">
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800">Ganti Kata Sandi</h3>
@@ -18,6 +19,7 @@
                     @method('PUT')
                     <div class="space-y-4 sm:space-y-6">
                         <div>
+                            <!-- ANCHOR: Kata Sandi Saat Ini -->
                             <label class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi Saat Ini</label>
                             <div class="relative">
                                 <input id="current_password" type="password" name="current_password"
@@ -49,6 +51,7 @@
                             @enderror
                         </div>
                         <div>
+                            <!-- ANCHOR: Kata Sandi Baru -->
                             <label class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi Baru</label>
                             <div class="relative">
                                 <input id="new_password" type="password" name="new_password" autocomplete="new-password"
@@ -79,6 +82,7 @@
                             @enderror
                         </div>
                         <div>
+                            <!-- ANCHOR: Konfirmasi Kata Sandi Baru -->
                             <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Kata Sandi Baru</label>
                             <div class="relative">
                                 <input id="new_password_confirmation" type="password" name="new_password_confirmation"
@@ -114,8 +118,9 @@
                 </form>
             </div>
         </div>
+        <!-- !SECTION: CHANGE PASSWORD CARD -->
 
-        <!-- Store Address Card -->
+        <!-- SECTION: STORE ADDRESS CARD -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200">
             <div class="p-4 sm:p-6 border-b border-gray-200">
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800">Informasi Toko</h3>
@@ -130,12 +135,14 @@
                         value="{{ old('store_origin_id', $storeOriginId) }}">
                     <div class="space-y-4 sm:space-y-6">
                         <div>
+                            <!-- ANCHOR: Nama Toko -->
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nama Toko</label>
                             <input type="text" name="store_name" value="{{ old('store_name', $storeName) }}"
                                 maxlength="255"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm">
                         </div>
                         <div>
+                            <!-- ANCHOR: Kota/Kabupaten (Origin) dengan Autocomplete -->
                             <label class="block text-sm font-medium text-gray-700 mb-1">Kota/Kabupaten (Origin)</label>
                             <div class="relative">
                                 <input type="text" id="city-autocomplete"
@@ -151,6 +158,7 @@
                             @enderror
                         </div>
                         <div>
+                            <!-- ANCHOR: Alamat Lengkap -->
                             <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label>
                             <textarea name="store_address" rows="3"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
@@ -164,13 +172,12 @@
                 </form>
             </div>
         </div>
+        <!-- !SECTION: STORE ADDRESS CARD -->
 
-        <!-- WhatsApp Settings Card -->
+        <!-- SECTION: WHATSAPP SETTINGS CARD -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200">
             <div class="p-4 sm:p-6 border-b border-gray-200">
-                <h3 class="text-base sm:text-lg font-semibold text-gray-800">Pengaturan WhatsApp</h3>
-                <p class="text-xs sm:text-sm text-gray-600 mt-1">Atur nomor WhatsApp dan pesan default untuk floating
-                    button.</p>
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800">Kontak Toko</h3>
             </div>
             <div class="p-4 sm:p-6">
                 <form method="POST" action="{{ route('admin.settings.whatsapp') }}" id="whatsapp-setting-form">
@@ -178,6 +185,7 @@
                     @method('PUT')
                     <div class="space-y-4 sm:space-y-6">
                         <div>
+                            <!-- ANCHOR: Nomor WhatsApp (tanpa +62) -->
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nomor WhatsApp</label>
                             <div class="flex">
                                 <span
@@ -195,6 +203,7 @@
                             @enderror
                         </div>
                         <div>
+                            <!-- ANCHOR: Pesan Default WhatsApp -->
                             <label class="block text-sm font-medium text-gray-700 mb-1">Pesan Default</label>
                             <textarea name="whatsapp_message" rows="3" maxlength="500"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
@@ -207,15 +216,20 @@
                         </div>
                         <div class="pt-2">
                             <button type="submit"
-                                class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">Simpan</button>
+                                class="w-full sm:w-auto bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">Simpan</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
+        <!-- !SECTION: WHATSAPP SETTINGS CARD -->
     </div>
+    <!-- !SECTION: SETTINGS PAGE -->
 
+    <!-- SECTION: SCRIPTS -->
     <script>
+        // ANCHOR: Toggle Password Visibility
+        // Menampilkan/menyembunyikan nilai input password dan toggle icon mata
         function togglePassword(inputId, btn) {
             const input = document.getElementById(inputId);
             if (!input) return;
@@ -234,6 +248,8 @@
             }
         }
 
+        // ANCHOR: Prevent Double Submit
+        // Menonaktifkan tombol submit setelah form dikirim untuk mencegah submit ganda
         function preventDoubleSubmit(formId) {
             const form = document.getElementById(formId);
             if (!form) return;
@@ -248,10 +264,15 @@
         preventDoubleSubmit('password-setting-form');
         preventDoubleSubmit('store-setting-form');
         preventDoubleSubmit('whatsapp-setting-form');
+
+        // ANCHOR: City Autocomplete State
+        // Variabel state dan kontrol untuk permintaan pencarian kota ke server
         let cityController;
         let lastCityQuery = '';
         let debouncedCityHandler;
 
+        // ANCHOR: Cancel Ongoing City Request
+        // Membatalkan fetch sebelumnya agar tidak terjadi race condition
         function cancelCityRequest() {
             if (cityController) {
                 cityController.abort();
@@ -262,6 +283,7 @@
         const cityInput = document.getElementById('city-autocomplete');
         const cityDropdown = document.getElementById('city-dropdown');
 
+        // ANCHOR: Show/Hide City Dropdown
         function showCityDropdown() {
             cityDropdown.classList.remove('hidden');
         }
@@ -270,6 +292,8 @@
             cityDropdown.classList.add('hidden');
         }
 
+        // ANCHOR: Render City Options
+        // Merender opsi kota dari hasil API ke dalam dropdown
         function renderCityOptions(items) {
             cityDropdown.innerHTML = '';
             if (!items || items.length === 0) {
@@ -298,6 +322,8 @@
             showCityDropdown();
         }
 
+        // ANCHOR: Set City Loading
+        // Menampilkan indikator loading di dropdown saat menunggu hasil
         function setCityLoading() {
             cityDropdown.innerHTML = '';
             const loading = document.createElement('div');
@@ -307,6 +333,8 @@
             showCityDropdown();
         }
 
+        // ANCHOR: Debounce Utility
+        // Menunda eksekusi fungsi untuk mengurangi jumlah panggilan API
         function debounce(fn, delay) {
             let timer;
             return function(...args) {
@@ -315,6 +343,8 @@
             }
         }
 
+        // ANCHOR: Handle City Input
+        // Mengirim request pencarian kota saat input berubah dengan debounce
         async function handleCityInput() {
             const query = cityInput.value.trim();
             if (query.length < 2 || query === lastCityQuery) {
@@ -347,10 +377,12 @@
             cityInput.addEventListener('input', debouncedCityHandler);
         }
 
+        // Menyembunyikan dropdown ketika klik di luar elemen
         document.addEventListener('click', function(e) {
             if (!cityDropdown.contains(e.target) && e.target !== cityInput) {
                 hideCityDropdown();
             }
         });
     </script>
+    <!-- !SECTION: SCRIPTS -->
 @endsection

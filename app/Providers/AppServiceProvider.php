@@ -39,8 +39,11 @@ class AppServiceProvider extends ServiceProvider
             
             // Get store name from settings
             $storeName = \App\Helpers\SettingHelper::getStoreName();
+            $whatsappNumber = \App\Helpers\SettingHelper::getWhatsAppNumber();
+            $whatsappMessage = \App\Helpers\SettingHelper::getWhatsAppMessage();
+            $address = \App\Helpers\SettingHelper::getAddress();
             
-            $view->with(compact('categories', 'mainCategories', 'storeName'));
+            $view->with(compact('categories', 'mainCategories', 'storeName', 'whatsappNumber', 'whatsappMessage', 'address'));
         });
 
         // View Composer for admin layouts
