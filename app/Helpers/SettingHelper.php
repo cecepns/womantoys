@@ -45,4 +45,12 @@ class SettingHelper
     {
         return Setting::getValue('store_name', 'WomanToys');
     }
+
+    /**
+     * ANCHOR: Get logo from settings.
+     */
+    public static function getLogo(): ?string
+    {
+        return Setting::getValue('logo', '');
+    }
 }

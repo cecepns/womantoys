@@ -22,5 +22,6 @@ class SettingSeeder extends Seeder
         Setting::setValue('store_city_label', 'GROGOL, GROGOL PETAMBURAN, JAKARTA BARAT, DKI JAKARTA, 11450');
         Setting::setValue('store_origin_id', '17473');
         Setting::setValue('email', 'primemania88@gmail.com');
+        Setting::setValue('logo', '');
     }
 }

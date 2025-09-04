@@ -126,7 +126,8 @@
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800">Informasi Toko</h3>
             </div>
             <div class="p-4 sm:p-6">
-                <form method="POST" action="{{ route('admin.settings.store') }}" id="store-setting-form">
+                <form method="POST" action="{{ route('admin.settings.store') }}" id="store-setting-form"
+                    enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="store_city_label" id="store_city_label"
@@ -140,6 +141,52 @@
                             <input type="text" name="store_name" value="{{ old('store_name', $storeName) }}"
                                 maxlength="255"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm">
+                        </div>
+                        <div>
+                            <!-- ANCHOR: Logo Toko -->
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Logo Toko</label>
+
+                            <!-- Single Logo Preview Area -->
+                            <div class="space-y-3">
+                                <!-- Status Area -->
+                                <div id="logo_status" class="hidden p-3 rounded-lg text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span id="logo_status_text"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Single Logo Preview Section -->
+                                <div id="logo_preview_section" class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                    <!-- Content will be dynamically updated by JavaScript -->
+                                </div>
+
+                                <!-- Upload Section -->
+                                <div class="border border-gray-200 rounded-lg p-4 bg-white">
+                                    <p class="text-sm font-medium text-gray-700 mb-3">Upload Logo:</p>
+                                    <div class="space-y-3">
+                                        <!-- File Input -->
+                                        <input type="file" name="logo" id="logo_input" accept="image/*"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm">
+
+                                        <!-- Help Text -->
+                                        <p class="text-xs text-gray-500">Format yang didukung: JPEG, PNG, JPG, GIF, SVG.
+                                            Maksimal 2MB.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden input for logo deletion -->
+                            <input type="hidden" name="delete_logo" id="delete_logo"
+                                value="{{ old('delete_logo', '0') }}">
+
+                            <!-- Error Messages -->
+                            @error('logo')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div>
                             <!-- ANCHOR: Kota/Kabupaten (Origin) dengan Autocomplete -->
@@ -163,6 +210,9 @@
                             <textarea name="store_address" rows="3"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
                                 placeholder="Nama jalan, nomor, RT/RW, dsb">{{ old('store_address', $storeAddress) }}</textarea>
+                            @error('store_address')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                         <div class="pt-2">
                             <button type="submit"
@@ -389,6 +439,170 @@
                 hideCityDropdown();
             }
         });
+
+        // ANCHOR: Logo Preview and Remove
+        function previewLogo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                showNewLogoPreview(file);
+            } else {
+                // If no file selected, show current logo or empty state
+                const currentLogo = '{{ $logo }}';
+                if (currentLogo) {
+                    showCurrentLogo('{{ asset('storage/' . $logo) }}');
+                } else {
+                    showEmptyState();
+                }
+            }
+        }
+
+
+
+        // Add event listener for logo input
+        document.addEventListener('DOMContentLoaded', function() {
+            const logoInput = document.getElementById('logo_input');
+            if (logoInput) {
+                logoInput.addEventListener('change', previewLogo);
+            }
+
+            // Initialize logo preview
+            initializeLogoPreview();
+
+
+        });
+
+        // ANCHOR: Logo Preview Management
+        function initializeLogoPreview() {
+            const currentLogo = '{{ $logo }}';
+            if (currentLogo) {
+                showCurrentLogo('{{ asset('storage/' . $logo) }}');
+            } else {
+                showEmptyState();
+            }
+        }
+
+        function showCurrentLogo(logoPath) {
+            const previewSection = document.getElementById('logo_preview_section');
+            previewSection.innerHTML = `
+                <div class="relative">
+                    <img src="${logoPath}" alt="Current Logo"
+                        class="h-20 max-w-full object-contain rounded-lg border border-gray-300"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="h-20 max-w-full bg-gray-100 flex items-center justify-center rounded-lg border border-gray-300" style="display: none;">
+                        <div class="text-center text-gray-500">
+                            <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                            <p class="text-xs">Logo tidak dapat ditampilkan</p>
+                        </div>
+                    </div>
+                    <!-- Delete Logo Button -->
+                    <button type="button"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                        onclick="deleteCurrentLogo()" title="Hapus logo saat ini">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        }
+
+        function showNewLogoPreview(file) {
+            const previewSection = document.getElementById('logo_preview_section');
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                previewSection.innerHTML = `
+                    <div class="relative">
+                        <img src="${e.target.result}" alt="New Logo Preview"
+                            class="h-20 max-w-full object-contain rounded-lg border border-gray-300">
+                        <!-- Remove New Logo Button -->
+                        <button type="button"
+                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                            onclick="removeNewLogo()" title="Batal upload logo baru">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+
+                // Reset delete logo flag since we're uploading new logo
+                document.getElementById('delete_logo').value = '0';
+                showLogoStatus('Logo baru dipilih. Logo lama akan diganti dengan logo baru ini.', 'info');
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        function showEmptyState() {
+            const previewSection = document.getElementById('logo_preview_section');
+            previewSection.innerHTML = `
+                <div class="text-center py-8">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p class="text-gray-500 text-sm">Tidak ada logo yang dipilih</p>
+                    <p class="text-gray-400 text-xs mt-1">Upload logo baru menggunakan form di bawah</p>
+                </div>
+            `;
+        }
+
+        function removeNewLogo() {
+            const currentLogo = '{{ $logo }}';
+            if (currentLogo) {
+                showCurrentLogo('{{ asset('storage/' . $logo) }}');
+            } else {
+                showEmptyState();
+            }
+            // Clear file input
+            document.getElementById('logo_input').value = '';
+            hideLogoStatus();
+        }
+
+        // ANCHOR: Delete Current Logo
+        function deleteCurrentLogo() {
+            if (confirm('Apakah Anda yakin ingin menghapus logo saat ini?')) {
+                document.getElementById('delete_logo').value = '1';
+                // Show empty state
+                showEmptyState();
+                // Clear file input
+                document.getElementById('logo_input').value = '';
+                // Show status
+                showLogoStatus(
+                    'Logo akan dihapus saat form disubmit. Anda juga bisa upload logo baru untuk menggantikannya.',
+                    'warning');
+            }
+        }
+
+
+
+        // ANCHOR: Show Logo Status
+        function showLogoStatus(message, type = 'info') {
+            const statusArea = document.getElementById('logo_status');
+            const statusText = document.getElementById('logo_status_text');
+
+            if (statusArea && statusText) {
+                statusText.textContent = message;
+
+                // Set color based on type
+                statusArea.className =
+                    `p-3 rounded-lg text-sm ${type === 'warning' ? 'bg-yellow-50 text-yellow-800 border border-yellow-200' : 'bg-blue-50 text-blue-800 border border-blue-200'}`;
+
+                statusArea.classList.remove('hidden');
+            }
+        }
+
+        // ANCHOR: Hide Logo Status
+        function hideLogoStatus() {
+            const statusArea = document.getElementById('logo_status');
+            if (statusArea) {
+                statusArea.classList.add('hidden');
+            }
+        }
     </script>
     <!-- !SECTION: SCRIPTS -->
 @endsection

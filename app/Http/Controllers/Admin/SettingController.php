@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
 {
@@ -20,6 +21,7 @@ class SettingController extends Controller
         $storeOriginId = Setting::getValue('store_origin_id', '');
         $email = Setting::getValue('email', 'primemania88@gmail.com');
         $whatsappNumber = Setting::getValue('whatsapp_number', '8100235004');
+        $logo = Setting::getValue('logo', '');
         $whatsappMessage = Setting::getValue('whatsapp_message', 'Halo, saya ingin bertanya produk terbaru womantoys');
         return view('admin.settings.edit', compact(
             'storeName',
@@ -28,7 +30,8 @@ class SettingController extends Controller
             'storeOriginId',
             'whatsappNumber',
             'whatsappMessage',
-            'email'
+            'email',
+            'logo'
         ));
     }
 
@@ -59,16 +62,68 @@ class SettingController extends Controller
             'store_address' => 'nullable|string',
             'store_city_label' => 'nullable|string|max:255',
             'store_origin_id' => 'required|integer',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'delete_logo' => 'nullable|boolean',
+        ], [
+            'store_origin_id.required' => 'Kota/Kabupaten (Origin) wajib dipilih.',
+            'store_origin_id.integer' => 'Kota/Kabupaten (Origin) tidak valid.',
+            'logo.image' => 'File logo harus berupa gambar.',
+            'logo.mimes' => 'Format logo harus JPEG, PNG, JPG, GIF, atau SVG.',
+            'logo.max' => 'Ukuran logo maksimal 2MB.',
         ]);
+
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            // User uploaded a new logo
+            $logoFile = $request->file('logo');
+            $logoPath = $logoFile->store('logo', 'public');
+            $request->merge(['logo' => $logoPath]);
+
+            // If user also wants to delete old logo, clean it up
+            if ($request->boolean('delete_logo')) {
+                $existingLogo = Setting::getValue('logo', '');
+                if ($existingLogo && $existingLogo !== $logoPath) {
+                    // Delete old logo file from storage (only if it's different from new one)
+                    if (Storage::disk('public')->exists($existingLogo)) {
+                        Storage::disk('public')->delete($existingLogo);
+                    }
+                }
+            }
+        } elseif ($request->boolean('delete_logo')) {
+            // User only wants to delete logo without uploading new one
+            $existingLogo = Setting::getValue('logo', '');
+            if ($existingLogo) {
+                // Delete logo file from storage
+                if (Storage::disk('public')->exists($existingLogo)) {
+                    Storage::disk('public')->delete($existingLogo);
+                }
+            }
+            $request->merge(['logo' => '']); // Set logo to empty string
+        } else {
+            // Keep existing logo if no new file is uploaded and not deleting
+            $existingLogo = Setting::getValue('logo', '');
+            $request->merge(['logo' => $existingLogo]);
+        }
 
         DB::transaction(function () use ($request) {
             Setting::setValue('store_name', $request->input('store_name'));
             Setting::setValue('store_address', $request->input('store_address'));
             Setting::setValue('store_city_label', $request->input('store_city_label'));
             Setting::setValue('store_origin_id', $request->input('store_origin_id'));
+            Setting::setValue('logo', $request->input('logo'));
         });
 
-        notify()->success('Pengaturan toko berhasil disimpan');
+        // Show appropriate success message
+        if ($request->boolean('delete_logo') && !$request->hasFile('logo')) {
+            notify()->success('Logo berhasil dihapus dan pengaturan toko berhasil disimpan');
+        } elseif ($request->hasFile('logo') && $request->boolean('delete_logo')) {
+            notify()->success('Logo lama berhasil dihapus, logo baru berhasil diupload, dan pengaturan toko berhasil disimpan');
+        } elseif ($request->hasFile('logo')) {
+            notify()->success('Logo baru berhasil diupload dan pengaturan toko berhasil disimpan');
+        } else {
+            notify()->success('Pengaturan toko berhasil disimpan');
+        }
+
         return back();
     }
 
@@ -103,5 +158,3 @@ class SettingController extends Controller
         return back();
     }
 }
-
-

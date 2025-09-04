@@ -187,7 +187,14 @@
                 <!-- ANCHOR: Logo / Brand -->
                 <div class="flex items-center w-full md:w-auto justify-between">
                     <a href="/" class="text-xl md:text-2xl font-bold text-pink-600 flex items-center">
-                        {{ $storeName ?? 'WomanToys' }}
+                        @if (isset($logo) && $logo)
+                            <img src="{{ asset('storage/' . $logo) }}" alt="{{ $storeName ?? 'WomanToys' }} Logo"
+                                class="h-8 md:h-10 w-auto mr-2 object-contain"
+                                onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                            <span class="hidden">{{ $storeName ?? 'WomanToys' }}</span>
+                        @else
+                            {{ $storeName ?? 'WomanToys' }}
+                        @endif
                     </a>
                 </div>
 

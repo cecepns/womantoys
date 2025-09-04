@@ -28,22 +28,23 @@ class AppServiceProvider extends ServiceProvider
             $categories = Category::withCount(['products' => function ($query) {
                 $query->active()->inStock();
             }])
-            ->orderBy('products_count', 'desc')
-            ->limit(12)
-            ->get();
+                ->orderBy('products_count', 'desc')
+                ->limit(12)
+                ->get();
 
             // Main categories with their sub categories
             $mainCategories = MainCategory::with(['categories' => function ($q) {
                 $q->orderBy('name', 'asc');
             }])->orderBy('name', 'asc')->get();
-            
+
             // Get store name from settings
             $storeName = \App\Helpers\SettingHelper::getStoreName();
             $whatsappNumber = \App\Helpers\SettingHelper::getWhatsAppNumber();
             $whatsappMessage = \App\Helpers\SettingHelper::getWhatsAppMessage();
             $address = \App\Helpers\SettingHelper::getAddress();
             $email = \App\Helpers\SettingHelper::getEmail();
-            $view->with(compact('categories', 'mainCategories', 'storeName', 'whatsappNumber', 'whatsappMessage', 'address', 'email'));
+            $logo = \App\Helpers\SettingHelper::getLogo();
+            $view->with(compact('categories', 'mainCategories', 'storeName', 'whatsappNumber', 'whatsappMessage', 'address', 'email', 'logo'));
         });
 
         // View Composer for admin layouts
