@@ -18,6 +18,7 @@ class SettingController extends Controller
         $storeAddress = Setting::getValue('store_address', '');
         $storeCityLabel = Setting::getValue('store_city_label', '');
         $storeOriginId = Setting::getValue('store_origin_id', '');
+        $email = Setting::getValue('email', 'primemania88@gmail.com');
         $whatsappNumber = Setting::getValue('whatsapp_number', '8100235004');
         $whatsappMessage = Setting::getValue('whatsapp_message', 'Halo, saya ingin bertanya produk terbaru womantoys');
         return view('admin.settings.edit', compact(
@@ -26,7 +27,8 @@ class SettingController extends Controller
             'storeCityLabel',
             'storeOriginId',
             'whatsappNumber',
-            'whatsappMessage'
+            'whatsappMessage',
+            'email'
         ));
     }
 
@@ -70,11 +72,12 @@ class SettingController extends Controller
         return back();
     }
 
-    public function updateWhatsApp(Request $request)
+    public function updateContact(Request $request)
     {
         $request->validate([
             'whatsapp_number' => 'required|string|regex:/^[0-9]+$/|min:9|max:15',
             'whatsapp_message' => 'required|string|max:500',
+            'email' => 'required|email',
         ], [
             'whatsapp_number.required' => 'Nomor WhatsApp harus diisi',
             'whatsapp_number.regex' => 'Nomor WhatsApp hanya boleh berisi angka',
@@ -82,6 +85,8 @@ class SettingController extends Controller
             'whatsapp_number.max' => 'Nomor WhatsApp maksimal 15 digit',
             'whatsapp_message.required' => 'Pesan WhatsApp harus diisi',
             'whatsapp_message.max' => 'Pesan WhatsApp maksimal 500 karakter',
+            'email.required' => 'Email harus diisi',
+            'email.email' => 'Email tidak valid',
         ]);
 
         $rawNumber = $request->input('whatsapp_number', '');
@@ -93,8 +98,8 @@ class SettingController extends Controller
 
         Setting::setValue('whatsapp_number', $normalized);
         Setting::setValue('whatsapp_message', $request->input('whatsapp_message'));
-
-        notify()->success('Pengaturan WhatsApp berhasil disimpan');
+        Setting::setValue('email', $request->input('email'));
+        notify()->success('Pengaturan kontak berhasil disimpan');
         return back();
     }
 }

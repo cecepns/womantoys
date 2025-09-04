@@ -42,8 +42,8 @@ class AppServiceProvider extends ServiceProvider
             $whatsappNumber = \App\Helpers\SettingHelper::getWhatsAppNumber();
             $whatsappMessage = \App\Helpers\SettingHelper::getWhatsAppMessage();
             $address = \App\Helpers\SettingHelper::getAddress();
-            
-            $view->with(compact('categories', 'mainCategories', 'storeName', 'whatsappNumber', 'whatsappMessage', 'address'));
+            $email = \App\Helpers\SettingHelper::getEmail();
+            $view->with(compact('categories', 'mainCategories', 'storeName', 'whatsappNumber', 'whatsappMessage', 'address', 'email'));
         });
 
         // View Composer for admin layouts

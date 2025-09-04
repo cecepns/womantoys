@@ -86,7 +86,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/settings', [App\Http\Controllers\Admin\SettingController::class, 'edit'])->name('settings.edit');
         Route::put('/settings/password', [App\Http\Controllers\Admin\SettingController::class, 'updatePassword'])->name('settings.password');
         Route::put('/settings/store', [App\Http\Controllers\Admin\SettingController::class, 'updateStore'])->name('settings.store');
-        Route::put('/settings/whatsapp', [App\Http\Controllers\Admin\SettingController::class, 'updateWhatsApp'])->name('settings.whatsapp');
+        Route::put('/settings/contact', [App\Http\Controllers\Admin\SettingController::class, 'updateContact'])->name('settings.contact');
         
         // Voucher routes
         Route::resource('vouchers', App\Http\Controllers\VoucherController::class);

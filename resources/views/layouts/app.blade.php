@@ -334,8 +334,8 @@
                 <div>
                     <h4 class="text-base md:text-lg font-semibold mb-3 md:mb-4">Kontak</h4>
                     <div class="text-gray-300 space-y-2">
-                        <p class="text-sm md:text-base">Email: <a href="mailto:primemania88@gmail.com"
-                                class="text-gray-300 hover:text-white transition-colors duration-200">primemania88@gmail.com</a>
+                        <p class="text-sm md:text-base">Email: <a href="mailto:{{ $email }}"
+                                class="text-gray-300 hover:text-white transition-colors duration-200">{{ $email }}</a>
                         </p>
                         <p class="text-sm md:text-base">Telepon:
                             +62{{ $whatsappNumber }}

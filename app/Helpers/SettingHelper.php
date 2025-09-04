@@ -14,9 +14,20 @@ class SettingHelper
         return Setting::getValue('whatsapp_number', '8100235004');
     }
 
+    /**
+     * ANCHOR: Get store city label from settings.
+     */
     public static function getAddress(): string
     {
         return Setting::getValue('store_city_label', 'Jakarta, Indonesia');
+    }
+
+    /**
+     * ANCHOR: Get email from settings.
+     */
+    public static function getEmail(): string
+    {
+        return Setting::getValue('email', 'primemania88@gmail.com');
     }
 
     /**

@@ -174,16 +174,22 @@
         </div>
         <!-- !SECTION: STORE ADDRESS CARD -->
 
-        <!-- SECTION: WHATSAPP SETTINGS CARD -->
+        <!-- SECTION: STORE CONTACT CARD -->
         <div class="bg-white rounded-lg shadow-md border border-gray-200">
             <div class="p-4 sm:p-6 border-b border-gray-200">
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800">Kontak Toko</h3>
             </div>
             <div class="p-4 sm:p-6">
-                <form method="POST" action="{{ route('admin.settings.whatsapp') }}" id="whatsapp-setting-form">
+                <form method="POST" action="{{ route('admin.settings.contact') }}" id="contact-setting-form">
                     @csrf
                     @method('PUT')
                     <div class="space-y-4 sm:space-y-6">
+                        <div>
+                            <!-- ANCHOR: Email -->
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" name="email" value="{{ old('email', $email) }}"
+                                class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm">
+                        </div>
                         <div>
                             <!-- ANCHOR: Nomor WhatsApp (tanpa +62) -->
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nomor WhatsApp</label>
@@ -222,7 +228,7 @@
                 </form>
             </div>
         </div>
-        <!-- !SECTION: WHATSAPP SETTINGS CARD -->
+        <!-- !SECTION: STORE CONTACT CARD -->
     </div>
     <!-- !SECTION: SETTINGS PAGE -->
 
