@@ -19,8 +19,6 @@ class SettingSeeder extends Seeder
         // Default store settings
         Setting::setValue('store_name', 'WomanToys');
         Setting::setValue('store_address', '');
-        Setting::setValue('store_province_id', '');
-        Setting::setValue('store_city_id', '');
         Setting::setValue('store_city_label', '');
         Setting::setValue('store_origin_id', '');
     }

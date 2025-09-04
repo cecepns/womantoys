@@ -13,7 +13,7 @@
                 <h3 class="text-base sm:text-lg font-semibold text-gray-800">Ganti Kata Sandi</h3>
             </div>
             <div class="p-4 sm:p-6">
-                <form method="POST" action="{{ route('admin.settings.password') }}">
+                <form method="POST" action="{{ route('admin.settings.password') }}" id="password-setting-form">
                     @csrf
                     @method('PUT')
                     <div class="space-y-4 sm:space-y-6">
@@ -21,6 +21,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi Saat Ini</label>
                             <div class="relative">
                                 <input id="current_password" type="password" name="current_password"
+                                    autocomplete="current-password"
                                     class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 pr-10 text-sm"
                                     required>
                                 <button type="button"
@@ -50,7 +51,7 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi Baru</label>
                             <div class="relative">
-                                <input id="new_password" type="password" name="new_password"
+                                <input id="new_password" type="password" name="new_password" autocomplete="new-password"
                                     class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 pr-10 text-sm"
                                     required>
                                 <button type="button"
@@ -81,6 +82,7 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Kata Sandi Baru</label>
                             <div class="relative">
                                 <input id="new_password_confirmation" type="password" name="new_password_confirmation"
+                                    autocomplete="new-password"
                                     class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 pr-10 text-sm"
                                     required>
                                 <button type="button"
@@ -122,18 +124,15 @@
                 <form method="POST" action="{{ route('admin.settings.store') }}" id="store-setting-form">
                     @csrf
                     @method('PUT')
-                    <input type="hidden" name="store_province_id" id="store_province_id"
-                        value="{{ old('store_province_id', $storeProvinceId) }}">
-                    <input type="hidden" name="store_city_id" id="store_city_id"
-                        value="{{ old('store_city_id', $storeCityId) }}">
                     <input type="hidden" name="store_city_label" id="store_city_label"
                         value="{{ old('store_city_label', $storeCityLabel) }}">
-                    <input type="hidden" name="store_origin_id" id="store_origin_id"
+                    <input type="hidden" name="store_origin_id" id="store_origin_id" required
                         value="{{ old('store_origin_id', $storeOriginId) }}">
                     <div class="space-y-4 sm:space-y-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nama Toko</label>
                             <input type="text" name="store_name" value="{{ old('store_name', $storeName) }}"
+                                maxlength="255"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm">
                         </div>
                         <div>
@@ -185,7 +184,7 @@
                                     class="inline-flex items-center justify-center px-3 py-2 sm:py-2 border border-gray-300 bg-gray-50 text-gray-500 text-sm rounded-l-lg">
                                     +62
                                 </span>
-                                <input type="text" name="whatsapp_number"
+                                <input type="tel" inputmode="numeric" name="whatsapp_number" maxlength="15"
                                     value="{{ old('whatsapp_number', $whatsappNumber) }}" placeholder="81234567890"
                                     class="flex-1 px-3 sm:px-4 py-2 border border-gray-300 rounded-r-lg border-l-0 focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
                                     pattern="[0-9]+" title="Masukkan hanya angka">
@@ -197,7 +196,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Pesan Default</label>
-                            <textarea name="whatsapp_message" rows="3"
+                            <textarea name="whatsapp_message" rows="3" maxlength="500"
                                 class="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
                                 placeholder="Pesan yang akan dikirim saat user klik floating button">{{ old('whatsapp_message', $whatsappMessage) }}</textarea>
                             <p class="text-xs text-gray-500 mt-1">Pesan ini akan otomatis terisi saat user mengklik
@@ -234,8 +233,24 @@
                 }
             }
         }
+
+        function preventDoubleSubmit(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            form.addEventListener('submit', function() {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+        }
+        preventDoubleSubmit('password-setting-form');
+        preventDoubleSubmit('store-setting-form');
+        preventDoubleSubmit('whatsapp-setting-form');
         let cityController;
         let lastCityQuery = '';
+        let debouncedCityHandler;
 
         function cancelCityRequest() {
             if (cityController) {
@@ -255,13 +270,59 @@
             cityDropdown.classList.add('hidden');
         }
 
-        cityInput && cityInput.addEventListener('input', async function(e) {
-            const query = this.value.trim();
+        function renderCityOptions(items) {
+            cityDropdown.innerHTML = '';
+            if (!items || items.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'px-4 py-2 text-sm text-gray-500';
+                empty.textContent = 'Tidak ada hasil';
+                cityDropdown.appendChild(empty);
+                showCityDropdown();
+                return;
+            }
+            items.forEach(function(location) {
+                const div = document.createElement('div');
+                div.className = 'px-4 py-2 cursor-pointer hover:bg-pink-50 address-option';
+                div.setAttribute('data-id', location.id);
+                const label = (location.label || '');
+                div.textContent = label;
+                div.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    document.getElementById('store_origin_id').value = id;
+                    document.getElementById('store_city_label').value = label;
+                    cityInput.value = label;
+                    hideCityDropdown();
+                });
+                cityDropdown.appendChild(div);
+            });
+            showCityDropdown();
+        }
+
+        function setCityLoading() {
+            cityDropdown.innerHTML = '';
+            const loading = document.createElement('div');
+            loading.className = 'px-4 py-2 text-sm text-gray-500';
+            loading.textContent = 'Memuat...';
+            cityDropdown.appendChild(loading);
+            showCityDropdown();
+        }
+
+        function debounce(fn, delay) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            }
+        }
+
+        async function handleCityInput() {
+            const query = cityInput.value.trim();
             if (query.length < 2 || query === lastCityQuery) {
                 return;
             }
             lastCityQuery = query;
             cancelCityRequest();
+            setCityLoading();
             try {
                 const response = await fetch(
                     `/api/rajaongkir/search-destination?search=${encodeURIComponent(query)}&limit=10`, {
@@ -272,30 +333,19 @@
                     });
                 const data = await response.json();
                 if (!data || !data.data) {
-                    cityDropdown.innerHTML = '';
-                    hideCityDropdown();
+                    renderCityOptions([]);
                     return;
                 }
-                const options = data.data.map(location => {
-                    const label = (location.label || '');
-                    return `<div class="px-4 py-2 cursor-pointer hover:bg-pink-50 address-option" data-id="${location.id}" data-label="${label.replace(/"/g, '&quot;')}">${label}</div>`;
-                }).join('');
-                cityDropdown.innerHTML = options;
-                showCityDropdown();
-                Array.from(cityDropdown.querySelectorAll('.address-option')).forEach(opt => {
-                    opt.addEventListener('click', function() {
-                        const id = this.getAttribute('data-id');
-                        const label = this.getAttribute('data-label');
-                        document.getElementById('store_origin_id').value = id;
-                        document.getElementById('store_city_label').value = label;
-                        cityInput.value = label;
-                        hideCityDropdown();
-                    });
-                });
+                renderCityOptions(data.data);
             } catch (err) {
-                // ignore
+                hideCityDropdown();
             }
-        });
+        }
+
+        if (cityInput) {
+            debouncedCityHandler = debounce(handleCityInput, 300);
+            cityInput.addEventListener('input', debouncedCityHandler);
+        }
 
         document.addEventListener('click', function(e) {
             if (!cityDropdown.contains(e.target) && e.target !== cityInput) {

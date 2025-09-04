@@ -8,6 +8,7 @@ use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class SettingController extends Controller
 {
@@ -15,8 +16,6 @@ class SettingController extends Controller
     {
         $storeName = Setting::getValue('store_name', 'WomanToys');
         $storeAddress = Setting::getValue('store_address', '');
-        $storeProvinceId = Setting::getValue('store_province_id', '');
-        $storeCityId = Setting::getValue('store_city_id', '');
         $storeCityLabel = Setting::getValue('store_city_label', '');
         $storeOriginId = Setting::getValue('store_origin_id', '');
         $whatsappNumber = Setting::getValue('whatsapp_number', '8100235004');
@@ -24,8 +23,6 @@ class SettingController extends Controller
         return view('admin.settings.edit', compact(
             'storeName',
             'storeAddress',
-            'storeProvinceId',
-            'storeCityId',
             'storeCityLabel',
             'storeOriginId',
             'whatsappNumber',
@@ -58,18 +55,16 @@ class SettingController extends Controller
         $request->validate([
             'store_name' => 'nullable|string|max:255',
             'store_address' => 'nullable|string',
-            'store_province_id' => 'nullable|integer',
-            'store_city_id' => 'nullable|integer',
             'store_city_label' => 'nullable|string|max:255',
             'store_origin_id' => 'required|integer',
         ]);
 
-        Setting::setValue('store_name', $request->input('store_name'));
-        Setting::setValue('store_address', $request->input('store_address'));
-        Setting::setValue('store_province_id', $request->input('store_province_id'));
-        Setting::setValue('store_city_id', $request->input('store_city_id'));
-        Setting::setValue('store_city_label', $request->input('store_city_label'));
-        Setting::setValue('store_origin_id', $request->input('store_origin_id'));
+        DB::transaction(function () use ($request) {
+            Setting::setValue('store_name', $request->input('store_name'));
+            Setting::setValue('store_address', $request->input('store_address'));
+            Setting::setValue('store_city_label', $request->input('store_city_label'));
+            Setting::setValue('store_origin_id', $request->input('store_origin_id'));
+        });
 
         notify()->success('Pengaturan toko berhasil disimpan');
         return back();
@@ -89,7 +84,14 @@ class SettingController extends Controller
             'whatsapp_message.max' => 'Pesan WhatsApp maksimal 500 karakter',
         ]);
 
-        Setting::setValue('whatsapp_number', $request->input('whatsapp_number'));
+        $rawNumber = $request->input('whatsapp_number', '');
+        // Normalisasi: hapus non-digit (jaga-jaga), hilangkan leading 0 agar konsisten dengan prefix +62 di UI
+        $normalized = preg_replace('/[^0-9]/', '', $rawNumber ?? '');
+        if (strlen($normalized) > 0 && $normalized[0] === '0') {
+            $normalized = ltrim($normalized, '0');
+        }
+
+        Setting::setValue('whatsapp_number', $normalized);
         Setting::setValue('whatsapp_message', $request->input('whatsapp_message'));
 
         notify()->success('Pengaturan WhatsApp berhasil disimpan');

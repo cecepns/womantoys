@@ -13,7 +13,8 @@ class RajaOngkirController extends Controller
 
     public function __construct()
     {
-        $this->apiKey = env('RAJAONGKIR_API_KEY');
+        $this->apiKey = config('services.rajaongkir.key');
+        $this->baseUrl = config('services.rajaongkir.base_url', $this->baseUrl);
     }
 
     /**
@@ -37,6 +38,12 @@ class RajaOngkirController extends Controller
         }
 
         try {
+            \Log::info('Searching destination from RajaOngkir API', [
+                'search' => $search,
+                'limit' => $limit,
+                'offset' => $offset,
+                'api_key' => $this->apiKey
+            ]);
             $response = Http::withHeaders([
                 'key' => $this->apiKey
             ])->get($this->baseUrl . '/destination/domestic-destination', [
@@ -49,6 +56,13 @@ class RajaOngkirController extends Controller
                 $data = $response->json();
                 return response()->json($data);
             } else {
+                \Log::error('Failed to fetch destination data from RajaOngkir API', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'search' => $search,
+                    'limit' => $limit,
+                    'offset' => $offset
+                ]);
                 return response()->json([
                     'meta' => [
                         'message' => 'Failed to fetch destination data',
