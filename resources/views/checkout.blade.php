@@ -363,8 +363,8 @@
                             </div>
                             <div class="flex justify-between text-sm md:text-base text-red-600 product-discount-row">
                                 <span>Diskon Produk ({{ $product->discount_percentage }}%)</span>
-                                <span class="discount-amount">-Rp
-                                    {{ number_format($product->price - $product->discount_price, 0, ',', '.') }}</span>
+                                <span
+                                    class="discount-amount">-{{ \App\Helpers\SettingHelper::formatCurrency($product->price - $product->discount_price) }}</span>
                             </div>
                         @endif
                         <div class="flex justify-between text-sm md:text-base text-gray-600">
@@ -1064,7 +1064,7 @@
                 const discountRow = document.querySelector('.product-discount-row');
                 if (discountRow) {
                     discountRow.querySelector('.discount-amount').textContent = '-Rp ' + formatNumber(
-                    productDiscountAmount);
+                        productDiscountAmount);
                 }
             }
 

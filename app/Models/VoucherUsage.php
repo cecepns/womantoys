@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\SettingHelper;
 use Illuminate\Database\Eloquent\Model;
 
 class VoucherUsage extends Model
@@ -66,7 +67,7 @@ class VoucherUsage extends Model
      */
     public function getFormattedDiscountAmountAttribute()
     {
-        return 'Rp ' . number_format($this->discount_amount, 0, ',', '.');
+        return SettingHelper::formatCurrency($this->discount_amount);
     }
 
     /**
@@ -85,4 +86,3 @@ class VoucherUsage extends Model
         return $query->whereBetween('used_at', [$startDate, $endDate]);
     }
 }
-

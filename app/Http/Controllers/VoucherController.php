@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SettingHelper;
 use App\Models\Voucher;
 use App\Models\VoucherUsage;
 use App\Http\Requests\VoucherRequest;
@@ -95,10 +96,10 @@ class VoucherController extends Controller
     public function store(VoucherRequest $request)
     {
         $data = $request->validated();
-        
+
         // Convert to uppercase for code
         $data['code'] = strtoupper($data['code']);
-        
+
         // Set defaults
         $data['is_active'] = $request->has('is_active');
         $data['min_purchase'] = $data['min_purchase'] ?? 0;
@@ -115,7 +116,7 @@ class VoucherController extends Controller
     public function show(Voucher $voucher)
     {
         $voucher->load('voucherUsages.order');
-        
+
         $statistics = [
             'total_used' => $voucher->getUsageCount(),
             'total_discount_given' => $voucher->voucherUsages->sum('discount_amount'),
@@ -139,10 +140,10 @@ class VoucherController extends Controller
     public function update(VoucherUpdateRequest $request, Voucher $voucher)
     {
         $data = $request->validated();
-        
+
         // Convert to uppercase for code
         $data['code'] = strtoupper($data['code']);
-        
+
         // Set defaults
         $data['is_active'] = $request->has('is_active');
         $data['min_purchase'] = $data['min_purchase'] ?? 0;
@@ -183,7 +184,7 @@ class VoucherController extends Controller
         $voucher->update(['is_active' => !$voucher->is_active]);
 
         $status = $voucher->is_active ? 'diaktifkan' : 'dinonaktifkan';
-        
+
         notify()->success("Voucher berhasil {$status}!", 'Berhasil');
         return redirect()->back();
     }
@@ -294,9 +295,8 @@ class VoucherController extends Controller
                 'name' => $voucher->name,
                 'type' => $voucher->type,
                 'discount_amount' => $discount,
-                'formatted_discount' => 'Rp ' . number_format($discount, 0, ',', '.'),
+                'formatted_discount' => SettingHelper::formatCurrency($discount),
             ]
         ]);
     }
 }
-

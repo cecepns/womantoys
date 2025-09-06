@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\SettingHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -176,9 +177,9 @@ class Voucher extends Model
     {
         switch ($this->type) {
             case self::TYPE_PERCENTAGE:
-                return $this->value . '%';
+                return SettingHelper::formatPercentage($this->value);
             case self::TYPE_FIXED_AMOUNT:
-                return 'Rp ' . number_format($this->value, 0, ',', '.');
+                return SettingHelper::formatCurrency($this->value);
             case self::TYPE_FREE_SHIPPING:
                 return 'Gratis Ongkir';
             default:
@@ -193,7 +194,7 @@ class Voucher extends Model
      */
     public function getTypeLabelAttribute()
     {
-        return match($this->type) {
+        return match ($this->type) {
             self::TYPE_PERCENTAGE => 'Persentase',
             self::TYPE_FIXED_AMOUNT => 'Nominal',
             self::TYPE_FREE_SHIPPING => 'Gratis Ongkir',
@@ -235,8 +236,8 @@ class Voucher extends Model
     public function getStatusBadgeClassAttribute()
     {
         $status = $this->getStatusLabelAttribute();
-        
-        return match($status) {
+
+        return match ($status) {
             'Aktif' => 'bg-green-100 text-green-800',
             'Nonaktif' => 'bg-red-100 text-red-800',
             'Belum Aktif' => 'bg-yellow-100 text-yellow-800',
@@ -260,18 +261,18 @@ class Voucher extends Model
     public function scopeValid($query)
     {
         return $query->where('is_active', true)
-                    ->where(function ($q) {
-                        $q->whereNull('starts_at')
-                          ->orWhere('starts_at', '<=', now());
-                    })
-                    ->where(function ($q) {
-                        $q->whereNull('expires_at')
-                          ->orWhere('expires_at', '>=', now());
-                    })
-                    ->where(function ($q) {
-                        $q->whereNull('usage_limit')
-                          ->orWhereRaw('used_count < usage_limit');
-                    });
+            ->where(function ($q) {
+                $q->whereNull('starts_at')
+                    ->orWhere('starts_at', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('usage_limit')
+                    ->orWhereRaw('used_count < usage_limit');
+            });
     }
 
     /**
@@ -280,8 +281,8 @@ class Voucher extends Model
     public function scopeSearch($query, $search)
     {
         return $query->where('code', 'like', "%{$search}%")
-                    ->orWhere('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+            ->orWhere('name', 'like', "%{$search}%")
+            ->orWhere('description', 'like', "%{$search}%");
     }
 
     /**
@@ -320,4 +321,3 @@ class Voucher extends Model
         return $this->used_count;
     }
 }
-

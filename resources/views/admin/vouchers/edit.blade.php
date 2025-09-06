@@ -373,11 +373,13 @@
                                 $conditions = [];
                                 if ($voucher->min_purchase) {
                                     $conditions[] =
-                                        'Min. belanja Rp ' . number_format($voucher->min_purchase, 0, ',', '.');
+                                        'Min. belanja ' .
+                                        \App\Helpers\SettingHelper::formatCurrency($voucher->min_purchase);
                                 }
                                 if ($voucher->type === 'percentage' && $voucher->max_discount) {
                                     $conditions[] =
-                                        'Maks. diskon Rp ' . number_format($voucher->max_discount, 0, ',', '.');
+                                        'Maks. diskon ' .
+                                        \App\Helpers\SettingHelper::formatCurrency($voucher->max_discount);
                                 }
                             @endphp
                             {{ implode(' • ', $conditions) ?: 'Tidak ada syarat khusus' }}
