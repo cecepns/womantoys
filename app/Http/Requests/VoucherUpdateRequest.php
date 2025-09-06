@@ -24,6 +24,7 @@ class VoucherUpdateRequest extends FormRequest
     {
         $voucher = $this->route('voucher');
         $hasBeenUsed = $voucher->hasBeenUsed();
+        $type = $this->input('type');
 
         $rules = [
             'code' => 'required|string|max:50|unique:vouchers,code,' . $voucher->id,
@@ -31,11 +32,17 @@ class VoucherUpdateRequest extends FormRequest
             'description' => 'nullable|string',
             'min_purchase' => 'nullable|numeric|min:0',
             'max_discount' => 'nullable|numeric|min:0',
-            'usae_limit' => 'nullable|integer|min:1',
-            'is_gactive' => 'boolean',
+            'usage_limit' => 'nullable|integer|min:1',
+            'is_active' => 'boolean',
             'type' => 'required|in:percentage,fixed_amount,free_shipping',
-            'value' => 'required|numeric|min:0',
         ];
+
+        // Hanya validasi value jika bukan free_shipping dan voucher belum digunakan
+        if ($type !== 'free_shipping' && !$hasBeenUsed) {
+            $rules['value'] = 'required|numeric|min:0';
+        } else {
+            $rules['value'] = 'nullable|numeric|min:0';
+        }
 
         return $rules;
     }
@@ -78,12 +85,12 @@ class VoucherUpdateRequest extends FormRequest
         $validator->after(function ($validator) {
             $voucher = $this->route('voucher');
             $hasBeenUsed = $voucher->hasBeenUsed();
+            $type = $this->input('type');
             $startsAt = $this->input('starts_at');
             $expiresAt = $this->input('expires_at');
 
-            // Hanya validasi nilai diskon jika voucher belum digunakan
-            if (!$hasBeenUsed) {
-                $type = $this->input('type');
+            // Hanya validasi nilai diskon jika voucher belum digunakan dan bukan free_shipping
+            if (!$hasBeenUsed && $type !== 'free_shipping') {
                 $value = $this->input('value');
 
                 if ($type === 'percentage') {
@@ -91,10 +98,6 @@ class VoucherUpdateRequest extends FormRequest
                         $validator->errors()->add('value', 'Nilai diskon persentase harus antara 1% - 100%');
                     }
                 } elseif ($type === 'fixed_amount') {
-                    if ($value < 100) {
-                        $validator->errors()->add('value', 'Nilai diskon nominal minimal Rp100');
-                    }
-                } elseif ($type === 'free_shipping') {
                     if ($value < 100) {
                         $validator->errors()->add('value', 'Nilai diskon nominal minimal Rp100');
                     }

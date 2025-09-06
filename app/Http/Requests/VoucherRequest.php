@@ -21,12 +21,13 @@ class VoucherRequest extends FormRequest
      */
     public function rules(): array
     {
+        $type = $this->input('type');
+
         $rules = [
             'code' => 'required|string|max:50|unique:vouchers,code',
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'type' => 'required|in:percentage,fixed_amount,free_shipping',
-            'value' => 'required|numeric|min:0',
             'min_purchase' => 'nullable|numeric|min:0',
             'max_discount' => 'nullable|numeric|min:0',
             'usage_limit' => 'nullable|integer|min:1',
@@ -34,6 +35,13 @@ class VoucherRequest extends FormRequest
             'expires_at' => 'nullable|date|after_or_equal:starts_at',
             'is_active' => 'boolean',
         ];
+
+        // Hanya validasi value jika bukan free_shipping
+        if ($type !== 'free_shipping') {
+            $rules['value'] = 'required|numeric|min:0';
+        } else {
+            $rules['value'] = 'nullable|numeric|min:0';
+        }
 
         // Jika ini adalah update request, ubah unique rule untuk code
         if ($this->isMethod('PUT') || $this->isMethod('PATCH')) {
@@ -94,19 +102,14 @@ class VoucherRequest extends FormRequest
                 if ($value < 1 || $value > 100) {
                     $validator->errors()->add('value', 'Nilai diskon persentase harus antara 1% - 100%');
                 }
-            } 
+            }
             // Validate fixed amount type (min Rp100)
             elseif ($type === 'fixed_amount') {
                 if ($value < 100) {
                     $validator->errors()->add('value', 'Nilai diskon nominal minimal Rp100');
                 }
-            } 
-            // Validate free shipping type (min Rp100)
-            elseif ($type === 'free_shipping') {
-                if ($value < 100) {
-                    $validator->errors()->add('value', 'Nilai diskon nominal minimal Rp100');
-                }
             }
+            // No validation needed for free_shipping type
 
             // Validate date logic: Start date tidak boleh lebih dari end date
             if ($startsAt && $expiresAt) {
