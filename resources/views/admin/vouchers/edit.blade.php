@@ -161,7 +161,8 @@
                             <div class="flex">
                                 <input type="number"
                                     class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('value') border-red-500 @enderror text-sm sm:text-base {{ $voucher->hasBeenUsed() ? 'bg-gray-100 cursor-not-allowed' : '' }}"
-                                    id="value" name="value" value="{{ old('value', $voucher->value) }}"
+                                    id="value" name="value"
+                                    value="{{ old('value', \App\Helpers\FormatHelper::formatInputValue($voucher->value)) }}"
                                     placeholder="0" step="0.01" min="0"
                                     {{ $voucher->hasBeenUsed() ? 'disabled' : '' }}>
                                 <span
@@ -198,8 +199,8 @@
                                 <input type="number"
                                     class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-l-0 border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('min_purchase') border-red-500 @enderror text-sm sm:text-base"
                                     id="min_purchase" name="min_purchase"
-                                    value="{{ old('min_purchase', $voucher->min_purchase) }}" placeholder="0"
-                                    min="0">
+                                    value="{{ old('min_purchase', \App\Helpers\FormatHelper::formatInputValue($voucher->min_purchase)) }}"
+                                    placeholder="0" min="0">
                             </div>
                             @error('min_purchase')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -221,8 +222,8 @@
                                 <input type="number"
                                     class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-l-0 border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('max_discount') border-red-500 @enderror text-sm sm:text-base"
                                     id="max_discount" name="max_discount"
-                                    value="{{ old('max_discount', $voucher->max_discount) }}" placeholder="0"
-                                    min="0">
+                                    value="{{ old('max_discount', \App\Helpers\FormatHelper::formatInputValue($voucher->max_discount)) }}"
+                                    placeholder="0" min="0">
                             </div>
                             @error('max_discount')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -374,12 +375,12 @@
                                 if ($voucher->min_purchase) {
                                     $conditions[] =
                                         'Min. belanja ' .
-                                        \App\Helpers\SettingHelper::formatCurrency($voucher->min_purchase);
+                                        \App\Helpers\FormatHelper::formatCurrency($voucher->min_purchase);
                                 }
                                 if ($voucher->type === 'percentage' && $voucher->max_discount) {
                                     $conditions[] =
                                         'Maks. diskon ' .
-                                        \App\Helpers\SettingHelper::formatCurrency($voucher->max_discount);
+                                        \App\Helpers\FormatHelper::formatCurrency($voucher->max_discount);
                                 }
                             @endphp
                             {{ implode(' • ', $conditions) ?: 'Tidak ada syarat khusus' }}
@@ -410,226 +411,229 @@
     </div>
     <!-- !SECTION: Action Buttons -->
 
-    @push('scripts')
-        <!-- SECTION: Custom Styles -->
-        <style>
-            /* Custom styling for date input */
-            input[type="date"] {
-                font-family: monospace;
-            }
+    <!-- SECTION: Custom Styles -->
+    <style>
+        /* Custom styling for date input */
+        input[type="date"] {
+            font-family: monospace;
+        }
 
-            /* Custom styling for better date input appearance */
-            input[type="date"]::-webkit-calendar-picker-indicator {
-                cursor: pointer;
-            }
-        </style>
-        <!-- !SECTION: Custom Styles -->
+        /* Custom styling for better date input appearance */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+        }
+    </style>
+    <!-- !SECTION: Custom Styles -->
 
-        <!-- SECTION: JavaScript Functionality -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // ANCHOR: Update help text based on type
-                document.getElementById('type').addEventListener('change', function() {
-                    const valueHelp = document.getElementById('value-help');
-                    const maxDiscountGroup = document.getElementById('max-discount-group');
-                    const valueInputGroup = document.getElementById('value-input-group');
-                    const valueInput = document.getElementById('value');
-                    const valueSuffix = document.getElementById('value-suffix');
+    <!-- SECTION: JavaScript Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectInputTypeElement = document.getElementById('type');
 
-                    switch (this.value) {
-                        case 'percentage':
-                            valueInputGroup.classList.remove('hidden');
-                            valueHelp.textContent = 'Masukkan nilai persentase (contoh: 50 untuk 50%)';
-                            maxDiscountGroup.classList.remove('hidden');
-                            valueInput.min = '1';
-                            valueInput.max = '100';
-                            valueSuffix.textContent = '%';
-                            valueInput.required = true;
-                            break;
-                        case 'fixed_amount':
-                            valueInputGroup.classList.remove('hidden');
-                            valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah (min. Rp100)';
-                            maxDiscountGroup.classList.add('hidden');
-                            valueInput.min = '100';
-                            valueInput.max = '';
-                            valueSuffix.textContent = 'Rp';
-                            valueInput.required = true;
-                            break;
-                        case 'free_shipping':
-                            valueInputGroup.classList.add('hidden');
-                            valueInput.value = '0'; // Set default value for free shipping
-                            valueInput.required = false;
-                            valueInput.min = '0';
-                            valueInput.max = '';
-                            valueInput.removeAttribute('required');
-                            valueInput.removeAttribute('min');
-                            valueInput.removeAttribute('max');
-                            maxDiscountGroup.classList.add('hidden');
-                            break;
-                        default:
-                            valueInputGroup.classList.remove('hidden');
-                            valueHelp.textContent = 'Pilih jenis diskon terlebih dahulu';
-                            maxDiscountGroup.classList.add('hidden');
-                            valueInput.min = '0';
-                            valueInput.max = '';
-                            valueSuffix.textContent = '%';
-                            valueInput.required = true;
-                    }
+            // ANCHOR: Update help text based on type
+            selectInputTypeElement.addEventListener('change', function() {
+                const valueHelp = document.getElementById('value-help');
+                const maxDiscountGroup = document.getElementById('max-discount-group');
+                const valueInputGroup = document.getElementById('value-input-group');
+                const valueInput = document.getElementById('value');
+                const valueSuffix = document.getElementById('value-suffix');
 
-                    // Clear validation error when type changes
-                    const validationError = document.getElementById('value-validation-error');
-                    if (validationError) {
-                        validationError.classList.add('hidden');
-                        validationError.textContent = '';
-                    }
+                console.log(selectInputTypeElement.value);
 
-                    updatePreview();
-                });
-
-                // ANCHOR: Prevent form submission if disabled fields are modified
-                document.querySelector('form').addEventListener('submit', function(e) {
-                    const typeSelect = document.getElementById('type');
-                    const valueInput = document.getElementById('value');
-
-                    if (typeSelect.disabled && valueInput.disabled) {
-                        // Remove disabled attribute temporarily to allow form submission
-                        typeSelect.disabled = false;
-                        valueInput.disabled = false;
-                    }
-                });
-
-                // ANCHOR: Update preview when form values change
-                function updatePreview() {
-                    const code = document.getElementById('code').value || 'KODE VOUCHER';
-                    const name = document.getElementById('name').value || 'Nama Voucher';
-                    const description = document.getElementById('description').value ||
-                        'Deskripsi voucher akan tampil di sini';
-                    const type = document.getElementById('type').value;
-                    const value = document.getElementById('value').value;
-                    const minPurchase = document.getElementById('min_purchase').value;
-                    const maxDiscount = document.getElementById('max_discount').value;
-
-                    document.getElementById('preview-code').textContent = code;
-                    document.getElementById('preview-name').textContent = name;
-                    document.getElementById('preview-description').textContent = description;
-
-                    // Format value display
-                    let valueText = 'Diskon akan tampil di sini';
-                    if (type) {
-                        switch (type) {
-                            case 'percentage':
-                                if (value) {
-                                    valueText = value + '% OFF';
-                                }
-                                break;
-                            case 'fixed_amount':
-                                if (value) {
-                                    valueText = 'Rp ' + parseInt(value).toLocaleString('id-ID');
-                                }
-                                break;
-                            case 'free_shipping':
-                                valueText = 'GRATIS ONGKIR';
-                                break;
-                        }
-                    }
-                    document.getElementById('preview-value').textContent = valueText;
-
-                    // Format conditions
-                    let conditions = [];
-                    if (minPurchase) {
-                        conditions.push('Min. belanja Rp ' + parseInt(minPurchase).toLocaleString('id-ID'));
-                    }
-                    if (type === 'percentage' && maxDiscount) {
-                        conditions.push('Maks. diskon Rp ' + parseInt(maxDiscount).toLocaleString('id-ID'));
-                    }
-
-                    const conditionsText = conditions.length > 0 ? conditions.join(' • ') : 'Tidak ada syarat khusus';
-                    document.getElementById('preview-conditions').textContent = conditionsText;
-                }
-
-                // Add event listeners for preview updates
-                ['code', 'name', 'description', 'value', 'min_purchase', 'max_discount'].forEach(id => {
-                    document.getElementById(id).addEventListener('input', updatePreview);
-                });
-
-                // ANCHOR: Real-time validation for value input
-                document.getElementById('value').addEventListener('input', function() {
-                    const type = document.getElementById('type').value;
-                    const value = parseFloat(this.value) || 0;
-                    const validationError = document.getElementById('value-validation-error');
-
-                    // Clear previous error
-                    validationError.classList.add('hidden');
-                    validationError.textContent = '';
-
-                    if (type === 'percentage') {
-                        if (value < 1 || value > 100) {
-                            validationError.textContent = 'Nilai diskon persentase harus antara 1% - 100%';
-                            validationError.classList.remove('hidden');
-                        }
-                    } else if (type === 'fixed_amount') {
-                        if (value < 100) {
-                            validationError.textContent = 'Nilai diskon nominal minimal Rp100';
-                            validationError.classList.remove('hidden');
-                        }
-                    }
-                    // No validation needed for free_shipping as input is hidden
-                });
-
-                // ANCHOR: Format code to uppercase
-                document.getElementById('code').addEventListener('input', function() {
-                    this.value = this.value.toUpperCase();
-                });
-
-                // Initialize form based on current voucher type
-                document.getElementById('type').dispatchEvent(new Event('change'));
-
-                // ANCHOR: Initialize preview for existing voucher
-                updatePreview();
-
-                // ANCHOR: Handle form submission for free_shipping type
-                document.querySelector('form').addEventListener('submit', function(e) {
-                    const type = document.getElementById('type').value;
-                    const valueInput = document.getElementById('value');
-
-                    if (type === 'free_shipping') {
-                        // Remove required and min attributes for free_shipping
+                switch (selectInputTypeElement.value) {
+                    case 'percentage':
+                        valueInputGroup.classList.remove('hidden');
+                        valueHelp.textContent = 'Masukkan nilai persentase (contoh: 50 untuk 50%)';
+                        maxDiscountGroup.classList.remove('hidden');
+                        valueInput.min = '1';
+                        valueInput.max = '100';
+                        valueSuffix.textContent = '%';
+                        valueInput.required = true;
+                        break;
+                    case 'fixed_amount':
+                        valueInputGroup.classList.remove('hidden');
+                        valueHelp.textContent = 'Masukkan nominal diskon dalam rupiah (min. Rp100)';
+                        maxDiscountGroup.classList.add('hidden');
+                        valueInput.min = '100';
+                        valueInput.max = '';
+                        valueSuffix.textContent = 'Rp';
+                        valueInput.required = true;
+                        break;
+                    case 'free_shipping':
+                        valueInputGroup.classList.add('hidden');
+                        valueInput.value = '0'; // Set default value for free shipping
+                        valueInput.required = false;
+                        valueInput.min = '0';
+                        valueInput.max = '';
                         valueInput.removeAttribute('required');
                         valueInput.removeAttribute('min');
                         valueInput.removeAttribute('max');
-                    }
-                });
-
-                // ANCHOR: Validate date inputs
-                function validateDate() {
-                    const startsAtInput = document.getElementById('starts_at');
-                    const expiresAtInput = document.getElementById('expires_at');
-
-                    if (startsAtInput.value && expiresAtInput.value) {
-                        const startsAt = new Date(startsAtInput.value);
-                        const expiresAt = new Date(expiresAtInput.value);
-
-                        // Start date tidak boleh lebih dari end date
-                        if (startsAt > expiresAt) {
-                            startsAtInput.setCustomValidity('Tanggal mulai tidak boleh lebih dari tanggal berakhir');
-                        } else {
-                            startsAtInput.setCustomValidity('');
-                        }
-
-                        // End date tidak boleh kurang dari start date
-                        if (expiresAt < startsAt) {
-                            expiresAtInput.setCustomValidity('Tanggal berakhir tidak boleh kurang dari tanggal mulai');
-                        } else {
-                            expiresAtInput.setCustomValidity('');
-                        }
-                    }
+                        maxDiscountGroup.classList.add('hidden');
+                        break;
+                    default:
+                        valueInputGroup.classList.remove('hidden');
+                        valueHelp.textContent = 'Pilih jenis diskon terlebih dahulu';
+                        maxDiscountGroup.classList.add('hidden');
+                        valueInput.min = '0';
+                        valueInput.max = '';
+                        valueSuffix.textContent = '%';
+                        valueInput.required = true;
                 }
 
-                // Add validation to date inputs
-                document.getElementById('starts_at').addEventListener('change', validateDate);
-                document.getElementById('expires_at').addEventListener('change', validateDate);
+                // Clear validation error when type changes
+                const validationError = document.getElementById('value-validation-error');
+                if (validationError) {
+                    validationError.classList.add('hidden');
+                    validationError.textContent = '';
+                }
+
+                updatePreview();
             });
-        </script>
-        <!-- !SECTION: JavaScript Functionality -->
-    @endpush
+
+            // ANCHOR: Prevent form submission if disabled fields are modified
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const typeSelect = selectInputTypeElement;
+                const valueInput = document.getElementById('value');
+
+                if (typeSelect.disabled && valueInput.disabled) {
+                    // Remove disabled attribute temporarily to allow form submission
+                    typeSelect.disabled = false;
+                    valueInput.disabled = false;
+                }
+            });
+
+            // ANCHOR: Update preview when form values change
+            function updatePreview() {
+                const code = document.getElementById('code').value || 'KODE VOUCHER';
+                const name = document.getElementById('name').value || 'Nama Voucher';
+                const description = document.getElementById('description').value ||
+                    'Deskripsi voucher akan tampil di sini';
+                const type = selectInputTypeElement.value;
+                const value = document.getElementById('value').value;
+                const minPurchase = document.getElementById('min_purchase').value;
+                const maxDiscount = document.getElementById('max_discount').value;
+
+                document.getElementById('preview-code').textContent = code;
+                document.getElementById('preview-name').textContent = name;
+                document.getElementById('preview-description').textContent = description;
+
+                // Format value display
+                let valueText = 'Diskon akan tampil di sini';
+                if (type) {
+                    switch (type) {
+                        case 'percentage':
+                            if (value) {
+                                valueText = value + '% OFF';
+                            }
+                            break;
+                        case 'fixed_amount':
+                            if (value) {
+                                valueText = 'Rp ' + parseInt(value).toLocaleString('id-ID');
+                            }
+                            break;
+                        case 'free_shipping':
+                            valueText = 'GRATIS ONGKIR';
+                            break;
+                    }
+                }
+                document.getElementById('preview-value').textContent = valueText;
+
+                // Format conditions
+                let conditions = [];
+                if (minPurchase) {
+                    conditions.push('Min. belanja Rp ' + parseInt(minPurchase).toLocaleString('id-ID'));
+                }
+                if (type === 'percentage' && maxDiscount) {
+                    conditions.push('Maks. diskon Rp ' + parseInt(maxDiscount).toLocaleString('id-ID'));
+                }
+
+                const conditionsText = conditions.length > 0 ? conditions.join(' • ') : 'Tidak ada syarat khusus';
+                document.getElementById('preview-conditions').textContent = conditionsText;
+            }
+
+            // Add event listeners for preview updates
+            ['code', 'name', 'description', 'value', 'min_purchase', 'max_discount'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updatePreview);
+            });
+
+            // ANCHOR: Real-time validation for value input
+            document.getElementById('value').addEventListener('input', function() {
+                const type = selectInputTypeElement.value;
+                const value = parseFloat(this.value) || 0;
+                const validationError = document.getElementById('value-validation-error');
+
+                // Clear previous error
+                validationError.classList.add('hidden');
+                validationError.textContent = '';
+
+                if (type === 'percentage') {
+                    if (value < 1 || value > 100) {
+                        validationError.textContent = 'Nilai diskon persentase harus antara 1% - 100%';
+                        validationError.classList.remove('hidden');
+                    }
+                } else if (type === 'fixed_amount') {
+                    if (value < 100) {
+                        validationError.textContent = 'Nilai diskon nominal minimal Rp100';
+                        validationError.classList.remove('hidden');
+                    }
+                }
+                // No validation needed for free_shipping as input is hidden
+            });
+
+            // ANCHOR: Format code to uppercase
+            document.getElementById('code').addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+
+            // Initialize form based on current voucher type
+            selectInputTypeElement.dispatchEvent(new Event('change'));
+
+            // ANCHOR: Initialize preview for existing voucher
+            updatePreview();
+
+            // ANCHOR: Handle form submission for free_shipping type
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const type = selectInputTypeElement.value;
+                const valueInput = document.getElementById('value');
+
+                if (type === 'free_shipping') {
+                    // Remove required and min attributes for free_shipping
+                    valueInput.removeAttribute('required');
+                    valueInput.removeAttribute('min');
+                    valueInput.removeAttribute('max');
+                }
+            });
+
+            // ANCHOR: Validate date inputs
+            function validateDate() {
+                const startsAtInput = document.getElementById('starts_at');
+                const expiresAtInput = document.getElementById('expires_at');
+
+                if (startsAtInput.value && expiresAtInput.value) {
+                    const startsAt = new Date(startsAtInput.value);
+                    const expiresAt = new Date(expiresAtInput.value);
+
+                    // Start date tidak boleh lebih dari end date
+                    if (startsAt > expiresAt) {
+                        startsAtInput.setCustomValidity('Tanggal mulai tidak boleh lebih dari tanggal berakhir');
+                    } else {
+                        startsAtInput.setCustomValidity('');
+                    }
+
+                    // End date tidak boleh kurang dari start date
+                    if (expiresAt < startsAt) {
+                        expiresAtInput.setCustomValidity('Tanggal berakhir tidak boleh kurang dari tanggal mulai');
+                    } else {
+                        expiresAtInput.setCustomValidity('');
+                    }
+                }
+            }
+
+            // Add validation to date inputs
+            document.getElementById('starts_at').addEventListener('change', validateDate);
+            document.getElementById('expires_at').addEventListener('change', validateDate);
+        });
+    </script>
+    <!-- !SECTION: JavaScript Functionality -->
+
 @endsection

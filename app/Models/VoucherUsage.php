@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Helpers\SettingHelper;
+use App\Helpers\FormatHelper;
 use Illuminate\Database\Eloquent\Model;
 
 class VoucherUsage extends Model
@@ -67,7 +67,7 @@ class VoucherUsage extends Model
      */
     public function getFormattedDiscountAmountAttribute()
     {
-        return SettingHelper::formatCurrency($this->discount_amount);
+        return FormatHelper::formatCurrency($this->discount_amount);
     }
 
     /**

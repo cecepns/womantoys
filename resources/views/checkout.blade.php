@@ -364,7 +364,7 @@
                             <div class="flex justify-between text-sm md:text-base text-red-600 product-discount-row">
                                 <span>Diskon Produk ({{ $product->discount_percentage }}%)</span>
                                 <span
-                                    class="discount-amount">-{{ \App\Helpers\SettingHelper::formatCurrency($product->price - $product->discount_price) }}</span>
+                                    class="discount-amount">-{{ \App\Helpers\FormatHelper::formatCurrency($product->price - $product->discount_price) }}</span>
                             </div>
                         @endif
                         <div class="flex justify-between text-sm md:text-base text-gray-600">

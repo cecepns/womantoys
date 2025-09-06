@@ -137,8 +137,9 @@
                             <div class="flex">
                                 <input type="number"
                                     class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('value') border-red-500 @enderror text-sm sm:text-base"
-                                    id="value" name="value" value="{{ old('value') }}" placeholder="0"
-                                    step="0.01" min="0">
+                                    id="value" name="value"
+                                    value="{{ old('value') ? \App\Helpers\FormatHelper::formatInputValue(old('value')) : '' }}"
+                                    placeholder="0" step="0.01" min="0">
                                 <span
                                     class="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border border-l-0 border-gray-300 rounded-r-lg text-gray-700 text-sm sm:text-base"
                                     id="value-suffix">%</span>
@@ -163,7 +164,8 @@
                                     class="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-l-lg text-gray-700 text-sm sm:text-base">Rp</span>
                                 <input type="number"
                                     class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-l-0 border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('min_purchase') border-red-500 @enderror text-sm sm:text-base"
-                                    id="min_purchase" name="min_purchase" value="{{ old('min_purchase') }}"
+                                    id="min_purchase" name="min_purchase"
+                                    value="{{ old('min_purchase') ? \App\Helpers\FormatHelper::formatInputValue(old('min_purchase')) : '' }}"
                                     placeholder="0" min="0">
                             </div>
                             @error('min_purchase')
@@ -184,7 +186,8 @@
                                     class="px-3 sm:px-4 py-2.5 sm:py-3 bg-gray-50 border border-gray-300 rounded-l-lg text-gray-700 text-sm sm:text-base">Rp</span>
                                 <input type="number"
                                     class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 border border-l-0 border-gray-300 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('max_discount') border-red-500 @enderror text-sm sm:text-base"
-                                    id="max_discount" name="max_discount" value="{{ old('max_discount') }}"
+                                    id="max_discount" name="max_discount"
+                                    value="{{ old('max_discount') ? \App\Helpers\FormatHelper::formatInputValue(old('max_discount')) : '' }}"
                                     placeholder="0" min="0">
                             </div>
                             @error('max_discount')

@@ -112,7 +112,7 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Minimal Pembelian</label>
                                 <p class="text-gray-900 text-sm sm:text-base">
                                     @if ($voucher->min_purchase > 0)
-                                        {{ \App\Helpers\SettingHelper::formatCurrency($voucher->min_purchase) }}
+                                        {{ \App\Helpers\FormatHelper::formatCurrency($voucher->min_purchase) }}
                                     @else
                                         <em class="text-gray-500">Tidak ada</em>
                                     @endif
@@ -123,7 +123,7 @@
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Maksimal Diskon</label>
                                     <p class="text-gray-900 text-sm sm:text-base">
-                                        {{ \App\Helpers\SettingHelper::formatCurrency($voucher->max_discount) }}</p>
+                                        {{ \App\Helpers\FormatHelper::formatCurrency($voucher->max_discount) }}</p>
                                 </div>
                             @endif
                         </div>
@@ -314,7 +314,7 @@
 
                     <div class="text-center p-3 sm:p-4 bg-pink-50 rounded-lg">
                         <h5 class="text-lg sm:text-xl font-bold text-pink-600">
-                            {{ $statistics['total_discount_given'] ? \App\Helpers\SettingHelper::formatCurrency($statistics['total_discount_given']) : \App\Helpers\SettingHelper::formatCurrency(0) }}
+                            {{ $statistics['total_discount_given'] ? \App\Helpers\FormatHelper::formatCurrency($statistics['total_discount_given']) : \App\Helpers\FormatHelper::formatCurrency(0) }}
                         </h5>
                         <small class="text-gray-500 text-xs">Total Diskon Diberikan</small>
                     </div>
@@ -382,12 +382,12 @@
                                 if ($voucher->min_purchase) {
                                     $conditions[] =
                                         'Min. belanja ' .
-                                        \App\Helpers\SettingHelper::formatCurrency($voucher->min_purchase);
+                                        \App\Helpers\FormatHelper::formatCurrency($voucher->min_purchase);
                                 }
                                 if ($voucher->type === 'percentage' && $voucher->max_discount) {
                                     $conditions[] =
                                         'Maks. diskon ' .
-                                        \App\Helpers\SettingHelper::formatCurrency($voucher->max_discount);
+                                        \App\Helpers\FormatHelper::formatCurrency($voucher->max_discount);
                                 }
                                 if ($voucher->expires_at) {
                                     $conditions[] = 'Berlaku sampai ' . $voucher->expires_at->format('d/m/Y');

@@ -99,7 +99,7 @@
                 <div>
                     <p class="text-xs sm:text-sm font-medium text-gray-600">Total Diskon</p>
                     <p class="text-lg sm:text-2xl font-bold text-gray-800">
-                        {{ \App\Helpers\SettingHelper::formatCurrency($statistics['total_discount']) }}</p>
+                        {{ \App\Helpers\FormatHelper::formatCurrency($statistics['total_discount']) }}</p>
                 </div>
             </div>
         </div>

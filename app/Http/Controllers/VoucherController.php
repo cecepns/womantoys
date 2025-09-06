@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\SettingHelper;
+use App\Helpers\FormatHelper;
 use App\Models\Voucher;
 use App\Models\VoucherUsage;
 use App\Http\Requests\VoucherRequest;
@@ -295,7 +295,7 @@ class VoucherController extends Controller
                 'name' => $voucher->name,
                 'type' => $voucher->type,
                 'discount_amount' => $discount,
-                'formatted_discount' => SettingHelper::formatCurrency($discount),
+                'formatted_discount' => FormatHelper::formatCurrency($discount),
             ]
         ]);
     }

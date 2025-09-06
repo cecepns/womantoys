@@ -264,7 +264,7 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Minimum Pembelian</label>
                                 <p class="text-gray-900">
-                                    {{ \App\Helpers\SettingHelper::formatCurrency($order->voucher->min_purchase) }}</p>
+                                    {{ \App\Helpers\FormatHelper::formatCurrency($order->voucher->min_purchase) }}</p>
                             </div>
                         @else
                             <div class="md:col-span-2">
@@ -277,7 +277,7 @@
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Diskon</label>
                             <p class="text-gray-900 font-semibold text-green-600">
-                                - {{ \App\Helpers\SettingHelper::formatCurrency($order->discount_amount) }}
+                                - {{ \App\Helpers\FormatHelper::formatCurrency($order->discount_amount) }}
                             </p>
                         </div>
                     </div>
@@ -305,7 +305,7 @@
                         <div class="flex justify-between">
                             <span class="text-gray-600">Diskon Voucher</span>
                             <span class="font-medium text-green-600">-
-                                {{ \App\Helpers\SettingHelper::formatCurrency($order->discount_amount) }}</span>
+                                {{ \App\Helpers\FormatHelper::formatCurrency($order->discount_amount) }}</span>
                         </div>
                     @endif
 

@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Helpers\SettingHelper;
+use App\Helpers\FormatHelper;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
@@ -177,9 +177,9 @@ class Voucher extends Model
     {
         switch ($this->type) {
             case self::TYPE_PERCENTAGE:
-                return SettingHelper::formatPercentage($this->value);
+                return FormatHelper::formatPercentage($this->value);
             case self::TYPE_FIXED_AMOUNT:
-                return SettingHelper::formatCurrency($this->value);
+                return FormatHelper::formatCurrency($this->value);
             case self::TYPE_FREE_SHIPPING:
                 return 'Gratis Ongkir';
             default:

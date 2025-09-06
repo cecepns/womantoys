@@ -171,7 +171,7 @@
                             <span>
                                 @if ($order->voucher && $order->voucher->type === 'free_shipping')
                                     <span
-                                        class="line-through text-gray-400">{{ \App\Helpers\SettingHelper::formatCurrency($order->discount_amount) }}</span>
+                                        class="line-through text-gray-400">{{ \App\Helpers\FormatHelper::formatCurrency($order->discount_amount) }}</span>
                                     <span class="text-green-600 ml-1">Gratis</span>
                                 @else
                                     {{ $order->formatted_shipping_cost }}
@@ -281,7 +281,8 @@
                             <p class="font-medium mb-1 md:mb-2">Instruksi Pembayaran:</p>
                             <ul class="space-y-1">
                                 <li>• Transfer dengan jumlah yang tepat:
-                                    <strong>{{ $order->formatted_total_amount }}</strong></li>
+                                    <strong>{{ $order->formatted_total_amount }}</strong>
+                                </li>
                                 <li>• Sertakan nomor pesanan dalam keterangan transfer: <strong
                                         class="break-all">{{ $order->order_number }}</strong></li>
                                 <li>• Unggah bukti pembayaran dalam 24 jam</li>
@@ -509,7 +510,8 @@
                     if (fileInput.files && fileInput.files.length > 0) {
                         // Show alert to delete first
                         alert(
-                            'Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.');
+                            'Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.'
+                            );
                         return;
                     }
                     fileInput.click();
@@ -534,7 +536,8 @@
                 // Check if there's already a file selected
                 if (fileInput.files && fileInput.files.length > 0) {
                     alert(
-                        'Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.');
+                        'Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.'
+                        );
                     return;
                 }
 
@@ -549,7 +552,8 @@
                 // Check if there's already a file selected (prevent multiple files)
                 if (fileInput.files && fileInput.files.length > 1) {
                     alert(
-                        'Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.');
+                        'Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.'
+                        );
                     // Reset to first file only
                     const firstFile = fileInput.files[0];
                     const dataTransfer = new DataTransfer();
