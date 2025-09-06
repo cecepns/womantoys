@@ -340,14 +340,26 @@
                 <!-- ANCHOR: Informasi Kontak -->
                 <div>
                     <h4 class="text-base md:text-lg font-semibold mb-3 md:mb-4">Kontak</h4>
-                    <div class="text-gray-300 space-y-2">
-                        <p class="text-sm md:text-base">Email: <a href="mailto:{{ $email }}"
-                                class="text-gray-300 hover:text-white transition-colors duration-200">{{ $email }}</a>
-                        </p>
-                        <p class="text-sm md:text-base">Telepon:
-                            +62{{ $whatsappNumber }}
-                        </p>
-                        <p class="text-sm md:text-base capitalize">Alamat: {{ $address }}</p>
+                    <div class="text-gray-300">
+                        <table class="text-sm md:text-base">
+                            <tr>
+                                <td class="pr-2 font-medium align-top pb-2">Email</td>
+                                <td class="w-5 text-center align-top pb-2">:</td>
+                                <td class="align-top pb-2"><a href="mailto:{{ $email }}"
+                                        class="text-gray-300 hover:text-white transition-colors duration-200">{{ $email }}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pr-2 font-medium align-top pb-2">Telepon</td>
+                                <td class="w-5 text-center align-top pb-2">:</td>
+                                <td class="align-top pb-2">+62{{ $whatsappNumber }}</td>
+                            </tr>
+                            <tr>
+                                <td class="pr-2 font-medium capitalize align-top">Alamat</td>
+                                <td class="w-5 text-center align-top">:</td>
+                                <td class="capitalize align-top">{{ $address }}</td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>
