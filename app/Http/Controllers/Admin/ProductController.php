@@ -20,10 +20,10 @@ class ProductController extends Controller
         // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('short_description', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('short_description', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -44,7 +44,7 @@ class ProductController extends Controller
 
         // Get products with pagination
         $products = $query->orderBy('created_at', 'desc')->paginate(10);
-        
+
         // Get categories for filter dropdown
         $categories = Category::orderBy('name', 'asc')->get();
 
@@ -73,6 +73,7 @@ class ProductController extends Controller
             'specifications' => 'required|string',
             'care_instructions' => 'required|string',
             'price' => 'required|numeric|min:0',
+            'discount_price' => 'nullable|numeric|min:0|lt:price',
             'weight' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,draft,out_of_stock',
@@ -85,6 +86,7 @@ class ProductController extends Controller
             'main_image.mimes' => 'Format gambar harus JPEG, PNG, JPG, atau GIF.',
             'gallery_images.*.image' => 'File galeri harus berupa gambar.',
             'gallery_images.*.mimes' => 'Format gambar galeri harus JPEG, PNG, JPG, atau GIF.',
+            'discount_price.lt' => 'Harga diskon harus lebih kecil dari harga normal.',
         ]);
 
         // Handle main image upload first
@@ -96,17 +98,17 @@ class ProductController extends Controller
         // Create product with main image
         $productData = $request->except(['main_image', 'gallery_images']);
         $productData['main_image'] = $mainImagePath;
-        
+
         // Ensure is_featured is properly cast to boolean
         $productData['is_featured'] = $request->boolean('is_featured');
-        
+
         $product = Product::create($productData);
 
         // Handle gallery images upload
         if ($request->hasFile('gallery_images')) {
             $galleryImages = $request->file('gallery_images');
             $order = 1;
-            
+
             foreach ($galleryImages as $image) {
                 $imagePath = $image->store('products', 'public');
                 ProductImage::create([
@@ -170,20 +172,23 @@ class ProductController extends Controller
             'specifications' => 'nullable|string',
             'care_instructions' => 'nullable|string',
             'price' => 'required|numeric|min:0',
+            'discount_price' => 'nullable|numeric|min:0|lt:price',
             'weight' => 'nullable|numeric|min:0',
             'stock' => 'required|integer|min:0',
             'status' => 'required|in:active,draft,out_of_stock',
             'is_featured' => 'nullable|boolean',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
             'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ], [
+            'discount_price.lt' => 'Harga diskon harus lebih kecil dari harga normal.',
         ]);
 
         // Prepare update data
         $updateData = $request->except(['main_image', 'gallery_images', 'remove_main_image']);
-        
+
         // Ensure is_featured is properly cast to boolean
         $updateData['is_featured'] = $request->boolean('is_featured');
-        
+
         $product->update($updateData);
 
         // Handle remove main image flag
@@ -205,7 +210,7 @@ class ProductController extends Controller
             $galleryImages = $request->file('gallery_images');
             $maxOrder = $product->images()->max('order') ?? 0;
             $order = $maxOrder + 1;
-            
+
             foreach ($galleryImages as $image) {
                 $imagePath = $image->store('products', 'public');
                 ProductImage::create([
@@ -219,7 +224,7 @@ class ProductController extends Controller
         // Handle removal of existing gallery images
         if ($request->has('removed_gallery_images')) {
             \Log::info('Removing gallery images: ' . json_encode($request->removed_gallery_images));
-            
+
             foreach ($request->removed_gallery_images as $imageId) {
                 $image = $product->images()->find($imageId);
                 if ($image) {
@@ -231,14 +236,13 @@ class ProductController extends Controller
                         } else {
                             \Log::info("File not found for image ID: {$imageId} (path: {$image->image_path}) - continuing with database cleanup");
                         }
-                        
+
                         // Always delete the database record regardless of file existence
                         $image->delete();
                         \Log::info("Successfully removed image ID: {$imageId} from database");
-                        
                     } catch (\Exception $e) {
                         \Log::error("Failed to remove image ID: {$imageId}", ['error' => $e->getMessage()]);
-                        
+
                         // Even if file deletion fails, try to delete the database record
                         try {
                             $image->delete();
@@ -268,7 +272,7 @@ class ProductController extends Controller
                 \Storage::disk('public')->delete($product->main_image);
                 \Log::info("Main image deleted for product ID: {$product->id}");
             }
-            
+
             // Delete gallery images from storage
             foreach ($product->images as $image) {
                 if (\Storage::disk('public')->exists($image->image_path)) {
@@ -278,16 +282,15 @@ class ProductController extends Controller
                     \Log::info("Gallery image file not found for image ID: {$image->id} - continuing with cleanup");
                 }
             }
-            
+
             $product->delete();
             \Log::info("Product deleted successfully: {$product->id}");
 
             notify()->success('Produk berhasil dihapus.', 'Berhasil');
             return back();
-                
         } catch (\Exception $e) {
             \Log::error("Failed to delete product ID: {$product->id}", ['error' => $e->getMessage()]);
-            
+
             notify()->error('Gagal menghapus produk. Silakan coba lagi.', 'Gagal');
             return back();
         }
@@ -315,7 +318,6 @@ class ProductController extends Controller
             \Log::info("Successfully removed image ID: {$image->id} from database");
 
             return response()->json(['success' => true]);
-
         } catch (\Exception $e) {
             \Log::error("Failed to remove image ID: {$image->id}", ['error' => $e->getMessage()]);
 

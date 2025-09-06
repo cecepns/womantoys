@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -21,6 +22,7 @@ class Product extends Model
         'specifications',
         'care_instructions',
         'price',
+        'discount_price',
         'main_image',
         'status',
         'stock',
@@ -95,6 +97,20 @@ class Product extends Model
     }
 
     /**
+     * ANCHOR: Get the formatted discount price.
+     *
+     * @return string|null
+     */
+    public function getFormattedDiscountPriceAttribute()
+    {
+        if (is_null($this->discount_price)) {
+            return null;
+        }
+
+        return 'Rp ' . number_format($this->discount_price, 0, ',', '.');
+    }
+
+    /**
      * ANCHOR: Get the formatted weight.
      *
      * @return string|null
@@ -119,7 +135,7 @@ class Product extends Model
      */
     public function getStatusLabelAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'active' => 'Aktif',
             'draft' => 'Draft',
             'out_of_stock' => 'Stok Habis',
@@ -134,7 +150,7 @@ class Product extends Model
      */
     public function getStatusBadgeClassAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'active' => 'bg-green-100 text-green-800',
             'draft' => 'bg-yellow-100 text-yellow-800',
             'out_of_stock' => 'bg-red-100 text-red-800',
@@ -172,8 +188,8 @@ class Product extends Model
     public function scopeSearch($query, $search)
     {
         return $query->where('name', 'like', "%{$search}%")
-                    ->orWhere('short_description', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+            ->orWhere('short_description', 'like', "%{$search}%")
+            ->orWhere('description', 'like', "%{$search}%");
     }
 
     /**
@@ -214,8 +230,8 @@ class Product extends Model
         if (empty($this->main_image)) {
             return false;
         }
-        
-        return \Storage::disk('public')->exists($this->main_image);
+
+        return Storage::disk('public')->exists($this->main_image);
     }
 
     /**
@@ -228,8 +244,52 @@ class Product extends Model
         if ($this->hasValidMainImage()) {
             return asset('storage/' . $this->main_image);
         }
-        
+
         // Return null to indicate no image, will be handled in the view
         return null;
+    }
+
+    /**
+     * Check if the product has a discount.
+     *
+     * @return bool
+     */
+    public function hasDiscount()
+    {
+        return !is_null($this->discount_price) && $this->discount_price > 0 && $this->discount_price < $this->price;
+    }
+
+    /**
+     * Get the discount percentage.
+     *
+     * @return float|null
+     */
+    public function getDiscountPercentageAttribute()
+    {
+        if (!$this->hasDiscount()) {
+            return null;
+        }
+
+        return round((($this->price - $this->discount_price) / $this->price) * 100, 0);
+    }
+
+    /**
+     * Get the final price (discount price if available, otherwise regular price).
+     *
+     * @return int
+     */
+    public function getFinalPriceAttribute()
+    {
+        return $this->hasDiscount() ? $this->discount_price : $this->price;
+    }
+
+    /**
+     * Get the formatted final price.
+     *
+     * @return string
+     */
+    public function getFormattedFinalPriceAttribute()
+    {
+        return 'Rp ' . number_format($this->final_price, 0, ',', '.');
     }
 }
