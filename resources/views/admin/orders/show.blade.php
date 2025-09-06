@@ -210,14 +210,14 @@
                                         </div>
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900 hidden sm:table-cell">
-                                        {{ number_format($item->price, 0, ',', '.') }}
+                                        {{ number_format($item->original_price, 0, ',', '.') }}
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                         {{ $item->quantity }}
                                     </td>
                                     <td
                                         class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 hidden md:table-cell">
-                                        {{ number_format($item->price * $item->quantity, 0, ',', '.') }}
+                                        {{ number_format($item->original_price * $item->quantity, 0, ',', '.') }}
                                     </td>
                                 </tr>
                             @endforeach
@@ -276,7 +276,7 @@
 
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Diskon</label>
-                            <p class="text-gray-900 font-semibold text-green-600">
+                            <p class="font-semibold text-green-600">
                                 - {{ \App\Helpers\FormatHelper::formatCurrency($order->discount_amount) }}
                             </p>
                         </div>
@@ -296,10 +296,27 @@
                 </h2>
 
                 <div class="space-y-3">
+                    @php
+                        $productDiscountTotal = 0;
+                        foreach ($order->orderItems as $item) {
+                            if ($item->hasDiscount()) {
+                                $productDiscountTotal += $item->discount_amount * $item->quantity;
+                            }
+                        }
+                    @endphp
+
                     <div class="flex justify-between">
                         <span class="text-gray-600">Subtotal</span>
-                        <span class="font-medium">{{ number_format($subtotal, 0, ',', '.') }}</span>
+                        <span class="font-medium">{{ \App\Helpers\FormatHelper::formatCurrency($subtotal) }}</span>
                     </div>
+
+                    @if ($productDiscountTotal > 0)
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Diskon Produk</span>
+                            <span class="font-medium text-green-600">-
+                                {{ \App\Helpers\FormatHelper::formatCurrency($productDiscountTotal) }}</span>
+                        </div>
+                    @endif
 
                     @if ($order->discount_amount > 0)
                         <div class="flex justify-between">
@@ -311,12 +328,13 @@
 
                     <div class="flex justify-between">
                         <span class="text-gray-600">Ongkos Kirim</span>
-                        <span class="font-medium">{{ number_format($order->shipping_cost, 0, ',', '.') }}</span>
+                        <span
+                            class="font-medium">{{ \App\Helpers\FormatHelper::formatCurrency($order->shipping_cost) }}</span>
                     </div>
                     <hr class="border-gray-200">
                     <div class="flex justify-between text-lg font-semibold">
                         <span>Total</span>
-                        <span>{{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                        <span>{{ \App\Helpers\FormatHelper::formatCurrency($order->total_amount) }}</span>
                     </div>
                 </div>
             </div>

@@ -18,32 +18,32 @@ class OrderController extends Controller
         // Get filter parameters
         $status = $request->get('status');
         $search = $request->get('search');
-        
+
         // Build the query
         $query = Order::with(['orderItems.product'])
             ->orderBy('created_at', 'desc');
-        
+
         // Apply status filter
         if ($status && $status !== 'all') {
             $query->where('status', $status);
         }
-        
+
         // Apply search filter
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('order_number', 'like', "%{$search}%")
-                  ->orWhere('customer_name', 'like', "%{$search}%")
-                  ->orWhere('customer_email', 'like', "%{$search}%")
-                  ->orWhere('customer_phone', 'like', "%{$search}%");
+                    ->orWhere('customer_name', 'like', "%{$search}%")
+                    ->orWhere('customer_email', 'like', "%{$search}%")
+                    ->orWhere('customer_phone', 'like', "%{$search}%");
             });
         }
-        
+
         // Paginate results
         $orders = $query->paginate(10)->withQueryString();
-        
+
         // Calculate statistics
         $statistics = $this->getOrderStatistics();
-        
+
         // Get available statuses for filter dropdown
         $statuses = [
             'all' => 'Semua',
@@ -54,7 +54,7 @@ class OrderController extends Controller
             Order::STATUS_DELIVERED => 'Diterima',
             Order::STATUS_CANCELLED => 'Dibatalkan',
         ];
-        
+
         return view('admin.orders.index', compact('orders', 'statistics', 'statuses', 'status', 'search'));
     }
 
@@ -65,12 +65,12 @@ class OrderController extends Controller
     {
         // Load relationships
         $order->load(['orderItems.product', 'voucher']);
-        
+
         // Calculate subtotal
         $subtotal = $order->orderItems->sum(function ($item) {
-            return $item->price * $item->quantity;
+            return $item->original_price * $item->quantity;
         });
-        
+
         return view('admin.orders.show', compact('order', 'subtotal'));
     }
 
@@ -138,42 +138,42 @@ class OrderController extends Controller
         try {
             $status = $request->get('status');
             $search = $request->get('search');
-            
+
             $query = Order::with(['orderItems.product']);
-            
+
             if ($status && $status !== 'all') {
                 $query->where('status', $status);
             }
-            
+
             if ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('order_number', 'like', "%{$search}%")
-                      ->orWhere('customer_name', 'like', "%{$search}%")
-                      ->orWhere('customer_email', 'like', "%{$search}%");
+                        ->orWhere('customer_name', 'like', "%{$search}%")
+                        ->orWhere('customer_email', 'like', "%{$search}%");
                 });
             }
-            
+
             $orders = $query->get();
-            
+
             if ($orders->isEmpty()) {
                 notify()->warning('Tidak ada data pesanan untuk diekspor.', 'Peringatan');
                 return redirect()->back();
             }
-            
+
             $filename = 'orders_export_' . now()->format('Y-m-d_H-i-s') . '.csv';
-            
+
             $headers = [
                 'Content-Type' => 'text/csv',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             ];
 
-            $callback = function() use ($orders) {
+            $callback = function () use ($orders) {
                 $file = fopen('php://output', 'w');
-                
+
                 // CSV Headers
                 fputcsv($file, [
                     'No. Pesanan',
-                    'Nama Pelanggan', 
+                    'Nama Pelanggan',
                     'Email',
                     'Telepon',
                     'Alamat Pengiriman',
@@ -184,12 +184,12 @@ class OrderController extends Controller
                     'Tanggal Pesanan',
                     'Items'
                 ]);
-                
+
                 foreach ($orders as $order) {
-                    $items = $order->orderItems->map(function($item) {
+                    $items = $order->orderItems->map(function ($item) {
                         return $item->product_name . ' (Qty: ' . $item->quantity . ', Price: Rp ' . number_format($item->price, 0, ',', '.') . ')';
                     })->implode('; ');
-                    
+
                     fputcsv($file, [
                         $order->order_number,
                         $order->customer_name,
@@ -204,7 +204,7 @@ class OrderController extends Controller
                         $items
                     ]);
                 }
-                
+
                 fclose($file);
             };
 
@@ -241,7 +241,7 @@ class OrderController extends Controller
         try {
             // TODO: Implement email sending logic
             // You can use Laravel Mail here
-            
+
             notify()->success('Email konfirmasi berhasil dikirim ke pelanggan.', 'Berhasil');
             return redirect()->back();
         } catch (\Exception $e) {
@@ -259,7 +259,7 @@ class OrderController extends Controller
         try {
             // TODO: Implement WhatsApp API integration
             // You can use a service like Twilio or local WhatsApp Business API
-            
+
             notify()->success('Pesan WhatsApp berhasil dikirim ke pelanggan.', 'Berhasil');
             return redirect()->back();
         } catch (\Exception $e) {
@@ -277,7 +277,7 @@ class OrderController extends Controller
         try {
             // TODO: Implement PDF invoice generation
             // You can use libraries like DomPDF or TCPDF
-            
+
             notify()->info('Fitur download invoice akan segera tersedia.', 'Informasi');
             return redirect()->back();
         } catch (\Exception $e) {
