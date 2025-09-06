@@ -126,8 +126,19 @@
                                     @endif
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-semibold text-sm text-gray-800">
-                                        {{ 'Rp ' . number_format($item->price, 0, ',', '.') }}</p>
+                                    @if ($item->hasDiscount())
+                                        <div class="mb-1">
+                                            <p class="text-xs text-gray-500 line-through">
+                                                {{ $item->formatted_original_price }}</p>
+                                            <p class="font-semibold text-sm text-gray-800">
+                                                {{ $item->formatted_price }}</p>
+                                            <p class="text-xs text-green-600 font-medium">
+                                                Diskon {{ $item->discount_percentage }}%</p>
+                                        </div>
+                                    @else
+                                        <p class="font-semibold text-sm text-gray-800">
+                                            {{ $item->formatted_price }}</p>
+                                    @endif
                                     <p class="text-xs text-gray-600">Total:
                                         {{ 'Rp ' . number_format($item->price * $item->quantity, 0, ',', '.') }}</p>
                                 </div>
@@ -146,8 +157,19 @@
                                     </div>
                                 </div>
                                 <div class="text-right">
-                                    <p class="font-semibold text-gray-800">
-                                        {{ 'Rp ' . number_format($item->price, 0, ',', '.') }}</p>
+                                    @if ($item->hasDiscount())
+                                        <div class="mb-1">
+                                            <p class="text-sm text-gray-500 line-through">
+                                                {{ $item->formatted_original_price }}</p>
+                                            <p class="font-semibold text-gray-800">
+                                                {{ $item->formatted_price }}</p>
+                                            <p class="text-sm text-green-600 font-medium">
+                                                Diskon {{ $item->discount_percentage }}%</p>
+                                        </div>
+                                    @else
+                                        <p class="font-semibold text-gray-800">
+                                            {{ $item->formatted_price }}</p>
+                                    @endif
                                     <p class="text-sm text-gray-600">Total:
                                         {{ 'Rp ' . number_format($item->price * $item->quantity, 0, ',', '.') }}</p>
                                 </div>
@@ -156,10 +178,27 @@
                     @endforeach
 
                     <div class="pt-3 md:pt-4 border-t border-gray-200">
+                        @php
+                            $productDiscountTotal = 0;
+                            foreach ($order->orderItems as $item) {
+                                if ($item->hasDiscount()) {
+                                    $productDiscountTotal += $item->discount_amount * $item->quantity;
+                                }
+                            }
+                        @endphp
+
                         <div class="flex justify-between text-xs md:text-sm text-gray-600 mb-2">
                             <span>Subtotal:</span>
                             <span>{{ $order->subtotal ? $order->formatted_subtotal : 'Rp ' . number_format($order->total_amount - $order->shipping_cost, 0, ',', '.') }}</span>
                         </div>
+
+                        @if ($productDiscountTotal > 0)
+                            <div class="flex justify-between text-xs md:text-sm text-green-600 mb-2">
+                                <span>Diskon Produk:</span>
+                                <span>-{{ 'Rp ' . number_format($productDiscountTotal, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
+
                         @if ($order->voucher_id && $order->discount_amount > 0)
                             <div class="flex justify-between text-xs md:text-sm text-green-600 mb-2">
                                 <span>Diskon Voucher ({{ $order->voucher_code }}):</span>
@@ -210,8 +249,8 @@
             <!-- Important Warning Box -->
             <div class="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 md:p-6 mb-6 md:mb-8">
                 <div class="flex items-start">
-                    <svg class="w-5 h-5 md:w-6 md:h-6 text-yellow-600 mt-0.5 mr-2 md:mr-3 flex-shrink-0" fill="currentColor"
-                        viewBox="0 0 20 20">
+                    <svg class="w-5 h-5 md:w-6 md:h-6 text-yellow-600 mt-0.5 mr-2 md:mr-3 flex-shrink-0"
+                        fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                             d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                             clip-rule="evenodd"></path>
@@ -511,7 +550,7 @@
                         // Show alert to delete first
                         alert(
                             'Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.'
-                            );
+                        );
                         return;
                     }
                     fileInput.click();
@@ -537,7 +576,7 @@
                 if (fileInput.files && fileInput.files.length > 0) {
                     alert(
                         'Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.'
-                        );
+                    );
                     return;
                 }
 
@@ -553,7 +592,7 @@
                 if (fileInput.files && fileInput.files.length > 1) {
                     alert(
                         'Silakan hapus file yang sudah dipilih terlebih dahulu sebelum mengupload file baru.'
-                        );
+                    );
                     // Reset to first file only
                     const firstFile = fileInput.files[0];
                     const dataTransfer = new DataTransfer();

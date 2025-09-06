@@ -422,6 +422,7 @@
         // Product data from backend
         const productData = {
             price: {{ $product->final_price }},
+            finalPrice: {{ $product->final_price }},
             originalPrice: {{ $product->price }},
             discountPrice: {{ $product->discount_price ?? 'null' }},
             hasDiscount: {{ $product->hasDiscount() ? 'true' : 'false' }},
@@ -801,7 +802,7 @@
                 updatePricingWithVoucher();
             } else {
                 const quantity = parseInt(document.getElementById('quantity').value) || 1;
-                const subtotal = productData.price * quantity;
+                const subtotal = productData.finalPrice * quantity;
                 const total = subtotal + shippingCost;
 
                 // Update pricing display
@@ -910,7 +911,7 @@
                 const shippingData = shippingValue.split('_');
                 shippingCost = parseInt(shippingData[2] || 0);
             }
-            const subtotal = productData.price * quantity;
+            const subtotal = productData.finalPrice * quantity;
             const total = subtotal + shippingCost;
             updatePricingDisplay(subtotal, shippingCost, total);
         }
@@ -921,7 +922,7 @@
         function applyVoucher() {
             const voucherCode = document.getElementById('voucher-code').value.trim().toUpperCase();
             const quantity = parseInt(document.getElementById('quantity').value) || 1;
-            const cartTotal = productData.price * quantity;
+            const cartTotal = productData.finalPrice * quantity;
             const customerEmail = document.getElementById('email').value;
 
             if (!voucherCode) {
@@ -1038,12 +1039,24 @@
 
         function updatePricingWithVoucher() {
             const quantity = parseInt(document.getElementById('quantity').value) || 1;
-            const subtotal = productData.price * quantity;
+            const subtotal = productData.finalPrice * quantity;
 
-            // Calculate voucher discount
+            // Calculate voucher discount based on current subtotal
             let voucherDiscountAmount = 0;
             if (currentVoucher) {
-                voucherDiscountAmount = currentVoucher.discount_amount;
+                // Recalculate discount based on current subtotal
+                if (currentVoucher.type === 'percentage') {
+                    voucherDiscountAmount = subtotal * (currentVoucher.value / 100);
+                    if (currentVoucher.max_discount) {
+                        voucherDiscountAmount = Math.min(voucherDiscountAmount, currentVoucher.max_discount);
+                    }
+                } else if (currentVoucher.type === 'fixed_amount') {
+                    voucherDiscountAmount = Math.min(currentVoucher.value, subtotal);
+                } else if (currentVoucher.type === 'free_shipping') {
+                    // For free shipping, discount is applied by setting shipping cost to 0
+                    // No additional discount amount needed
+                    voucherDiscountAmount = 0;
+                }
             }
 
             // Update subtotal display
@@ -1083,10 +1096,13 @@
                 } else {
                     document.getElementById('shipping-cost').textContent = 'Rp ' + formatNumber(shippingCost);
                 }
+            } else {
+                // No shipping method selected
+                document.getElementById('shipping-cost').textContent = 'Pilih alamat tujuan';
             }
 
             // Calculate total
-            const total = Math.max(0, subtotal - discountAmount + shippingCost);
+            const total = Math.max(0, subtotal - voucherDiscountAmount + shippingCost);
             document.getElementById('total-amount').textContent = 'Rp ' + formatNumber(total);
         }
 

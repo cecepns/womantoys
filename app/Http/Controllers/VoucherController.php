@@ -294,6 +294,8 @@ class VoucherController extends Controller
                 'code' => $voucher->code,
                 'name' => $voucher->name,
                 'type' => $voucher->type,
+                'value' => $voucher->value,
+                'max_discount' => $voucher->max_discount,
                 'discount_amount' => $discount,
                 'formatted_discount' => FormatHelper::formatCurrency($discount),
             ]

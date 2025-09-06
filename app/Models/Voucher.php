@@ -161,7 +161,7 @@ class Voucher extends Model
                 return min($this->value, $total);
 
             case self::TYPE_FREE_SHIPPING:
-                return $shippingCost;
+                return 0; // Free shipping discount is applied by setting shipping cost to 0
 
             default:
                 return 0;

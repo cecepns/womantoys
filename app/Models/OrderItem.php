@@ -16,6 +16,7 @@ class OrderItem extends Model
         'product_id',
         'product_name',
         'price',
+        'original_price',
         'quantity',
     ];
 
@@ -63,6 +64,68 @@ class OrderItem extends Model
     public function getFormattedSubtotalAttribute()
     {
         return 'Rp ' . number_format($this->subtotal, 0, ',', '.');
+    }
+
+    /**
+     * Get the formatted original price.
+     *
+     * @return string|null
+     */
+    public function getFormattedOriginalPriceAttribute()
+    {
+        if (is_null($this->original_price)) {
+            return null;
+        }
+
+        return 'Rp ' . number_format($this->original_price, 0, ',', '.');
+    }
+
+    /**
+     * Check if the order item has a discount.
+     *
+     * @return bool
+     */
+    public function hasDiscount()
+    {
+        return !is_null($this->original_price) && $this->original_price > $this->price;
+    }
+
+    /**
+     * Get the discount amount for this item.
+     *
+     * @return int
+     */
+    public function getDiscountAmountAttribute()
+    {
+        if (!$this->hasDiscount()) {
+            return 0;
+        }
+
+        return $this->original_price - $this->price;
+    }
+
+    /**
+     * Get the formatted discount amount.
+     *
+     * @return string
+     */
+    public function getFormattedDiscountAmountAttribute()
+    {
+        return 'Rp ' . number_format($this->discount_amount, 0, ',', '.');
+    }
+
+    /**
+     * Get the discount percentage.
+     *
+     * @return float|null
+     */
+    public function getDiscountPercentageAttribute()
+    {
+        if (!$this->hasDiscount()) {
+            return null;
+        }
+
+        return round((($this->original_price - $this->price) / $this->original_price) * 100, 0);
     }
 
     /**
