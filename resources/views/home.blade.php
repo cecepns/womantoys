@@ -156,24 +156,26 @@
                 </p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                @if ($featuredProducts && $featuredProducts->count() > 0)
+            @if ($featuredProducts && $featuredProducts->count() > 0)
+                <div class="owl-carousel owl-theme featured-products-carousel" id="featuredProductsCarousel">
                     @foreach ($featuredProducts as $product)
-                        <x-product-card :product="$product" />
+                        <div class="item">
+                            <x-product-card :product="$product" />
+                        </div>
                     @endforeach
-                @else
-                    <!-- Fallback product cards when no products available -->
-                    <div class="col-span-full text-center py-12">
-                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Produk</h3>
-                        <p class="text-gray-500">Produk akan segera tersedia</p>
-                    </div>
-                @endif
-            </div>
+                </div>
+            @else
+                <!-- Fallback product cards when no products available -->
+                <div class="text-center py-12">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum Ada Produk</h3>
+                    <p class="text-gray-500">Produk akan segera tersedia</p>
+                </div>
+            @endif
 
             <div class="text-center mt-12">
                 <a href="/catalog"
@@ -257,138 +259,290 @@
         </div>
     </div>
 
-    @if ($carouselSlides && $carouselSlides->count() > 0)
-        <style>
-            /* Custom Owl Carousel Styling */
-            .hero-carousel .owl-nav {
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 100%;
-                pointer-events: none;
-            }
+    <style>
+        /* Custom Owl Carousel Styling */
+        .hero-carousel .owl-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            pointer-events: none;
+        }
 
+        .hero-carousel .owl-nav button {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.5) !important;
+            border-radius: 50% !important;
+            color: white !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+
+        .hero-carousel .owl-nav button:hover {
+            background: rgba(0, 0, 0, 0.8) !important;
+            transform: scale(1.1);
+        }
+
+        .hero-carousel .owl-nav .owl-prev {
+            left: 20px;
+        }
+
+        .hero-carousel .owl-nav .owl-next {
+            right: 20px;
+        }
+
+        .hero-carousel .owl-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .hero-carousel .owl-dot {
+            width: 12px;
+            height: 12px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5) !important;
+            transition: all 0.3s ease;
+        }
+
+        .hero-carousel .owl-dot.active {
+            background: white !important;
+            transform: scale(1.2);
+        }
+
+        .hero-carousel .owl-dot:hover {
+            background: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
             .hero-carousel .owl-nav button {
-                position: absolute;
-                width: 50px;
-                height: 50px;
-                background: rgba(0, 0, 0, 0.5) !important;
-                border-radius: 50% !important;
-                color: white !important;
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.3s ease;
-                pointer-events: auto;
-            }
-
-            .hero-carousel .owl-nav button:hover {
-                background: rgba(0, 0, 0, 0.8) !important;
-                transform: scale(1.1);
+                width: 40px;
+                height: 40px;
             }
 
             .hero-carousel .owl-nav .owl-prev {
-                left: 20px;
+                left: 10px;
             }
 
             .hero-carousel .owl-nav .owl-next {
-                right: 20px;
+                right: 10px;
+            }
+        }
+
+        /* Featured Products Carousel Styling */
+        .featured-products-carousel .item {
+            height: 315px !important;
+        }
+
+        .featured-products-carousel .owl-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .featured-products-carousel .owl-nav button {
+            position: absolute;
+            width: 45px;
+            height: 45px;
+            background: rgba(236, 72, 153, 0.8) !important;
+            border-radius: 50% !important;
+            color: white !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .featured-products-carousel .owl-nav button:hover {
+            background: rgba(236, 72, 153, 1) !important;
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .featured-products-carousel .owl-nav button.disabled {
+            opacity: 0.3 !important;
+            cursor: not-allowed !important;
+        }
+
+        .featured-products-carousel .owl-nav button.disabled:hover {
+            background: rgba(236, 72, 153, 0.3) !important;
+            transform: none !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .featured-products-carousel .owl-nav .owl-prev {
+            left: -25px;
+        }
+
+        .featured-products-carousel .owl-nav .owl-next {
+            right: -25px;
+        }
+
+        .featured-products-carousel .owl-nav.disabled {
+            display: block;
+        }
+
+        .featured-products-carousel .owl-dots {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .featured-products-carousel .owl-dot {
+            width: 12px;
+            height: 12px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background: rgba(236, 72, 153, 0.3) !important;
+            transition: all 0.3s ease;
+        }
+
+        .featured-products-carousel .owl-dot.active {
+            background: rgba(236, 72, 153, 1) !important;
+            transform: scale(1.2);
+        }
+
+        .featured-products-carousel .owl-dot:hover {
+            background: rgba(236, 72, 153, 0.6) !important;
+        }
+
+
+        /* Responsive adjustments for featured products carousel */
+        @media (max-width: 768px) {
+            .featured-products-carousel .owl-nav button {
+                width: 35px;
+                height: 35px;
             }
 
-            .hero-carousel .owl-dots {
-                position: absolute;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
+            .featured-products-carousel .owl-nav .owl-prev {
+                left: -15px;
             }
 
-            .hero-carousel .owl-dot {
-                width: 12px;
-                height: 12px;
-                margin: 0 5px;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.5) !important;
-                transition: all 0.3s ease;
+            .featured-products-carousel .owl-nav .owl-next {
+                right: -15px;
             }
+        }
+    </style>
 
-            .hero-carousel .owl-dot.active {
-                background: white !important;
-                transform: scale(1.2);
-            }
-
-            .hero-carousel .owl-dot:hover {
-                background: rgba(255, 255, 255, 0.8) !important;
-            }
-
-            /* Responsive adjustments */
-            @media (max-width: 768px) {
-                .hero-carousel .owl-nav button {
-                    width: 40px;
-                    height: 40px;
-                }
-
-                .hero-carousel .owl-nav .owl-prev {
-                    left: 10px;
-                }
-
-                .hero-carousel .owl-nav .owl-next {
-                    right: 10px;
-                }
-            }
-        </style>
-
-        <script>
-            // Wait for jQuery to be available
-            function initOwlCarousel() {
-                if (typeof jQuery !== 'undefined' && typeof jQuery.fn.owlCarousel !== 'undefined') {
-                    jQuery('#heroCarousel').owlCarousel({
-                        items: 1,
-                        loop: true,
-                        margin: 0,
-                        nav: true,
-                        dots: false,
-                        autoplay: false,
-                        autoplayTimeout: 5000,
-                        autoplayHoverPause: true,
-                        smartSpeed: 1000,
-                        navText: [
-                            '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>',
-                            '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>'
-                        ],
-                        responsive: {
-                            0: {
-                                items: 1
-                            },
-                            768: {
-                                items: 1
-                            },
-                            1024: {
-                                items: 1
-                            }
+    <script>
+        // Wait for jQuery to be available
+        function initOwlCarousel() {
+            if (typeof jQuery !== 'undefined' && typeof jQuery.fn.owlCarousel !== 'undefined') {
+                // Initialize hero carousel
+                jQuery('#heroCarousel').owlCarousel({
+                    items: 1,
+                    loop: true,
+                    margin: 0,
+                    nav: true,
+                    dots: false,
+                    autoplay: false,
+                    autoplayTimeout: 5000,
+                    autoplayHoverPause: true,
+                    smartSpeed: 1000,
+                    navText: [
+                        '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>',
+                        '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>'
+                    ],
+                    responsive: {
+                        0: {
+                            items: 1
+                        },
+                        768: {
+                            items: 1
+                        },
+                        1024: {
+                            items: 1
                         }
-                    });
-                } else {
-                    // Retry after a short delay
-                    setTimeout(initOwlCarousel, 100);
-                }
-            }
-
-            // Initialize when DOM is ready
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', initOwlCarousel);
-            } else {
-                initOwlCarousel();
-            }
-
-            // Also try on window load as fallback
-            window.addEventListener('load', function() {
-                if (typeof jQuery !== 'undefined' && typeof jQuery.fn.owlCarousel !== 'undefined') {
-                    // Check if carousel is already initialized
-                    if (!jQuery('#heroCarousel').hasClass('owl-loaded')) {
-                        initOwlCarousel();
                     }
+                });
+
+                // Initialize featured products carousel
+                jQuery('#featuredProductsCarousel').owlCarousel({
+                    items: 5,
+                    loop: true,
+                    margin: 20,
+                    nav: true,
+                    dots: false,
+                    autoplay: true,
+                    autoplayTimeout: 4000,
+                    autoplayHoverPause: true,
+                    navText: [
+                        '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>',
+                        '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>'
+                    ],
+                    responsive: {
+                        0: {
+                            items: 1,
+                            margin: 10
+                        },
+                        480: {
+                            items: 2,
+                            margin: 15
+                        },
+                        768: {
+                            items: 3,
+                            margin: 20
+                        },
+                        1024: {
+                            items: 5,
+                            margin: 20
+                        }
+                    },
+                    onInitialized: function() {
+                        // Ensure navigation buttons are always visible
+                        var carousel = jQuery('#featuredProductsCarousel');
+                        carousel.find('.owl-nav button').show();
+                    },
+                    onRefreshed: function() {
+                        // Ensure navigation buttons are visible on refresh
+                        var carousel = jQuery('#featuredProductsCarousel');
+                        carousel.find('.owl-nav button').show();
+                    }
+                });
+            } else {
+                // Retry after a short delay
+                setTimeout(initOwlCarousel, 100);
+            }
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initOwlCarousel);
+        } else {
+            initOwlCarousel();
+        }
+
+        // Also try on window load as fallback
+        window.addEventListener('load', function() {
+            if (typeof jQuery !== 'undefined' && typeof jQuery.fn.owlCarousel !== 'undefined') {
+                // Check if carousels are already initialized
+                if (!jQuery('#heroCarousel').hasClass('owl-loaded') || !jQuery('#featuredProductsCarousel')
+                    .hasClass('owl-loaded')) {
+                    initOwlCarousel();
                 }
-            });
-        </script>
-    @endif
+            }
+        });
+
+        // Function to ensure navigation is always visible
+        function ensureNavigationVisible() {
+            var carousel = jQuery('#featuredProductsCarousel');
+            if (carousel.length && carousel.hasClass('owl-loaded')) {
+                carousel.find('.owl-nav button').show();
+            }
+        }
+
+        // Check navigation visibility periodically
+        setInterval(ensureNavigationVisible, 2000);
+    </script>
 @endsection
