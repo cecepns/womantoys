@@ -24,7 +24,7 @@ class HomeController extends Controller
 
         $categories = Category::withCount(['products' => function ($query) {
             $query->active()->inStock();
-        }])->withCoverImage()->get();
+        }])->withCoverImage()->inRandomOrder()->limit(3)->get();
 
         // Get about us image from settings and generate proper URL
         $aboutUsImagePath = SettingHelper::getAboutUsImage();
