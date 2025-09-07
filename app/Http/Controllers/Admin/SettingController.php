@@ -23,6 +23,7 @@ class SettingController extends Controller
         $whatsappNumber = Setting::getValue('whatsapp_number', '8100235004');
         $logo = Setting::getValue('logo', '');
         $whatsappMessage = Setting::getValue('whatsapp_message', 'Halo, saya ingin bertanya produk terbaru womantoys');
+        $aboutUsImage = Setting::getValue('about_us_image', 'images/lauren-richmond-5Z3ugfTYYPI-unsplash (1).jpg');
         return view('admin.settings.edit', compact(
             'storeName',
             'storeAddress',
@@ -31,7 +32,8 @@ class SettingController extends Controller
             'whatsappNumber',
             'whatsappMessage',
             'email',
-            'logo'
+            'logo',
+            'aboutUsImage'
         ));
     }
 
@@ -155,6 +157,67 @@ class SettingController extends Controller
         Setting::setValue('whatsapp_message', $request->input('whatsapp_message'));
         Setting::setValue('email', $request->input('email'));
         notify()->success('Pengaturan kontak berhasil disimpan');
+        return back();
+    }
+
+    public function updateAboutImage(Request $request)
+    {
+        $request->validate([
+            'about_us_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'delete_about_us_image' => 'nullable|boolean',
+        ], [
+            'about_us_image.image' => 'File gambar harus berupa gambar.',
+            'about_us_image.mimes' => 'Format gambar harus JPEG, PNG, JPG, GIF, atau SVG.',
+            'about_us_image.max' => 'Ukuran gambar maksimal 2MB.',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('about_us_image')) {
+            // User uploaded a new image
+            $imageFile = $request->file('about_us_image');
+            $imagePath = $imageFile->store('about-us', 'public');
+            $request->merge(['about_us_image' => $imagePath]);
+
+            // If user also wants to delete old image, clean it up
+            if ($request->boolean('delete_about_us_image')) {
+                $existingImage = Setting::getValue('about_us_image', '');
+                if ($existingImage && $existingImage !== $imagePath && !str_starts_with($existingImage, 'images/')) {
+                    // Delete old image file from storage (only if it's different from new one and not a default image)
+                    if (Storage::disk('public')->exists($existingImage)) {
+                        Storage::disk('public')->delete($existingImage);
+                    }
+                }
+            }
+        } elseif ($request->boolean('delete_about_us_image')) {
+            $existingImage = Setting::getValue('about_us_image', '');
+            if ($existingImage && !str_starts_with($existingImage, 'images/')) {
+                // Delete image file from storage (only if it's not a default image)
+                if (Storage::disk('public')->exists($existingImage)) {
+                    Storage::disk('public')->delete($existingImage);
+                }
+            }
+            $request->merge(['about_us_image' => 'images/lauren-richmond-5Z3ugfTYYPI-unsplash (1).jpg']); // Set to default image
+        } else {
+            // Keep existing image if no new file is uploaded and not deleting
+            $existingImage = Setting::getValue('about_us_image', 'images/lauren-richmond-5Z3ugfTYYPI-unsplash (1).jpg');
+            $request->merge(['about_us_image' => $existingImage]);
+        }
+
+        DB::transaction(function () use ($request) {
+            Setting::setValue('about_us_image', $request->input('about_us_image'));
+        });
+
+        // Show appropriate success message
+        if ($request->boolean('delete_about_us_image') && !$request->hasFile('about_us_image')) {
+            notify()->success('Gambar tentang kami berhasil dihapus dan dikembalikan ke gambar default');
+        } elseif ($request->hasFile('about_us_image') && $request->boolean('delete_about_us_image')) {
+            notify()->success('Gambar lama berhasil dihapus, gambar baru berhasil diupload');
+        } elseif ($request->hasFile('about_us_image')) {
+            notify()->success('Gambar tentang kami berhasil diupload');
+        } else {
+            notify()->success('Pengaturan gambar tentang kami berhasil disimpan');
+        }
+
         return back();
     }
 }

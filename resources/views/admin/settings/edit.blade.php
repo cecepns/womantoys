@@ -279,6 +279,75 @@
             </div>
         </div>
         <!-- !SECTION: STORE CONTACT CARD -->
+
+        <!-- SECTION: ABOUT US IMAGE CARD -->
+        <div class="bg-white rounded-lg shadow-md border border-gray-200">
+            <div class="p-4 sm:p-6 border-b border-gray-200">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800">Gambar Tentang Kami</h3>
+            </div>
+            <div class="p-4 sm:p-6">
+                <form method="POST" action="{{ route('admin.settings.about-image') }}" id="about-image-setting-form"
+                    enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
+                    <div class="space-y-4 sm:space-y-6">
+                        <div>
+                            <!-- ANCHOR: Gambar Tentang Kami -->
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Gambar Tentang Kami</label>
+
+                            <!-- Single Image Preview Area -->
+                            <div class="space-y-3">
+                                <!-- Status Area -->
+                                <div id="about_image_status" class="hidden p-3 rounded-lg text-sm">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                        <span id="about_image_status_text"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Single Image Preview Section -->
+                                <div id="about_image_preview_section"
+                                    class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                                    <!-- Content will be dynamically updated by JavaScript -->
+                                </div>
+
+                                <!-- Upload Section -->
+                                <div class="border border-gray-200 rounded-lg p-4 bg-white">
+                                    <p class="text-sm font-medium text-gray-700 mb-3">Upload Gambar:</p>
+                                    <div class="space-y-3">
+                                        <!-- File Input -->
+                                        <input type="file" name="about_us_image" id="about_us_image_input"
+                                            accept="image/*"
+                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm">
+
+                                        <!-- Help Text -->
+                                        <p class="text-xs text-gray-500">Format yang didukung: JPEG, PNG, JPG, GIF, SVG.
+                                            Maksimal 2MB.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hidden input for image deletion -->
+                            <input type="hidden" name="delete_about_us_image" id="delete_about_us_image"
+                                value="{{ old('delete_about_us_image', '0') }}">
+
+                            <!-- Error Messages -->
+                            @error('about_us_image')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="pt-2">
+                            <button type="submit"
+                                class="w-full sm:w-auto bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">Simpan</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- !SECTION: ABOUT US IMAGE CARD -->
     </div>
     <!-- !SECTION: SETTINGS PAGE -->
 
@@ -319,7 +388,8 @@
         }
         preventDoubleSubmit('password-setting-form');
         preventDoubleSubmit('store-setting-form');
-        preventDoubleSubmit('whatsapp-setting-form');
+        preventDoubleSubmit('contact-setting-form');
+        preventDoubleSubmit('about-image-setting-form');
 
         // ANCHOR: City Autocomplete State
         // Variabel state dan kontrol untuk permintaan pencarian kota ke server
@@ -599,6 +669,172 @@
         // ANCHOR: Hide Logo Status
         function hideLogoStatus() {
             const statusArea = document.getElementById('logo_status');
+            if (statusArea) {
+                statusArea.classList.add('hidden');
+            }
+        }
+
+        // ANCHOR: About Us Image Preview and Remove
+        function previewAboutUsImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                showNewAboutUsImagePreview(file);
+            } else {
+                // If no file selected, show current image or empty state
+                const currentImage = '{{ $aboutUsImage }}';
+                if (currentImage) {
+                    showCurrentAboutUsImage('{{ asset($aboutUsImage) }}');
+                } else {
+                    showAboutUsImageEmptyState();
+                }
+            }
+        }
+
+        // Add event listener for about us image input
+        document.addEventListener('DOMContentLoaded', function() {
+            const aboutUsImageInput = document.getElementById('about_us_image_input');
+            if (aboutUsImageInput) {
+                aboutUsImageInput.addEventListener('change', previewAboutUsImage);
+            }
+
+            // Initialize about us image preview
+            initializeAboutUsImagePreview();
+        });
+
+        // ANCHOR: About Us Image Preview Management
+        function initializeAboutUsImagePreview() {
+            const currentImage = '{{ $aboutUsImage }}';
+            if (currentImage) {
+                // Check if it's a storage path or public path
+                const imageUrl = currentImage.startsWith('images/') ?
+                    '{{ url('/') }}/' + currentImage :
+                    '{{ url('/storage') }}/' + currentImage;
+                showCurrentAboutUsImage(imageUrl);
+            } else {
+                showAboutUsImageEmptyState();
+            }
+        }
+
+        function showCurrentAboutUsImage(imagePath) {
+            const previewSection = document.getElementById('about_image_preview_section');
+            previewSection.innerHTML = `
+                <div class="relative">
+                    <img src="${imagePath}" alt="Current About Us Image"
+                        class="h-32 w-full object-cover rounded-lg border border-gray-300"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="h-32 w-full bg-gray-100 flex items-center justify-center rounded-lg border border-gray-300" style="display: none;">
+                        <div class="text-center text-gray-500">
+                            <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                            <p class="text-xs">Gambar tidak dapat ditampilkan</p>
+                        </div>
+                    </div>
+                    <!-- Delete Image Button -->
+                    <button type="button"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                        onclick="deleteCurrentAboutUsImage()" title="Hapus gambar saat ini">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+        }
+
+        function showNewAboutUsImagePreview(file) {
+            const previewSection = document.getElementById('about_image_preview_section');
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                previewSection.innerHTML = `
+                    <div class="relative">
+                        <img src="${e.target.result}" alt="New About Us Image Preview"
+                            class="h-32 w-full object-cover rounded-lg border border-gray-300">
+                        <!-- Remove New Image Button -->
+                        <button type="button"
+                            class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
+                            onclick="removeNewAboutUsImage()" title="Batal upload gambar baru">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+
+                // Reset delete image flag since we're uploading new image
+                document.getElementById('delete_about_us_image').value = '0';
+                showAboutUsImageStatus('Gambar baru dipilih. Gambar lama akan diganti dengan gambar baru ini.', 'info');
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        function showAboutUsImageEmptyState() {
+            const previewSection = document.getElementById('about_image_preview_section');
+            previewSection.innerHTML = `
+                <div class="text-center py-8">
+                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p class="text-gray-500 text-sm">Tidak ada gambar yang dipilih</p>
+                    <p class="text-gray-400 text-xs mt-1">Upload gambar baru menggunakan form di bawah</p>
+                </div>
+            `;
+        }
+
+        function removeNewAboutUsImage() {
+            const currentImage = '{{ $aboutUsImage }}';
+            if (currentImage) {
+                // Check if it's a storage path or public path
+                const imageUrl = currentImage.startsWith('images/') ?
+                    '{{ url('/') }}/' + currentImage :
+                    '{{ url('/storage') }}/' + currentImage;
+                showCurrentAboutUsImage(imageUrl);
+            } else {
+                showAboutUsImageEmptyState();
+            }
+            // Clear file input
+            document.getElementById('about_us_image_input').value = '';
+            hideAboutUsImageStatus();
+        }
+
+        // ANCHOR: Delete Current About Us Image
+        function deleteCurrentAboutUsImage() {
+            if (confirm('Apakah Anda yakin ingin menghapus gambar tentang kami saat ini?')) {
+                document.getElementById('delete_about_us_image').value = '1';
+                // Show empty state
+                showAboutUsImageEmptyState();
+                // Clear file input
+                document.getElementById('about_us_image_input').value = '';
+                // Show status
+                showAboutUsImageStatus(
+                    'Gambar akan dihapus saat form disubmit. Anda juga bisa upload gambar baru untuk menggantikannya.',
+                    'warning');
+            }
+        }
+
+        // ANCHOR: Show About Us Image Status
+        function showAboutUsImageStatus(message, type = 'info') {
+            const statusArea = document.getElementById('about_image_status');
+            const statusText = document.getElementById('about_image_status_text');
+
+            if (statusArea && statusText) {
+                statusText.textContent = message;
+
+                // Set color based on type
+                statusArea.className =
+                    `p-3 rounded-lg text-sm ${type === 'warning' ? 'bg-yellow-50 text-yellow-800 border border-yellow-200' : 'bg-blue-50 text-blue-800 border border-blue-200'}`;
+
+                statusArea.classList.remove('hidden');
+            }
+        }
+
+        // ANCHOR: Hide About Us Image Status
+        function hideAboutUsImageStatus() {
+            const statusArea = document.getElementById('about_image_status');
             if (statusArea) {
                 statusArea.classList.add('hidden');
             }

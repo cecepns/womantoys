@@ -15,7 +15,7 @@ class SettingSeeder extends Seeder
         // Default WhatsApp settings
         Setting::setValue('whatsapp_number', '82297598899');
         Setting::setValue('whatsapp_message', 'Halo, saya ingin bertanya produk terbaru womantoys');
-        
+
         // Default store settings
         Setting::setValue('store_name', 'WomanToys');
         Setting::setValue('store_address', '');
@@ -23,5 +23,6 @@ class SettingSeeder extends Seeder
         Setting::setValue('store_origin_id', '17473');
         Setting::setValue('email', 'primemania88@gmail.com');
         Setting::setValue('logo', '');
+        Setting::setValue('about_us_image', 'images/lauren-richmond-5Z3ugfTYYPI-unsplash (1).jpg');
     }
 }

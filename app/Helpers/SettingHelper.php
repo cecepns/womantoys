@@ -53,4 +53,20 @@ class SettingHelper
     {
         return Setting::getValue('logo', '');
     }
+
+    /**
+     * ANCHOR: Get about us image from settings.
+     */
+    public static function getAboutUsImage(): string
+    {
+        return Setting::getValue('about_us_image', 'images/lauren-richmond-5Z3ugfTYYPI-unsplash (1).jpg');
+    }
+
+    /**
+     * ANCHOR: Generic method to get any setting value.
+     */
+    public static function getValue(string $key, $default = null)
+    {
+        return Setting::getValue($key, $default);
+    }
 }

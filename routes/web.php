@@ -3,21 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
-Route::get('/', function () {
-    $carouselSlides = App\Models\CarouselSlide::orderBy('order', 'asc')->get();
-    $featuredProducts = App\Models\Product::with(['category'])
-        ->active()
-        ->inStock()
-        ->featured()
-        ->orderBy('created_at', 'desc')
-        ->limit(4)
-        ->get();
-    $categories = App\Models\Category::withCount(['products' => function ($query) {
-        $query->active()->inStock();
-    }])->withCoverImage()->get();
-    
-    return view('home', compact('carouselSlides', 'featuredProducts', 'categories'));
-});
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('/catalog', [App\Http\Controllers\CatalogController::class, 'index'])->name('catalog');
 
@@ -32,14 +18,14 @@ Route::prefix('api')->group(function () {
     Route::prefix('rajaongkir')->group(function () {
         Route::get('/search-destination', [App\Http\Controllers\RajaOngkirController::class, 'searchDestination']);
         Route::post('/calculate-cost', [App\Http\Controllers\RajaOngkirController::class, 'calculateCost']);
-        
+
         // Address API Routes
         Route::get('/provinces', [App\Http\Controllers\RajaOngkirController::class, 'getProvinces']);
         Route::get('/cities', [App\Http\Controllers\RajaOngkirController::class, 'getCities']);
         Route::get('/cities/{city_id}', [App\Http\Controllers\RajaOngkirController::class, 'getCityById']);
         Route::get('/provinces/{province_id}', [App\Http\Controllers\RajaOngkirController::class, 'getProvinceById']);
     });
-    
+
     // Voucher API Routes
     Route::post('/vouchers/validate', [App\Http\Controllers\VoucherController::class, 'validateVoucher'])->name('api.vouchers.validate');
 });
@@ -53,32 +39,32 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [App\Http\Controllers\Admin\Auth\AdminAuthController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [App\Http\Controllers\Admin\Auth\AdminAuthController::class, 'login']);
     Route::post('/logout', [App\Http\Controllers\Admin\Auth\AdminAuthController::class, 'logout'])->name('logout');
-    
+
     // Protected admin routes
     Route::middleware('auth.admin')->group(function () {
         Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
-        
+
         // Product routes
         Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
         Route::delete('/products/{product}/gallery/{image}', [App\Http\Controllers\Admin\ProductController::class, 'removeGalleryImage'])->name('products.remove-gallery-image');
-        
+
         // Carousel routes
         Route::resource('carousel', App\Http\Controllers\Admin\CarouselController::class);
         Route::post('/carousel/{carouselSlide}/move-up', [App\Http\Controllers\Admin\CarouselController::class, 'moveUp'])->name('carousel.move-up');
         Route::post('/carousel/{carouselSlide}/move-down', [App\Http\Controllers\Admin\CarouselController::class, 'moveDown'])->name('carousel.move-down');
-        
+
         // Category routes
         Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class);
-        
+
         // Main Category routes
         Route::resource('main-categories', App\Http\Controllers\Admin\MainCategoryController::class);
-        
+
         // Order routes
         Route::get('/orders', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/export', [App\Http\Controllers\Admin\OrderController::class, 'export'])->name('orders.export');
         Route::get('/orders/{order}', [App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
         Route::put('/orders/{order}/status', [App\Http\Controllers\Admin\OrderController::class, 'updateStatus'])->name('orders.update-status');
-        
+
         // Bank Account routes
         Route::resource('accounts', App\Http\Controllers\Admin\BankAccountController::class)->except(['show']);
 
@@ -87,7 +73,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/settings/password', [App\Http\Controllers\Admin\SettingController::class, 'updatePassword'])->name('settings.password');
         Route::put('/settings/store', [App\Http\Controllers\Admin\SettingController::class, 'updateStore'])->name('settings.store');
         Route::put('/settings/contact', [App\Http\Controllers\Admin\SettingController::class, 'updateContact'])->name('settings.contact');
-        
+        Route::put('/settings/about-image', [App\Http\Controllers\Admin\SettingController::class, 'updateAboutImage'])->name('settings.about-image');
+
         // Voucher routes
         Route::resource('vouchers', App\Http\Controllers\VoucherController::class);
         Route::post('/vouchers/{voucher}/toggle-status', [App\Http\Controllers\VoucherController::class, 'toggleStatus'])->name('vouchers.toggle-status');
@@ -96,4 +83,3 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/vouchers/export/excel', [App\Http\Controllers\VoucherController::class, 'export'])->name('vouchers.export');
     });
 });
-
