@@ -240,17 +240,23 @@
                         <div class="relative group shrink-0 category-item">
                             @if ($main->categories && $main->categories->count() > 0)
                                 <!-- ANCHOR: Main Category dengan Dropdown -->
-                                <button type="button"
-                                    class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1 flex items-center gap-1 cursor-pointer main-menu-toggle"
-                                    aria-expanded="false" aria-controls="submenu-{{ $main->id }}">
-                                    {{ $main->name }}
-                                    <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-pink-500" fill="currentColor"
-                                        viewBox="0 0 20 20" aria-hidden="true">
-                                        <path fill-rule="evenodd"
-                                            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z"
-                                            clip-rule="evenodd" />
-                                    </svg>
-                                </button>
+                                <div class="flex items-center justify-between">
+                                    <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug])) }}"
+                                        class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1 flex items-center gap-1 cursor-pointer main-category-link">
+                                        {{ $main->name }}
+                                    </a>
+                                    <button type="button"
+                                        class="text-gray-400 hover:text-pink-500 transition-colors duration-200 p-1 dropdown-toggle"
+                                        aria-expanded="false" aria-controls="submenu-{{ $main->id }}"
+                                        aria-label="Toggle submenu for {{ $main->name }}">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"
+                                            aria-hidden="true">
+                                            <path fill-rule="evenodd"
+                                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
 
                                 <div id="submenu-{{ $main->id }}"
                                     class="submenu-panel hidden w-full lg:w-56 lg:absolute lg:left-0 lg:top-full bg-white lg:border lg:border-gray-200 rounded-md lg:shadow-lg z-30 lg:group-hover:block">
@@ -317,7 +323,8 @@
                 <!-- ANCHOR: Informasi Perusahaan -->
                 <div class="sm:col-span-2 lg:col-span-1">
                     <h3 class="text-lg md:text-xl font-bold mb-3 md:mb-4">{{ $storeName ?? 'WomanToys' }}</h3>
-                    <p class="text-gray-300 text-sm md:text-base leading-relaxed">Mainan dewasa premium dan produk intim
+                    <p class="text-gray-300 text-sm md:text-base leading-relaxed">Mainan dewasa premium dan produk
+                        intim
                         untuk kesenangan dan kepuasan yang lebih baik.</p>
                 </div>
 
@@ -416,7 +423,7 @@
                         document.querySelectorAll('.submenu-panel').forEach(function(panel) {
                             panel.classList.add('hidden');
                         });
-                        document.querySelectorAll('.main-menu-toggle[aria-expanded="true"]').forEach(
+                        document.querySelectorAll('.dropdown-toggle[aria-expanded="true"]').forEach(
                             function(btn) {
                                 btn.setAttribute('aria-expanded', 'false');
                             });
@@ -439,7 +446,7 @@
                     document.querySelectorAll('.submenu-panel').forEach(function(panel) {
                         panel.classList.add('hidden');
                     });
-                    document.querySelectorAll('.main-menu-toggle[aria-expanded="true"]').forEach(function(
+                    document.querySelectorAll('.dropdown-toggle[aria-expanded="true"]').forEach(function(
                         btn) {
                         btn.setAttribute('aria-expanded', 'false');
                     });
@@ -458,7 +465,7 @@
                 document.querySelectorAll('.submenu-panel').forEach(function(panel) {
                     panel.classList.add('hidden');
                 });
-                document.querySelectorAll('.main-menu-toggle[aria-expanded="true"]').forEach(function(btn) {
+                document.querySelectorAll('.dropdown-toggle[aria-expanded="true"]').forEach(function(btn) {
                     btn.setAttribute('aria-expanded', 'false');
                 });
             });
@@ -536,7 +543,7 @@
 
             // ANCHOR: Perilaku collapse menu vertikal (mobile)
             document.addEventListener('click', function(e) {
-                const toggle = e.target.closest('.main-menu-toggle');
+                const toggle = e.target.closest('.dropdown-toggle');
                 if (!toggle) return;
                 // Aktifkan collapse hanya pada layar kecil
                 if (window.innerWidth >= 1024) return;
