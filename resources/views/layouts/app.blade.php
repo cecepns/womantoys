@@ -179,121 +179,123 @@
 </head>
 
 <body class="min-h-screen bg-gray-50">
-    <!-- SECTION: HEADER -->
-    <!-- ANCHOR: Navigasi Header Utama -->
-    <header class="bg-white shadow-md">
-        <nav class="container mx-auto px-4 py-3 md:py-4">
-            <div class="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
-                <!-- ANCHOR: Logo / Brand -->
-                <div class="flex items-center w-full md:w-auto justify-between">
-                    <a href="/" class="text-xl md:text-2xl font-bold text-pink-600 flex items-center">
-                        @if (isset($logo) && $logo)
-                            <img src="{{ asset('storage/' . $logo) }}" alt="{{ $storeName ?? 'WomanToys' }} Logo"
-                                class="h-8 md:h-10 w-auto mr-2 object-contain"
-                                onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
-                            <span class="hidden">{{ $storeName ?? 'WomanToys' }}</span>
-                        @else
-                            {{ $storeName ?? 'WomanToys' }}
-                        @endif
-                    </a>
-                </div>
+    <div class="sticky top-0 z-50">
+        <!-- SECTION: HEADER -->
+        <!-- ANCHOR: Navigasi Header Utama -->
+        <header class="bg-white shadow-md">
+            <nav class="container mx-auto px-4 py-3 md:py-4">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-3 md:space-y-0">
+                    <!-- ANCHOR: Logo / Brand -->
+                    <div class="flex items-center w-full md:w-auto justify-between">
+                        <a href="/" class="text-xl md:text-2xl font-bold text-pink-600 flex items-center">
+                            @if (isset($logo) && $logo)
+                                <img src="{{ asset('storage/' . $logo) }}" alt="{{ $storeName ?? 'WomanToys' }} Logo"
+                                    class="h-8 md:h-10 w-auto mr-2 object-contain"
+                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';">
+                                <span class="hidden">{{ $storeName ?? 'WomanToys' }}</span>
+                            @else
+                                {{ $storeName ?? 'WomanToys' }}
+                            @endif
+                        </a>
+                    </div>
 
-                <!-- ANCHOR: Bilah Pencarian Produk -->
-                <div class="w-full md:flex-1 md:max-w-md md:mx-8">
-                    <form action="/catalog" method="GET" class="relative">
-                        <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Cari produk..."
-                            class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-sm md:text-base">
-                        <button type="submit"
-                            class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-auto">
-                            <svg class="h-4 w-4 text-gray-400 hover:text-pink-600 transition-colors" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                            </svg>
-                        </button>
-                    </form>
+                    <!-- ANCHOR: Bilah Pencarian Produk -->
+                    <div class="w-full md:flex-1 md:max-w-md md:mx-8">
+                        <form action="/catalog" method="GET" class="relative">
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Cari produk..."
+                                class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-sm md:text-base">
+                            <button type="submit"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-auto">
+                                <svg class="h-4 w-4 text-gray-400 hover:text-pink-600 transition-colors" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <!-- !SECTION: HEADER -->
+            </nav>
+        </header>
+        <!-- !SECTION: HEADER -->
 
-    <!-- SECTION: CATEGORIES -->
-    <!-- ANCHOR: Menu Kategori & Sub Kategori -->
-    <div class="bg-white border-b border-gray-200 shadow">
-        <div class="container mx-auto px-4 py-2 md:py-3">
-            <div class="lg:hidden py-1">
-                <button id="mobile-menu-btn" type="button" aria-label="Toggle categories menu" aria-expanded="false"
-                    aria-controls="categories-container"
-                    class="inline-flex items-center justify-center p-2 border border-gray-200 rounded-lg text-gray-600 hover:text-pink-600 hover:border-pink-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-            <div id="categories-container"
-                class="hidden flex flex-col justify-center lg:flex lg:flex-row lg:flex-nowrap gap-5 lg:gap-3 py-2">
-                @if (isset($mainCategories) && $mainCategories->count() > 0)
-                    @foreach ($mainCategories as $main)
-                        <div class="relative group shrink-0 category-item">
-                            @if ($main->categories && $main->categories->count() > 0)
-                                <!-- ANCHOR: Main Category dengan Dropdown -->
-                                <div class="flex items-center justify-between">
+        <!-- SECTION: CATEGORIES (SUB HEADER) -->
+        <!-- ANCHOR: Menu Kategori & Sub Kategori -->
+        <div class="bg-white border-b border-gray-200 shadow">
+            <div class="container mx-auto px-4 py-2 md:py-3">
+                <div class="lg:hidden py-1">
+                    <button id="mobile-menu-btn" type="button" aria-label="Toggle categories menu"
+                        aria-expanded="false" aria-controls="categories-container"
+                        class="inline-flex items-center justify-center p-2 border border-gray-200 rounded-lg text-gray-600 hover:text-pink-600 hover:border-pink-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="categories-container"
+                    class="hidden flex flex-col justify-center lg:flex lg:flex-row lg:flex-nowrap gap-5 lg:gap-3 py-2">
+                    @if (isset($mainCategories) && $mainCategories->count() > 0)
+                        @foreach ($mainCategories as $main)
+                            <div class="relative group shrink-0 category-item">
+                                @if ($main->categories && $main->categories->count() > 0)
+                                    <!-- ANCHOR: Main Category dengan Dropdown -->
+                                    <div class="flex items-center justify-between">
+                                        <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug])) }}"
+                                            class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1 flex items-center gap-1 cursor-pointer main-category-link">
+                                            {{ $main->name }}
+                                        </a>
+                                        <button type="button"
+                                            class="text-gray-400 hover:text-pink-500 transition-colors duration-200 p-1 dropdown-toggle"
+                                            aria-expanded="false" aria-controls="submenu-{{ $main->id }}"
+                                            aria-label="Toggle submenu for {{ $main->name }}">
+                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"
+                                                aria-hidden="true">
+                                                <path fill-rule="evenodd"
+                                                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div id="submenu-{{ $main->id }}"
+                                        class="submenu-panel hidden w-full lg:w-56 lg:absolute lg:left-0 lg:top-full bg-white lg:border lg:border-gray-200 rounded-md lg:shadow-lg z-30 lg:group-hover:block">
+                                        <ul class="py-1 max-h-64 overflow-auto scrollbar-hide">
+                                            @foreach ($main->categories as $child)
+                                                <li>
+                                                    <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $child->slug])) }}"
+                                                        class="block px-4 py-2 text-xs text-gray-700 hover:bg-pink-50 hover:text-pink-600">
+                                                        {{ $child->name }}
+                                                    </a>
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @else
+                                    <!-- ANCHOR: Main Category Tanpa Sub Kategori -->
                                     <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug])) }}"
-                                        class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1 flex items-center gap-1 cursor-pointer main-category-link">
+                                        class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1">
                                         {{ $main->name }}
                                     </a>
-                                    <button type="button"
-                                        class="text-gray-400 hover:text-pink-500 transition-colors duration-200 p-1 dropdown-toggle"
-                                        aria-expanded="false" aria-controls="submenu-{{ $main->id }}"
-                                        aria-label="Toggle submenu for {{ $main->name }}">
-                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"
-                                            aria-hidden="true">
-                                            <path fill-rule="evenodd"
-                                                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.24 4.5a.75.75 0 01-1.08 0l-4.24-4.5a.75.75 0 01.02-1.06z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </div>
-
-                                <div id="submenu-{{ $main->id }}"
-                                    class="submenu-panel hidden w-full lg:w-56 lg:absolute lg:left-0 lg:top-full bg-white lg:border lg:border-gray-200 rounded-md lg:shadow-lg z-30 lg:group-hover:block">
-                                    <ul class="py-1 max-h-64 overflow-auto scrollbar-hide">
-                                        @foreach ($main->categories as $child)
-                                            <li>
-                                                <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $child->slug])) }}"
-                                                    class="block px-4 py-2 text-xs text-gray-700 hover:bg-pink-50 hover:text-pink-600">
-                                                    {{ $child->name }}
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @else
-                                <!-- ANCHOR: Main Category Tanpa Sub Kategori -->
-                                <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug])) }}"
-                                    class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1">
-                                    {{ $main->name }}
-                                </a>
-                            @endif
-                        </div>
-                    @endforeach
-                @elseif(isset($categories) && $categories->count() > 0)
-                    @foreach ($categories as $category)
-                        <a href="/catalog?category={{ $category->slug }}"
-                            class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3">
-                            {{ $category->name }}
-                        </a>
-                    @endforeach
-                @else
-                    <span class="text-xs text-gray-500">Tidak ada kategori tersedia</span>
-                @endif
+                                @endif
+                            </div>
+                        @endforeach
+                    @elseif(isset($categories) && $categories->count() > 0)
+                        @foreach ($categories as $category)
+                            <a href="/catalog?category={{ $category->slug }}"
+                                class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3">
+                                {{ $category->name }}
+                            </a>
+                        @endforeach
+                    @else
+                        <span class="text-xs text-gray-500">Tidak ada kategori tersedia</span>
+                    @endif
+                </div>
             </div>
         </div>
+        <!-- !SECTION: CATEGORIES (SUB HEADER) -->
     </div>
-    <!-- !SECTION: CATEGORIES -->
 
     <!-- SECTION: MAIN CONTENT -->
     <main class="flex-grow">
