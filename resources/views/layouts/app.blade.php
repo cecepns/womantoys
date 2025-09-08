@@ -242,7 +242,7 @@
                                 @if ($main->categories && $main->categories->count() > 0)
                                     <!-- ANCHOR: Main Category dengan Dropdown -->
                                     <div class="flex items-center justify-between">
-                                        <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug])) }}"
+                                        <a href="{{ route('catalog', ['main' => $main->slug]) }}"
                                             class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1 flex items-center gap-1 cursor-pointer main-category-link">
                                             {{ $main->name }}
                                         </a>
