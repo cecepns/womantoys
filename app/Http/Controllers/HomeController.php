@@ -19,7 +19,7 @@ class HomeController extends Controller
             ->inStock()
             ->featured()
             ->orderBy('created_at', 'desc')
-            ->limit(4)
+            ->limit(15)
             ->get();
 
         $categories = Category::withCount(['products' => function ($query) {
