@@ -73,9 +73,31 @@
             @endif
         </div>
 
+        <!-- Sorting Options -->
+        <div class="mb-6 md:mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm md:text-base text-gray-600">Urutkan berdasarkan:</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <select id="sortSelect"
+                        class="px-3 py-2 border border-gray-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-pink-500 focus:border-pink-500 bg-white">
+                        <option value="newest" {{ request('sort') == 'newest' || !request('sort') ? 'selected' : '' }}>
+                            Terbaru</option>
+                        <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Nama A-Z</option>
+                        <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>Nama Z-A</option>
+                        <option value="price_asc" {{ request('sort') == 'price_asc' ? 'selected' : '' }}>Harga Terendah
+                        </option>
+                        <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>Harga Tertinggi
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
         <!-- Grid Produk -->
         @if ($products->count() > 0)
-            <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4 md:gap-6 mb-8 md:mb-12"
+            <div class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8 md:mb-12"
                 style="grid-auto-rows: 1fr;">
                 @foreach ($products as $product)
                     <x-product-card :product="$product" />
@@ -127,4 +149,19 @@
             {{ $products->links() }}
         @endif
     </div>
+
+    <script>
+        document.getElementById('sortSelect').addEventListener('change', function() {
+            const sortValue = this.value;
+            const url = new URL(window.location);
+
+            if (sortValue === 'newest') {
+                url.searchParams.delete('sort');
+            } else {
+                url.searchParams.set('sort', sortValue);
+            }
+
+            window.location.href = url.toString();
+        });
+    </script>
 @endsection

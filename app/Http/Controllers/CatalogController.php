@@ -37,9 +37,29 @@ class CatalogController extends Controller
             $query->search($request->search);
         }
 
+        // Sorting functionality
+        $sortBy = $request->get('sort', 'newest');
+        switch ($sortBy) {
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
         // Get products with pagination
-        $products = $query->orderBy('created_at', 'desc')
-            ->paginate(12)
+        $products = $query->paginate(12)
             ->withQueryString();
 
         // Get main categories for filter bar
