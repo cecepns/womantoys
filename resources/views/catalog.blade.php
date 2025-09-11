@@ -75,13 +75,13 @@
 
         <!-- Sorting Options -->
         <div class="mb-6 md:mb-8">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex flex-col sm:flex-row justify-end gap-4">
                 <div class="flex items-center gap-2">
                     <span class="text-sm md:text-base text-gray-600">Urutkan berdasarkan:</span>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center w-full sm:w-auto gap-2">
                     <select id="sortSelect"
-                        class="px-3 py-2 border border-gray-300 rounded-lg text-sm md:text-base focus:ring-2 focus:ring-pink-500 focus:border-pink-500 bg-white">
+                        class="px-3 py-2 border border-gray-300  w-full sm:w-auto rounded-lg text-sm md:text-base focus:ring-2 focus:ring-pink-500 focus:border-pink-500 bg-white">
                         <option value="newest" {{ request('sort') == 'newest' || !request('sort') ? 'selected' : '' }}>
                             Terbaru</option>
                         <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>Nama A-Z</option>
