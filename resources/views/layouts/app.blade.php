@@ -275,7 +275,7 @@
                                 @else
                                     <!-- ANCHOR: Main Category Tanpa Sub Kategori -->
                                     <a href="{{ route('catalog', array_merge(request()->query(), ['main' => $main->slug])) }}"
-                                        class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1">
+                                        class="text-md text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1">
                                         {{ $main->name }}
                                     </a>
                                 @endif
