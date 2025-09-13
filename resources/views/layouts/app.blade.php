@@ -243,7 +243,7 @@
                                     <!-- ANCHOR: Main Category dengan Dropdown -->
                                     <div class="flex items-center justify-between">
                                         <a href="{{ route('catalog', ['main' => $main->slug]) }}"
-                                            class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1 flex items-center gap-1 cursor-pointer main-category-link">
+                                            class="text-md text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3 py-1 flex items-center gap-1 cursor-pointer main-category-link">
                                             {{ $main->name }}
                                         </a>
                                         <button type="button"
@@ -265,7 +265,7 @@
                                             @foreach ($main->categories as $child)
                                                 <li>
                                                     <a href="{{ route('catalog', array_merge(request()->query(), ['category' => $child->slug])) }}"
-                                                        class="block px-4 py-2 text-xs text-gray-700 hover:bg-pink-50 hover:text-pink-600">
+                                                        class="block px-4 py-2 text-md text-gray-700 hover:bg-pink-50 hover:text-pink-600">
                                                         {{ $child->name }}
                                                     </a>
                                                 </li>
