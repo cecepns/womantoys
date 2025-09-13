@@ -284,12 +284,12 @@
                     @elseif(isset($categories) && $categories->count() > 0)
                         @foreach ($categories as $category)
                             <a href="/catalog?category={{ $category->slug }}"
-                                class="text-xs text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3">
+                                class="text-md text-gray-700 hover:text-pink-600 transition-colors duration-200 whitespace-nowrap font-medium px-3">
                                 {{ $category->name }}
                             </a>
                         @endforeach
                     @else
-                        <span class="text-xs text-gray-500">Tidak ada kategori tersedia</span>
+                        <span class="text-md text-gray-500">Tidak ada kategori tersedia</span>
                     @endif
                 </div>
             </div>
