@@ -4,12 +4,12 @@
     <div
         class="border border-gray-200 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 bg-white h-full flex flex-col">
         <!-- Product Image -->
-        <div class="w-full h-48 overflow-hidden">
+        <div class="w-full aspect-square bg-gray-200 overflow-hidden">
             @if ($product->main_image_url)
                 <img src="{{ $product->main_image_url }}" alt="{{ $product->name }}"
-                    class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300">
+                    class="w-full h-full object-contain hover:scale-105 transition-transform duration-300">
             @else
-                <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
                     <div class="text-center">
                         <svg class="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">

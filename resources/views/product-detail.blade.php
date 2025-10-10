@@ -30,7 +30,7 @@
                 <div class="mb-4 md:mb-6">
                     @if ($product->main_image_url)
                         <img src="{{ $product->main_image_url }}" alt="{{ $product->name }}"
-                            class="w-full h-64 sm:h-80 md:h-96 lg:h-[500px] object-cover rounded-lg shadow-lg"
+                            class="w-full object-contain rounded-lg shadow-lg"
                             id="main-product-image">
                     @else
                         <div
