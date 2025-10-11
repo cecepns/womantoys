@@ -77,6 +77,14 @@ class Product extends Model
     }
 
     /**
+     * ANCHOR: Get the variants for the product.
+     */
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class)->orderBy('order', 'asc');
+    }
+
+    /**
      * ANCHOR: Get the route key for the model.
      *
      * @return string
@@ -291,5 +299,71 @@ class Product extends Model
     public function getFormattedFinalPriceAttribute()
     {
         return 'Rp ' . number_format($this->final_price, 0, ',', '.');
+    }
+
+    /**
+     * Check if the product has variants.
+     *
+     * @return bool
+     */
+    public function hasVariants()
+    {
+        return $this->variants()->count() > 0;
+    }
+
+    /**
+     * Check if the product has active variants.
+     *
+     * @return bool
+     */
+    public function hasActiveVariants()
+    {
+        return $this->variants()->active()->count() > 0;
+    }
+
+    /**
+     * Get price range if product has variants with different prices.
+     *
+     * @return array|null
+     */
+    public function getPriceRangeAttribute()
+    {
+        if (!$this->hasActiveVariants()) {
+            return null;
+        }
+
+        $activeVariants = $this->variants()->active()->get();
+        $prices = $activeVariants->map(function ($variant) {
+            return $variant->final_price;
+        });
+
+        $minPrice = $prices->min();
+        $maxPrice = $prices->max();
+
+        if ($minPrice === $maxPrice) {
+            return ['min' => $minPrice, 'max' => $maxPrice, 'same' => true];
+        }
+
+        return ['min' => $minPrice, 'max' => $maxPrice, 'same' => false];
+    }
+
+    /**
+     * Get formatted price range.
+     *
+     * @return string|null
+     */
+    public function getFormattedPriceRangeAttribute()
+    {
+        $range = $this->price_range;
+        
+        if (!$range) {
+            return null;
+        }
+
+        if ($range['same']) {
+            return 'Rp ' . number_format($range['min'], 0, ',', '.');
+        }
+
+        return 'Rp ' . number_format($range['min'], 0, ',', '.') . ' - Rp ' . number_format($range['max'], 0, ',', '.');
     }
 }

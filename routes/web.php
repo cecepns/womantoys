@@ -47,6 +47,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Product routes
         Route::resource('products', App\Http\Controllers\Admin\ProductController::class);
         Route::delete('/products/{product}/gallery/{image}', [App\Http\Controllers\Admin\ProductController::class, 'removeGalleryImage'])->name('products.remove-gallery-image');
+        
+        // Product Variant routes
+        Route::post('/products/{product}/variants', [App\Http\Controllers\Admin\ProductVariantController::class, 'store'])->name('products.variants.store');
+        Route::put('/products/{product}/variants/{variant}', [App\Http\Controllers\Admin\ProductVariantController::class, 'update'])->name('products.variants.update');
+        Route::delete('/products/{product}/variants/{variant}', [App\Http\Controllers\Admin\ProductVariantController::class, 'destroy'])->name('products.variants.destroy');
+        Route::post('/products/{product}/variants/{variant}/toggle-active', [App\Http\Controllers\Admin\ProductVariantController::class, 'toggleActive'])->name('products.variants.toggle-active');
+        Route::post('/products/{product}/variants/update-order', [App\Http\Controllers\Admin\ProductVariantController::class, 'updateOrder'])->name('products.variants.update-order');
 
         // Carousel routes
         Route::resource('carousel', App\Http\Controllers\Admin\CarouselController::class);

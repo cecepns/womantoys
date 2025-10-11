@@ -99,6 +99,39 @@
                     </p>
                 </div>
 
+                <!-- Variant Selection (if product has variants) -->
+                @if ($product->hasActiveVariants())
+                    <div class="mb-6 md:mb-8">
+                        <label for="variant-select" class="block text-sm font-medium text-gray-700 mb-2">
+                            Pilih Variant <span class="text-red-500">*</span>
+                        </label>
+                        <select id="variant-select" name="variant_id" required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base">
+                            <option value="">-- Pilih Variant --</option>
+                            @foreach ($product->variants()->active()->get() as $variant)
+                                <option value="{{ $variant->id }}" 
+                                    data-price="{{ $variant->price }}"
+                                    data-discount-price="{{ $variant->discount_price }}"
+                                    data-stock="{{ $variant->stock }}"
+                                    data-image="{{ $variant->image_url }}"
+                                    data-formatted-price="{{ $variant->formatted_price }}"
+                                    data-formatted-discount-price="{{ $variant->formatted_discount_price }}"
+                                    data-formatted-final-price="{{ $variant->formatted_final_price }}"
+                                    data-has-discount="{{ $variant->hasDiscount() ? 'true' : 'false' }}"
+                                    data-discount-percentage="{{ $variant->discount_percentage }}">
+                                    {{ $variant->name }} - {{ $variant->formatted_final_price }}
+                                    @if ($variant->stock > 0)
+                                        ({{ $variant->stock }} stok)
+                                    @else
+                                        (Stok Habis)
+                                    @endif
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-gray-500 text-xs mt-1">Pilih variant sebelum melakukan pembelian</p>
+                    </div>
+                @endif
+
                 <!-- Product Info -->
                 <div class="mb-6 space-y-2 md:space-y-3">
                     <!-- Stock Status -->
@@ -154,20 +187,30 @@
                 </div>
 
                 <!-- Buy Now Button -->
-                @if ($product->stock > 0)
-                    <a href="{{ route('checkout') }}?product={{ $product->id }}" class="block">
-                        <button
-                            class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
-                            Beli Sekarang
+                <div id="buy-button-container">
+                    @if ($product->hasActiveVariants())
+                        <button id="buy-button" onclick="handleBuyNow()"
+                            class="w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl cursor-not-allowed"
+                            disabled>
+                            Pilih Variant Terlebih Dahulu
                         </button>
-                    </a>
-                @else
-                    <button
-                        class="w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl cursor-not-allowed"
-                        disabled>
-                        Habis Stok
-                    </button>
-                @endif
+                    @else
+                        @if ($product->stock > 0)
+                            <a href="{{ route('checkout') }}?product={{ $product->id }}" class="block">
+                                <button
+                                    class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
+                                    Beli Sekarang
+                                </button>
+                            </a>
+                        @else
+                            <button
+                                class="w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl cursor-not-allowed"
+                                disabled>
+                                Habis Stok
+                            </button>
+                        @endif
+                    @endif
+                </div>
             </div>
         </div>
 
@@ -234,7 +277,133 @@
     </div>
 
     <script>
+        // ANCHOR: Handle variant selection
+        let selectedVariantId = null;
+
+        function handleVariantChange() {
+            const variantSelect = document.getElementById('variant-select');
+            if (!variantSelect) return;
+
+            const selectedOption = variantSelect.options[variantSelect.selectedIndex];
+            
+            if (!selectedOption.value) {
+                // No variant selected
+                selectedVariantId = null;
+                updateBuyButton(false, 0);
+                return;
+            }
+
+            selectedVariantId = selectedOption.value;
+            const price = selectedOption.dataset.price;
+            const discountPrice = selectedOption.dataset.discountPrice;
+            const stock = parseInt(selectedOption.dataset.stock);
+            const image = selectedOption.dataset.image;
+            const formattedPrice = selectedOption.dataset.formattedPrice;
+            const formattedDiscountPrice = selectedOption.dataset.formattedDiscountPrice;
+            const formattedFinalPrice = selectedOption.dataset.formattedFinalPrice;
+            const hasDiscount = selectedOption.dataset.hasDiscount === 'true';
+            const discountPercentage = selectedOption.dataset.discountPercentage;
+
+            // Update price display
+            updatePriceDisplay(hasDiscount, formattedFinalPrice, formattedPrice, formattedDiscountPrice, discountPercentage);
+
+            // Update stock display
+            updateStockDisplay(stock);
+
+            // Update image if variant has one
+            if (image) {
+                updateMainImage(image);
+            }
+
+            // Update buy button
+            updateBuyButton(stock > 0, stock);
+        }
+
+        function updatePriceDisplay(hasDiscount, finalPrice, price, discountPrice, discountPercentage) {
+            const priceContainer = document.querySelector('.mb-4.md\\:mb-6');
+            if (!priceContainer) return;
+
+            if (hasDiscount && discountPrice) {
+                priceContainer.innerHTML = `
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <p class="text-2xl md:text-3xl font-bold text-pink-600">${discountPrice}</p>
+                        <p class="text-lg md:text-xl text-gray-400 line-through">${price}</p>
+                        <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">-${discountPercentage}%</span>
+                    </div>
+                `;
+            } else {
+                priceContainer.innerHTML = `
+                    <p class="text-2xl md:text-3xl font-bold text-pink-600">${finalPrice}</p>
+                `;
+            }
+        }
+
+        function updateStockDisplay(stock) {
+            const stockContainer = document.querySelector('.mb-6.space-y-2 > div:first-child');
+            if (!stockContainer) return;
+
+            if (stock > 0) {
+                stockContainer.innerHTML = `
+                    <p class="text-green-600 font-medium text-sm md:text-base">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        Tersedia (${stock} stok)
+                    </p>
+                `;
+            } else {
+                stockContainer.innerHTML = `
+                    <p class="text-red-600 font-medium text-sm md:text-base">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                        </svg>
+                        Habis Stok
+                    </p>
+                `;
+            }
+        }
+
+        function updateMainImage(imageUrl) {
+            const mainImage = document.getElementById('main-product-image');
+            if (mainImage && imageUrl) {
+                mainImage.src = imageUrl;
+            }
+        }
+
+        function updateBuyButton(hasStock, stock) {
+            const buyButton = document.getElementById('buy-button');
+            if (!buyButton) return;
+
+            if (!selectedVariantId) {
+                buyButton.disabled = true;
+                buyButton.className = 'w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl cursor-not-allowed';
+                buyButton.textContent = 'Pilih Variant Terlebih Dahulu';
+                buyButton.onclick = null;
+            } else if (hasStock) {
+                buyButton.disabled = false;
+                buyButton.className = 'w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl transition-colors duration-200 shadow-lg hover:shadow-xl';
+                buyButton.textContent = 'Beli Sekarang';
+            } else {
+                buyButton.disabled = true;
+                buyButton.className = 'w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl cursor-not-allowed';
+                buyButton.textContent = 'Habis Stok';
+                buyButton.onclick = null;
+            }
+        }
+
+        function handleBuyNow() {
+            if (selectedVariantId) {
+                window.location.href = `{{ route('checkout') }}?product={{ $product->id }}&variant=${selectedVariantId}`;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize variant select handler
+            const variantSelect = document.getElementById('variant-select');
+            if (variantSelect) {
+                variantSelect.addEventListener('change', handleVariantChange);
+            }
+
             // Tab functionality
             const tabButtons = document.querySelectorAll('[data-tab]');
             const tabContents = document.querySelectorAll('[data-tab-content]');

@@ -13,7 +13,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         // Load the product with its relationships
-        $product->load(['category', 'images']);
+        $product->load(['category', 'images', 'variants']);
         
         // Get related products from the same category
         $relatedProducts = Product::with(['category'])

@@ -53,6 +53,7 @@
                     action="{{ route('checkout.store') }}">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <input type="hidden" name="variant_id" value="{{ $variant->id ?? '' }}">
                     <input type="hidden" name="quantity" id="hidden_quantity" value="{{ old('quantity', 1) }}">
                     <input type="hidden" name="voucher_id" id="hidden_voucher_id" value="">
                     <input type="hidden" name="voucher_code" id="hidden_voucher_code" value="">
@@ -175,11 +176,14 @@
                                 <div class="flex-1 min-w-0">
                                     <h3 class="font-semibold text-sm text-gray-800 line-clamp-2 mb-1">{{ $product->name }}
                                     </h3>
+                                    @if ($variant)
+                                        <p class="text-xs text-pink-600 font-medium mb-1">Variant: {{ $variant->name }}</p>
+                                    @endif
                                     <p class="text-xs text-gray-600 line-clamp-1 mb-2">{{ $product->short_description }}
                                     </p>
                                     <div class="flex items-center justify-between">
                                         <div class="flex flex-col gap-1">
-                                            <p class="text-xs text-gray-500">Stok: {{ $product->stock }} unit</p>
+                                            <p class="text-xs text-gray-500">Stok: {{ $checkoutStock ?? $product->stock }} unit</p>
                                             @if ($product->weight)
                                                 <p class="text-xs text-gray-500">Berat: {{ $product->formatted_weight }}
                                                 </p>
@@ -243,9 +247,12 @@
                                 class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
                             <div class="flex-1 min-w-0">
                                 <h3 class="font-semibold text-base text-gray-800 truncate">{{ $product->name }}</h3>
+                                @if ($variant)
+                                    <p class="text-sm text-pink-600 font-medium">Variant: {{ $variant->name }}</p>
+                                @endif
                                 <p class="text-sm text-gray-600 line-clamp-2">{{ $product->short_description }}</p>
                                 <div class="flex items-center gap-4 mt-1">
-                                    <p class="text-xs text-gray-500">Stok: {{ $product->stock }} unit</p>
+                                    <p class="text-xs text-gray-500">Stok: {{ $checkoutStock ?? $product->stock }} unit</p>
                                     @if ($product->weight)
                                         <p class="text-xs text-gray-500">Berat: {{ $product->formatted_weight }}</p>
                                     @endif
@@ -419,15 +426,15 @@
 
 
     <script>
-        // Product data from backend
+        // Product data from backend (use variant data if available)
         const productData = {
-            price: {{ $product->final_price }},
-            finalPrice: {{ $product->final_price }},
-            originalPrice: {{ $product->price }},
-            discountPrice: {{ $product->discount_price ?? 'null' }},
-            hasDiscount: {{ $product->hasDiscount() ? 'true' : 'false' }},
-            discountPercentage: {{ $product->discount_percentage ?? 'null' }},
-            stock: {{ $product->stock }},
+            price: {{ $checkoutPrice ?? $product->final_price }},
+            finalPrice: {{ $checkoutPrice ?? $product->final_price }},
+            originalPrice: {{ $variant->price ?? $product->price }},
+            discountPrice: {{ $variant->discount_price ?? $product->discount_price ?? 'null' }},
+            hasDiscount: {{ ($variant ? $variant->hasDiscount() : $product->hasDiscount()) ? 'true' : 'false' }},
+            discountPercentage: {{ $variant->discount_percentage ?? $product->discount_percentage ?? 'null' }},
+            stock: {{ $checkoutStock ?? $product->stock }},
             weight: {{ $product->weight ?? 500 }} // Default 500g if weight not set
         };
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Voucher;
 use App\Models\VoucherUsage;
 use Illuminate\Http\Request;
@@ -15,15 +16,16 @@ class CheckoutController extends Controller
      */
     public function index(Request $request)
     {
-        // Get product ID from query parameter
+        // Get product ID and variant ID from query parameters
         $productId = $request->query('product');
+        $variantId = $request->query('variant');
 
         if (!$productId) {
             return redirect()->route('catalog')->with('error', 'Produk tidak ditemukan.');
         }
 
         // Load product with relationships
-        $product = Product::with(['category', 'images'])
+        $product = Product::with(['category', 'images', 'variants'])
             ->where('id', $productId)
             ->where('status', 'active')
             ->first();
@@ -32,14 +34,37 @@ class CheckoutController extends Controller
             return redirect()->route('catalog')->with('error', 'Produk tidak ditemukan.');
         }
 
+        // Handle variant if provided
+        $variant = null;
+        $checkoutPrice = $product->final_price;
+        $checkoutStock = $product->stock;
+        
+        if ($variantId) {
+            $variant = ProductVariant::where('id', $variantId)
+                ->where('product_id', $product->id)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$variant) {
+                return redirect()->route('product-detail', $product->slug)->with('error', 'Variant tidak ditemukan.');
+            }
+
+            // Use variant price and stock
+            $checkoutPrice = $variant->final_price;
+            $checkoutStock = $variant->stock;
+        } else if ($product->hasActiveVariants()) {
+            // If product has variants but none selected, redirect back
+            return redirect()->route('product-detail', $product->slug)->with('error', 'Silakan pilih variant terlebih dahulu.');
+        }
+
         // Check stock availability
-        if ($product->stock <= 0) {
+        if ($checkoutStock <= 0) {
             return redirect()->route('product-detail', $product->slug)->with('error', 'Stok produk habis.');
         }
 
         // Get store origin ID for shipping calculation
         $originId = (int) Setting::getValue('store_origin_id', 17473);
-        return view('checkout', compact('product', 'originId'));
+        return view('checkout', compact('product', 'variant', 'checkoutPrice', 'checkoutStock', 'originId'));
     }
 
     /**
@@ -50,6 +75,7 @@ class CheckoutController extends Controller
         // Validate request
         $request->validate([
             'product_id' => 'required|exists:products,id',
+            'variant_id' => 'nullable|exists:product_variants,id',
             'fullName' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'email' => 'required|email|max:255',
@@ -67,8 +93,27 @@ class CheckoutController extends Controller
         // Get product
         $product = Product::findOrFail($request->product_id);
 
+        // Handle variant if provided
+        $variant = null;
+        $finalPrice = $product->final_price;
+        $originalPrice = $product->price;
+        $stockToCheck = $product->stock;
+        $variantName = null;
+        
+        if ($request->filled('variant_id')) {
+            $variant = ProductVariant::where('id', $request->variant_id)
+                ->where('product_id', $product->id)
+                ->where('is_active', true)
+                ->firstOrFail();
+            
+            $finalPrice = $variant->final_price;
+            $originalPrice = $variant->price;
+            $stockToCheck = $variant->stock;
+            $variantName = $variant->name;
+        }
+
         // Validate stock availability
-        if ($product->stock < $request->quantity) {
+        if ($stockToCheck < $request->quantity) {
             return back()->withErrors(['quantity' => 'Stok tidak mencukupi untuk jumlah yang dipilih.'])->withInput();
         }
 
@@ -78,8 +123,8 @@ class CheckoutController extends Controller
         $service = $shippingData[1] ?? 'unknown';
         $shippingCost = (int)($shippingData[2] ?? 0);
 
-        // Calculate order costs
-        $subtotal = $product->final_price * $request->quantity;
+        // Calculate order costs (use variant price if available)
+        $subtotal = $finalPrice * $request->quantity;
         $discountAmount = 0;
         $voucher = null;
 
@@ -133,13 +178,15 @@ class CheckoutController extends Controller
             'voucher_id' => $voucher ? $voucher->id : null,
         ]);
 
-        // Create order item record
+        // Create order item record (include variant if provided)
         \App\Models\OrderItem::create([
             'order_id' => $order->id,
             'product_id' => $product->id,
+            'product_variant_id' => $variant ? $variant->id : null,
+            'variant_name' => $variantName,
             'product_name' => $product->name,
-            'price' => $product->final_price,
-            'original_price' => $product->price,
+            'price' => $finalPrice,
+            'original_price' => $originalPrice,
             'quantity' => $request->quantity,
         ]);
 
@@ -156,8 +203,12 @@ class CheckoutController extends Controller
             $voucher->increment('used_count');
         }
 
-        // Update product stock
-        $product->decrement('stock', $request->quantity);
+        // Update stock (variant or product)
+        if ($variant) {
+            $variant->decrement('stock', $request->quantity);
+        } else {
+            $product->decrement('stock', $request->quantity);
+        }
 
         // Redirect to payment instruction with order number
         return redirect()->route('payment-instruction', ['order' => $order->order_number])
