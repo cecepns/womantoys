@@ -16,6 +16,7 @@ class MainCategory extends Model
         'name',
         'slug',
         'cover_image',
+        'order',
     ];
 
     /**
@@ -29,6 +30,11 @@ class MainCategory extends Model
         static::creating(function ($mainCategory) {
             if (empty($mainCategory->slug)) {
                 $mainCategory->slug = Str::slug($mainCategory->name);
+            }
+
+            // Auto-set order to be at the end
+            if (empty($mainCategory->order)) {
+                $mainCategory->order = static::max('order') + 1;
             }
         });
 
@@ -84,5 +90,77 @@ class MainCategory extends Model
     public function getCoverImageUrlAttribute()
     {
         return $this->hasCoverImage() ? asset('storage/' . $this->cover_image) : null;
+    }
+
+    /**
+     * Move the main category up in order.
+     *
+     * @return bool
+     */
+    public function moveUp()
+    {
+        $previousCategory = static::where('order', '<', $this->order)
+            ->orderBy('order', 'desc')
+            ->first();
+
+        if ($previousCategory) {
+            $tempOrder = $this->order;
+            $this->order = $previousCategory->order;
+            $previousCategory->order = $tempOrder;
+
+            $this->save();
+            $previousCategory->save();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Move the main category down in order.
+     *
+     * @return bool
+     */
+    public function moveDown()
+    {
+        $nextCategory = static::where('order', '>', $this->order)
+            ->orderBy('order', 'asc')
+            ->first();
+
+        if ($nextCategory) {
+            $tempOrder = $this->order;
+            $this->order = $nextCategory->order;
+            $nextCategory->order = $tempOrder;
+
+            $this->save();
+            $nextCategory->save();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if this is the first main category.
+     *
+     * @return bool
+     */
+    public function isFirst()
+    {
+        $minOrder = static::min('order');
+        return $minOrder !== null && $this->order == $minOrder;
+    }
+
+    /**
+     * Check if this is the last main category.
+     *
+     * @return bool
+     */
+    public function isLast()
+    {
+        $maxOrder = static::max('order');
+        return $maxOrder !== null && $this->order == $maxOrder;
     }
 }

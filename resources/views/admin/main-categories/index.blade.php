@@ -38,6 +38,9 @@
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                         Jumlah Kategori
                     </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden xl:table-cell">
+                        Urutan
+                    </th>
                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">
                         Tanggal Dibuat
                     </th>
@@ -63,27 +66,65 @@
                                 {{ $mainCategory->categories_count }} kategori
                             </span>
                         </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden xl:table-cell">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                {{ $mainCategory->order }}
+                            </span>
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
                             {{ $mainCategory->created_at->format('d M Y H:i') }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div class="flex flex-col sm:flex-row gap-2">
-                            <a href="{{ route('admin.main-categories.edit', $mainCategory) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full sm:w-auto text-center">
-                                Edit
-                            </a>
-                            <form action="{{ route('admin.main-categories.destroy', $mainCategory) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori utama ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full sm:w-auto">
-                                    Hapus
-                                </button>
-                            </form>
+                            <div class="flex items-center gap-2">
+                                <!-- Reorder Controls -->
+                                <div class="flex flex-col space-y-1">
+                                    <form method="POST" action="{{ route('admin.main-categories.move-up', $mainCategory) }}" class="inline">
+                                        @csrf
+                                        <button 
+                                            type="submit" 
+                                            class="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200 {{ $mainCategory->isFirst() ? 'opacity-50 cursor-not-allowed' : '' }}" 
+                                            title="Move Up"
+                                            {{ $mainCategory->isFirst() ? 'disabled' : '' }}
+                                        >
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{{ route('admin.main-categories.move-down', $mainCategory) }}" class="inline">
+                                        @csrf
+                                        <button 
+                                            type="submit" 
+                                            class="p-1 text-gray-400 hover:text-gray-600 transition-colors duration-200 {{ $mainCategory->isLast() ? 'opacity-50 cursor-not-allowed' : '' }}" 
+                                            title="Move Down"
+                                            {{ $mainCategory->isLast() ? 'disabled' : '' }}
+                                        >
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Edit and Delete Buttons -->
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <a href="{{ route('admin.main-categories.edit', $mainCategory) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full sm:w-auto text-center">
+                                        Edit
+                                    </a>
+                                    <form action="{{ route('admin.main-categories.destroy', $mainCategory) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori utama ini?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 w-full sm:w-auto">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">
                             Tidak ada kategori utama yang ditemukan.
                         </td>
                     </tr>

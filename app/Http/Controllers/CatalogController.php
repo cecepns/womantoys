@@ -63,7 +63,7 @@ class CatalogController extends Controller
             ->withQueryString();
 
         // Get main categories for filter bar
-        $mainCategories = MainCategory::orderBy('name', 'asc')->get();
+        $mainCategories = MainCategory::orderBy('order', 'asc')->get();
 
         // Get categories (sub categories) for filter, optionally scoped by selected main
         $categoriesQuery = Category::withCount(['products' => function ($productsQuery) {

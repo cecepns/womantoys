@@ -58,6 +58,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Main Category routes
         Route::resource('main-categories', App\Http\Controllers\Admin\MainCategoryController::class);
+        Route::post('/main-categories/{mainCategory}/move-up', [App\Http\Controllers\Admin\MainCategoryController::class, 'moveUp'])->name('main-categories.move-up');
+        Route::post('/main-categories/{mainCategory}/move-down', [App\Http\Controllers\Admin\MainCategoryController::class, 'moveDown'])->name('main-categories.move-down');
 
         // Order routes
         Route::get('/orders', [App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');

@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\MainCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
@@ -24,7 +25,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        $mainCategories = MainCategory::orderBy('name', 'asc')->get();
+        $mainCategories = MainCategory::orderBy('order', 'asc')->get();
         return view('admin.categories.create', compact('mainCategories'));
     }
 
@@ -63,7 +64,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        $mainCategories = MainCategory::orderBy('name', 'asc')->get();
+        $mainCategories = MainCategory::orderBy('order', 'asc')->get();
         return view('admin.categories.edit', compact('category', 'mainCategories'));
     }
 
@@ -90,7 +91,7 @@ class CategoryController extends Controller
         if ($request->hasFile('cover_image')) {
             // delete old if exists
             if (!empty($category->cover_image)) {
-                \Storage::disk('public')->delete($category->cover_image);
+                Storage::disk('public')->delete($category->cover_image);
             }
             $updateData['cover_image'] = $request->file('cover_image')->store('categories', 'public');
         }

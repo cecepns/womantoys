@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\MainCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class MainCategoryController extends Controller
 {
@@ -14,7 +15,7 @@ class MainCategoryController extends Controller
      */
     public function index()
     {
-        $mainCategories = MainCategory::withCount('categories')->orderBy('name', 'asc')->get();
+        $mainCategories = MainCategory::withCount('categories')->orderBy('order', 'asc')->get();
         return view('admin.main-categories.index', compact('mainCategories'));
     }
 
@@ -77,7 +78,7 @@ class MainCategoryController extends Controller
         if ($request->hasFile('cover_image')) {
             // delete old if exists
             if (!empty($mainCategory->cover_image)) {
-                \Storage::disk('public')->delete($mainCategory->cover_image);
+                Storage::disk('public')->delete($mainCategory->cover_image);
             }
             $updateData['cover_image'] = $request->file('cover_image')->store('main-categories', 'public');
         }
@@ -101,12 +102,40 @@ class MainCategoryController extends Controller
 
         // Delete cover image if exists
         if (!empty($mainCategory->cover_image)) {
-            \Storage::disk('public')->delete($mainCategory->cover_image);
+            Storage::disk('public')->delete($mainCategory->cover_image);
         }
 
         $mainCategory->delete();
 
         notify()->success('Kategori Utama berhasil dihapus.', 'Berhasil');
+        return redirect()->route('admin.main-categories.index');
+    }
+
+    /**
+     * Move main category up in order.
+     */
+    public function moveUp(MainCategory $mainCategory)
+    {
+        if ($mainCategory->moveUp()) {
+            notify()->success('Urutan kategori berhasil diubah!', 'Berhasil');
+            return redirect()->route('admin.main-categories.index');
+        }
+
+        notify()->error('Tidak dapat memindahkan kategori ke atas!', 'Gagal');
+        return redirect()->route('admin.main-categories.index');
+    }
+
+    /**
+     * Move main category down in order.
+     */
+    public function moveDown(MainCategory $mainCategory)
+    {
+        if ($mainCategory->moveDown()) {
+            notify()->success('Urutan kategori berhasil diubah!', 'Berhasil');
+            return redirect()->route('admin.main-categories.index');
+        }
+
+        notify()->error('Tidak dapat memindahkan kategori ke bawah!', 'Gagal');
         return redirect()->route('admin.main-categories.index');
     }
 }

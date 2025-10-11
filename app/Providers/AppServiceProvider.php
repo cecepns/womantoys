@@ -35,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
             // Main categories with their sub categories
             $mainCategories = MainCategory::with(['categories' => function ($q) {
                 $q->orderBy('name', 'asc');
-            }])->orderBy('name', 'asc')->get();
+            }])->orderBy('order', 'asc')->get();
 
             // Get store name from settings
             $storeName = \App\Helpers\SettingHelper::getStoreName();
