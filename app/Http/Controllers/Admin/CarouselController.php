@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\CarouselSlide;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class CarouselController extends Controller
@@ -77,9 +78,9 @@ class CarouselController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(CarouselSlide $carouselSlide)
+    public function show(CarouselSlide $carousel)
     {
-        return view('admin.carousel.show', compact('carouselSlide'));
+        return view('admin.carousel.show', compact('carousel'));
     }
 
     /**
@@ -140,7 +141,7 @@ class CarouselController extends Controller
                     }
                 } catch (\Exception $e) {
                     // Log error but continue with update
-                    \Log::warning('Failed to delete old carousel image: ' . $carousel->image_path, [
+                    Log::warning('Failed to delete old carousel image: ' . $carousel->image_path, [
                         'error' => $e->getMessage(),
                         'slide_id' => $carousel->id
                     ]);
@@ -160,24 +161,24 @@ class CarouselController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(CarouselSlide $carouselSlide)
+    public function destroy(CarouselSlide $carousel)
     {
         // Delete image file if it exists
-        if ($carouselSlide->image_path) {
+        if ($carousel->image_path) {
             try {
-                if (Storage::disk('public')->exists($carouselSlide->image_path)) {
-                    Storage::disk('public')->delete($carouselSlide->image_path);
+                if (Storage::disk('public')->exists($carousel->image_path)) {
+                    Storage::disk('public')->delete($carousel->image_path);
                 }
             } catch (\Exception $e) {
                 // Log error but continue with deletion
-                \Log::warning('Failed to delete carousel image during slide deletion: ' . $carouselSlide->image_path, [
+                Log::warning('Failed to delete carousel image during slide deletion: ' . $carousel->image_path, [
                     'error' => $e->getMessage(),
-                    'slide_id' => $carouselSlide->id
+                    'slide_id' => $carousel->id
                 ]);
             }
         }
 
-        $carouselSlide->delete();
+        $carousel->delete();
 
         notify()->success('Slide carousel berhasil dihapus!', 'Berhasil');
         return redirect()->route('admin.carousel.index');
