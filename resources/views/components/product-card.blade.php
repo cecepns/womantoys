@@ -31,24 +31,80 @@
 
             <!-- Product Price -->
             <div class="mt-auto">
-                @if ($product->hasDiscount())
-                    <div class="space-y-1">
-                        <p class="text-pink-600 font-semibold text-xl">
-                            {{ $product->formatted_discount_price }}
-                        </p>
-                        <div class="flex items-center gap-2">
-                            <p class="text-gray-400 text-sm line-through">
-                                {{ $product->formatted_price }}
+                @php
+                    $activeVariants = $product->variants()->active()->get();
+                    $variantCount = $activeVariants->count();
+                @endphp
+
+                @if ($variantCount === 0)
+                    {{-- No variants: show main product price --}}
+                    @if ($product->hasDiscount())
+                        <div class="space-y-1">
+                            <p class="text-pink-600 font-semibold text-xl">
+                                {{ $product->formatted_discount_price }}
                             </p>
-                            <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                -{{ $product->discount_percentage }}%
-                            </span>
+                            <div class="flex items-center gap-2">
+                                <p class="text-gray-400 text-sm line-through">
+                                    {{ $product->formatted_price }}
+                                </p>
+                                <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                    -{{ $product->discount_percentage }}%
+                                </span>
+                            </div>
                         </div>
-                    </div>
+                    @else
+                        <p class="text-pink-600 font-semibold text-xl">
+                            {{ $product->formatted_price }}
+                        </p>
+                    @endif
+                @elseif ($variantCount === 1)
+                    {{-- One variant: show that variant's price --}}
+                    @php
+                        $variant = $activeVariants->first();
+                    @endphp
+                    @if ($variant->hasDiscount())
+                        <div class="space-y-1">
+                            <p class="text-pink-600 font-semibold text-xl">
+                                {{ $variant->formatted_discount_price }}
+                            </p>
+                            <div class="flex items-center gap-2">
+                                <p class="text-gray-400 text-sm line-through">
+                                    {{ $variant->formatted_price }}
+                                </p>
+                                <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                    -{{ $variant->discount_percentage }}%
+                                </span>
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-pink-600 font-semibold text-xl">
+                            {{ $variant->formatted_price }}
+                        </p>
+                    @endif
                 @else
-                    <p class="text-pink-600 font-semibold text-xl">
-                        {{ $product->formatted_price }}
-                    </p>
+                    {{-- Multiple variants: show lowest price --}}
+                    @php
+                        $lowestPriceVariant = $activeVariants->sortBy('final_price')->first();
+                    @endphp
+                    @if ($lowestPriceVariant->hasDiscount())
+                        <div class="space-y-1">
+                            <p class="text-pink-600 font-semibold text-xl">
+                                Mulai dari {{ $lowestPriceVariant->formatted_discount_price }}
+                            </p>
+                            <div class="flex items-center gap-2">
+                                <p class="text-gray-400 text-sm line-through">
+                                    {{ $lowestPriceVariant->formatted_price }}
+                                </p>
+                                <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                                    -{{ $lowestPriceVariant->discount_percentage }}%
+                                </span>
+                            </div>
+                        </div>
+                    @else
+                        <p class="text-pink-600 font-semibold text-xl">
+                            Mulai dari {{ $lowestPriceVariant->formatted_price }}
+                        </p>
+                    @endif
                 @endif
             </div>
         </div>
