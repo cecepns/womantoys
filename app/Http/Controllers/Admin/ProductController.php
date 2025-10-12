@@ -385,7 +385,7 @@ class ProductController extends Controller
             'status' => 'required|in:active,draft,out_of_stock',
             'is_featured' => 'nullable|boolean',
             'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'gallery_images.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4',
         ], [
             'discount_price.lt' => 'Harga diskon harus lebih kecil dari harga normal.',
         ]);

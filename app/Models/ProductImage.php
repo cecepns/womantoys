@@ -73,4 +73,19 @@ class ProductImage extends Model
         // Check if file exists in storage
         return Storage::disk('public')->exists($this->image_path);
     }
+
+    /**
+     * Check if the file is a video.
+     *
+     * @return bool
+     */
+    public function isVideo()
+    {
+        if (empty($this->image_path)) {
+            return false;
+        }
+
+        $extension = strtolower(pathinfo($this->image_path, PATHINFO_EXTENSION));
+        return in_array($extension, ['mp4', 'webm', 'ogg', 'mov', 'avi']);
+    }
 }

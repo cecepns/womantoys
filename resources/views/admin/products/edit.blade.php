@@ -205,7 +205,7 @@
 
                         <!-- File Input -->
                         <div class="mb-3">
-                            <input type="file" id="gallery_images" name="gallery_images[]" accept=".png,.jpg,.jpeg"
+                            <input type="file" id="gallery_images" name="gallery_images[]" accept=".png,.jpg,.jpeg,.mp4"
                                 multiple
                                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
                         </div>
@@ -218,26 +218,32 @@
                                     @foreach ($product->images as $index => $image)
                                         <div class="relative gallery-item" data-image-id="{{ $image->id }}">
                                             @if ($image->hasValidImage())
-                                                <img src="{{ $image->image_url }}" alt="Gallery Image"
-                                                    class="w-full h-24 object-cover rounded-lg border border-gray-300"
-                                                    onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                                <!-- Fallback placeholder when image fails to load -->
-                                                <div
-                                                    class="w-full h-24 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300 hidden">
-                                                    <svg class="w-6 h-6 text-gray-400" fill="none"
-                                                        stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                                        </path>
-                                                    </svg>
-                                                    <div class="absolute top-1 right-1">
-                                                        <span
-                                                            class="bg-red-100 text-red-800 text-xs px-1 py-0.5 rounded-full">
-                                                            Error
-                                                        </span>
+                                                @if ($image->isVideo())
+                                                    <video src="{{ $image->image_url }}" controls muted
+                                                        class="w-full h-24 object-cover rounded-lg border border-gray-300">
+                                                    </video>
+                                                @else
+                                                    <img src="{{ $image->image_url }}" alt="Gallery Image"
+                                                        class="w-full h-24 object-cover rounded-lg border border-gray-300"
+                                                        onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                    <!-- Fallback placeholder when image fails to load -->
+                                                    <div
+                                                        class="w-full h-24 bg-gray-200 flex items-center justify-center rounded-lg border border-gray-300 hidden">
+                                                        <svg class="w-6 h-6 text-gray-400" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                                            </path>
+                                                        </svg>
+                                                        <div class="absolute top-1 right-1">
+                                                            <span
+                                                                class="bg-red-100 text-red-800 text-xs px-1 py-0.5 rounded-full">
+                                                                Error
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                @endif
                                             @else
                                                 <!-- No image placeholder -->
                                                 <div
@@ -252,7 +258,7 @@
                                                     <div class="absolute top-1 right-1">
                                                         <span
                                                             class="bg-gray-100 text-gray-600 text-xs px-1 py-0.5 rounded-full">
-                                                            No Image
+                                                            No File
                                                         </span>
                                                     </div>
                                                 </div>
@@ -262,7 +268,7 @@
                                             <button type="button"
                                                 onclick="removeExistingGalleryImage({{ $image->id }})"
                                                 class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors"
-                                                title="Hapus gambar">
+                                                title="Hapus {{ $image->isVideo() ? 'video' : 'gambar' }}">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor"
                                                     viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -800,22 +806,32 @@
                     const wrapper = document.createElement('div');
                     wrapper.className = 'relative gallery-item new-image';
                     wrapper.setAttribute('data-file-index', index);
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.alt = 'Gallery Preview';
-                    img.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
+                    
+                    const isVideo = file.type.startsWith('video/');
+                    const mediaElement = isVideo ? document.createElement('video') : document.createElement('img');
+                    
+                    mediaElement.src = e.target.result;
+                    mediaElement.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
+                    
+                    if (isVideo) {
+                        mediaElement.controls = true;
+                        mediaElement.muted = true;
+                    } else {
+                        mediaElement.alt = 'Gallery Preview';
+                    }
+                    
                     const removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.className =
                         'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors';
-                    removeBtn.title = 'Hapus gambar';
+                    removeBtn.title = 'Hapus ' + (isVideo ? 'video' : 'gambar');
                     removeBtn.onclick = () => removeNewGalleryImage(index);
                     removeBtn.innerHTML = `
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             `;
-                    wrapper.appendChild(img);
+                    wrapper.appendChild(mediaElement);
                     wrapper.appendChild(removeBtn);
                     container.appendChild(wrapper);
                 };

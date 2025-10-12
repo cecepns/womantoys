@@ -179,7 +179,7 @@
 
                         <!-- File Input -->
                         <div class="mb-3">
-                            <input type="file" id="gallery_images" name="gallery_images[]" accept=".png,.jpg,.jpeg"
+                            <input type="file" id="gallery_images" name="gallery_images[]" accept=".png,.jpg,.jpeg,.mp4"
                                 multiple
                                 class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
                         </div>
@@ -603,19 +603,27 @@
                 const wrapper = document.createElement('div');
                 wrapper.className = 'relative';
 
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = 'Gallery Preview';
-                img.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
+                const isVideo = file.type.startsWith('video/');
+                const mediaElement = isVideo ? document.createElement('video') : document.createElement('img');
+                
+                mediaElement.src = e.target.result;
+                mediaElement.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
+                
+                if (isVideo) {
+                    mediaElement.controls = true;
+                    mediaElement.muted = true;
+                } else {
+                    mediaElement.alt = 'Gallery Preview';
+                }
 
                 const removeBtn = document.createElement('button');
                 removeBtn.type = 'button';
                 removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors';
-                removeBtn.title = 'Hapus gambar';
+                removeBtn.title = 'Hapus ' + (isVideo ? 'video' : 'gambar');
                 removeBtn.onclick = () => removeGalleryImage(index);
                 removeBtn.innerHTML = createRemoveButton();
 
-                wrapper.appendChild(img);
+                wrapper.appendChild(mediaElement);
                 wrapper.appendChild(removeBtn);
                 container.appendChild(wrapper);
             };

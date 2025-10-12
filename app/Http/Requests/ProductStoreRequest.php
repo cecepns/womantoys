@@ -34,7 +34,7 @@ class ProductStoreRequest extends FormRequest
             'is_featured' => 'nullable|boolean',
             'main_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB
             'gallery_images' => 'nullable|array|max:10', // Max 10 images
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB each
+            'gallery_images.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4', // Support images and videos
             'variants_json' => 'nullable|json',
             'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Max 2MB
         ];
@@ -70,9 +70,8 @@ class ProductStoreRequest extends FormRequest
             'main_image.max' => 'Ukuran gambar utama maksimal 5MB.',
             'gallery_images.array' => 'Format galeri gambar tidak valid.',
             'gallery_images.max' => 'Maksimal 10 gambar galeri.',
-            'gallery_images.*.image' => 'File galeri harus berupa gambar.',
-            'gallery_images.*.mimes' => 'Format gambar galeri harus JPEG, PNG, JPG, atau GIF.',
-            'gallery_images.*.max' => 'Ukuran setiap gambar galeri maksimal 5MB.',
+            'gallery_images.*.file' => 'File galeri harus berupa gambar atau video.',
+            'gallery_images.*.mimes' => 'Format file galeri harus JPEG, PNG, JPG, GIF, atau MP4.',
             'variants_json.json' => 'Format data variant tidak valid.',
             'variant_images.*.image' => 'File variant harus berupa gambar.',
             'variant_images.*.mimes' => 'Format gambar variant harus JPEG, PNG, JPG, atau GIF.',
@@ -102,17 +101,12 @@ class ProductStoreRequest extends FormRequest
      */
     private function validateTotalFileSize($validator)
     {
+        // Skip validation for gallery images as they now support videos with no size limit
         $totalSize = 0;
-        $maxTotalSize = 50 * 1024 * 1024; // 50MB total
+        $maxTotalSize = 50 * 1024 * 1024; // 50MB total for main image and variant images only
 
         if ($this->hasFile('main_image')) {
             $totalSize += $this->file('main_image')->getSize();
-        }
-
-        if ($this->hasFile('gallery_images')) {
-            foreach ($this->file('gallery_images') as $image) {
-                $totalSize += $image->getSize();
-            }
         }
 
         if ($this->hasFile('variant_images')) {
@@ -126,7 +120,7 @@ class ProductStoreRequest extends FormRequest
         if ($totalSize > $maxTotalSize) {
             $validator->errors()->add(
                 'files',
-                'Total ukuran semua gambar tidak boleh melebihi 50MB. Saat ini: ' . round($totalSize / 1024 / 1024, 2) . 'MB'
+                'Total ukuran gambar utama dan variant tidak boleh melebihi 50MB. Saat ini: ' . round($totalSize / 1024 / 1024, 2) . 'MB'
             );
         }
     }

@@ -26,8 +26,8 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-12 mb-12 md:mb-16">
             <!-- Left Column - Image Gallery -->
             <div>
-                <!-- Main Image -->
-                <div class="mb-4 md:mb-6">
+                <!-- Main Image/Video -->
+                <div class="mb-4 md:mb-6" id="main-media-container">
                     @if ($product->main_image_url)
                         <img src="{{ $product->main_image_url }}" alt="{{ $product->name }}"
                             class="w-full object-contain rounded-lg shadow-lg"
@@ -56,10 +56,18 @@
                             data-image="{{ $product->main_image_url }}">
                     @endif
                     @foreach ($product->images as $image)
-                        <img src="{{ asset('storage/' . $image->image_path) }}"
-                            alt="{{ $product->name }} - Gambar {{ $loop->iteration }}"
-                            class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200 thumbnail-image flex-shrink-0"
-                            data-image="{{ asset('storage/' . $image->image_path) }}">
+                        @if ($image->isVideo())
+                            <video src="{{ asset('storage/' . $image->image_path) }}" muted
+                                class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200 thumbnail-image flex-shrink-0"
+                                data-image="{{ asset('storage/' . $image->image_path) }}"
+                                data-is-video="true">
+                            </video>
+                        @else
+                            <img src="{{ asset('storage/' . $image->image_path) }}"
+                                alt="{{ $product->name }} - Gambar {{ $loop->iteration }}"
+                                class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200 thumbnail-image flex-shrink-0"
+                                data-image="{{ asset('storage/' . $image->image_path) }}">
+                        @endif
                     @endforeach
                     @foreach ($product->variants()->active()->get() as $variant)
                         @if ($variant->image_url)
@@ -493,15 +501,32 @@
 
             // Thumbnail gallery functionality
             const thumbnailImages = document.querySelectorAll('.thumbnail-image');
-            const mainImage = document.getElementById('main-product-image');
+            const mainMediaContainer = document.getElementById('main-media-container');
 
             thumbnailImages.forEach(thumbnail => {
                 thumbnail.addEventListener('click', function() {
-                    const imageSrc = this.getAttribute('data-image');
+                    const mediaSrc = this.getAttribute('data-image');
+                    const isVideo = this.getAttribute('data-is-video') === 'true';
 
-                    // Update main image
-                    if (mainImage) {
-                        mainImage.src = imageSrc;
+                    // Clear existing content and create new element
+                    if (mainMediaContainer) {
+                        mainMediaContainer.innerHTML = '';
+                        
+                        if (isVideo) {
+                            const videoElement = document.createElement('video');
+                            videoElement.src = mediaSrc;
+                            videoElement.controls = true;
+                            videoElement.className = 'w-full object-contain rounded-lg shadow-lg';
+                            videoElement.id = 'main-product-image';
+                            mainMediaContainer.appendChild(videoElement);
+                        } else {
+                            const imgElement = document.createElement('img');
+                            imgElement.src = mediaSrc;
+                            imgElement.alt = 'Product Image';
+                            imgElement.className = 'w-full object-contain rounded-lg shadow-lg';
+                            imgElement.id = 'main-product-image';
+                            mainMediaContainer.appendChild(imgElement);
+                        }
                     }
 
                     // Update thumbnail borders

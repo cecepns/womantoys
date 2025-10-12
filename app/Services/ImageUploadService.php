@@ -11,12 +11,14 @@ class ImageUploadService
     private array $uploadedFiles = [];
 
     /**
-     * ANCHOR: Upload an image with validation
+     * ANCHOR: Upload an image or video with validation
      */
     public function upload(UploadedFile $file, string $directory = 'products'): string
     {
-        // Validate image file
-        $this->validateImageFile($file);
+        // Validate file (skip image validation for videos)
+        if (!$this->isVideo($file)) {
+            $this->validateImageFile($file);
+        }
 
         // Store file
         $path = $file->store($directory, 'public');
@@ -24,7 +26,7 @@ class ImageUploadService
         // Track uploaded file for potential cleanup
         $this->uploadedFiles[] = $path;
 
-        Log::info("Image uploaded successfully", ['path' => $path, 'size' => $file->getSize()]);
+        Log::info("File uploaded successfully", ['path' => $path, 'size' => $file->getSize()]);
 
         return $path;
     }
@@ -43,6 +45,15 @@ class ImageUploadService
         }
 
         return $paths;
+    }
+
+    /**
+     * ANCHOR: Check if file is a video
+     */
+    private function isVideo(UploadedFile $file): bool
+    {
+        $mimeType = $file->getMimeType();
+        return strpos($mimeType, 'video/') === 0;
     }
 
     /**
