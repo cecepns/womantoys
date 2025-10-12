@@ -174,7 +174,7 @@
                     <!-- Gallery Images -->
                     <div>
                         <label for="gallery_images" class="block text-sm font-medium text-gray-700 mb-2">
-                            Gambar Galeri
+                            Gambar/Video Galeri
                         </label>
 
                         <!-- File Input -->
