@@ -80,7 +80,7 @@
                 </h1>
 
                 <!-- Product Price -->
-                <div class="mb-4 md:mb-6">
+                <div id="price-container" class="mb-4 md:mb-6">
                     @if ($product->hasDiscount())
                         <div class="flex items-center gap-3 flex-wrap">
                             <p class="text-2xl md:text-3xl font-bold text-pink-600">
@@ -110,14 +110,14 @@
                 <!-- Variant Selection (if product has variants) -->
                 @if ($product->hasActiveVariants())
                     <div class="mb-6 md:mb-8">
-                        <label for="variant-select" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">
                             Pilih Variant <span class="text-red-500">*</span>
                         </label>
-                        <select id="variant-select" name="variant_id" required
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent text-base">
-                            <option value="">-- Pilih Variant --</option>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="variant-buttons">
                             @foreach ($product->variants()->active()->get() as $variant)
-                                <option value="{{ $variant->id }}" 
+                                <button type="button" 
+                                    class="variant-button flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-pink-500 transition-colors duration-200 text-left"
+                                    data-variant-id="{{ $variant->id }}"
                                     data-price="{{ $variant->price }}"
                                     data-discount-price="{{ $variant->discount_price }}"
                                     data-stock="{{ $variant->stock }}"
@@ -127,16 +127,31 @@
                                     data-formatted-final-price="{{ $variant->formatted_final_price }}"
                                     data-has-discount="{{ $variant->hasDiscount() ? 'true' : 'false' }}"
                                     data-discount-percentage="{{ $variant->discount_percentage }}">
-                                    {{ $variant->name }} - {{ $variant->formatted_final_price }}
-                                    @if ($variant->stock > 0)
-                                        ({{ $variant->stock }} stok)
+                                    @if ($variant->image_url)
+                                        <img src="{{ $variant->image_url }}" 
+                                            alt="{{ $variant->name }}"
+                                            class="w-12 h-12 object-cover rounded-md mr-3 flex-shrink-0">
                                     @else
-                                        (Stok Habis)
+                                        <div class="w-12 h-12 bg-gray-200 rounded-md mr-3 flex-shrink-0 flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                        </div>
                                     @endif
-                                </option>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">{{ $variant->name }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            @if ($variant->stock > 0)
+                                                {{ $variant->stock }} stok
+                                            @else
+                                                Stok Habis
+                                            @endif
+                                        </p>
+                                    </div>
+                                </button>
                             @endforeach
-                        </select>
-                        <p class="text-gray-500 text-xs mt-1">Pilih variant sebelum melakukan pembelian</p>
+                        </div>
+                        <p class="text-gray-500 text-xs mt-2">Pilih variant sebelum melakukan pembelian</p>
                     </div>
                 @endif
 
@@ -288,29 +303,28 @@
         // ANCHOR: Handle variant selection
         let selectedVariantId = null;
 
-        function handleVariantChange() {
-            const variantSelect = document.getElementById('variant-select');
-            if (!variantSelect) return;
+        function handleVariantSelection(button) {
+            // Remove selection from all variant buttons
+            const variantButtons = document.querySelectorAll('.variant-button');
+            variantButtons.forEach(btn => {
+                btn.classList.remove('border-pink-600', 'bg-pink-50');
+                btn.classList.add('border-gray-300');
+            });
 
-            const selectedOption = variantSelect.options[variantSelect.selectedIndex];
-            
-            if (!selectedOption.value) {
-                // No variant selected
-                selectedVariantId = null;
-                updateBuyButton(false, 0);
-                return;
-            }
+            // Add selection to clicked button
+            button.classList.remove('border-gray-300');
+            button.classList.add('border-pink-600', 'bg-pink-50');
 
-            selectedVariantId = selectedOption.value;
-            const price = selectedOption.dataset.price;
-            const discountPrice = selectedOption.dataset.discountPrice;
-            const stock = parseInt(selectedOption.dataset.stock);
-            const image = selectedOption.dataset.image;
-            const formattedPrice = selectedOption.dataset.formattedPrice;
-            const formattedDiscountPrice = selectedOption.dataset.formattedDiscountPrice;
-            const formattedFinalPrice = selectedOption.dataset.formattedFinalPrice;
-            const hasDiscount = selectedOption.dataset.hasDiscount === 'true';
-            const discountPercentage = selectedOption.dataset.discountPercentage;
+            selectedVariantId = button.dataset.variantId;
+            const price = button.dataset.price;
+            const discountPrice = button.dataset.discountPrice;
+            const stock = parseInt(button.dataset.stock);
+            const image = button.dataset.image;
+            const formattedPrice = button.dataset.formattedPrice;
+            const formattedDiscountPrice = button.dataset.formattedDiscountPrice;
+            const formattedFinalPrice = button.dataset.formattedFinalPrice;
+            const hasDiscount = button.dataset.hasDiscount === 'true';
+            const discountPercentage = button.dataset.discountPercentage;
 
             // Update price display
             updatePriceDisplay(hasDiscount, formattedFinalPrice, formattedPrice, formattedDiscountPrice, discountPercentage);
@@ -321,6 +335,7 @@
             // Update image if variant has one
             if (image) {
                 updateMainImage(image);
+                updateThumbnailSelection(image);
             }
 
             // Update buy button
@@ -328,7 +343,7 @@
         }
 
         function updatePriceDisplay(hasDiscount, finalPrice, price, discountPrice, discountPercentage) {
-            const priceContainer = document.querySelector('.mb-4.md\\:mb-6');
+            const priceContainer = document.querySelector('#price-container');
             if (!priceContainer) return;
 
             if (hasDiscount && discountPrice) {
@@ -378,6 +393,22 @@
             }
         }
 
+        function updateThumbnailSelection(imageUrl) {
+            // Reset all thumbnail borders
+            const thumbnailImages = document.querySelectorAll('.thumbnail-image');
+            thumbnailImages.forEach(img => {
+                img.classList.remove('border-pink-600');
+                img.classList.add('border-gray-300');
+            });
+
+            // Find and highlight the matching thumbnail
+            const matchingThumbnail = document.querySelector(`[data-image="${imageUrl}"]`);
+            if (matchingThumbnail) {
+                matchingThumbnail.classList.remove('border-gray-300');
+                matchingThumbnail.classList.add('border-pink-600');
+            }
+        }
+
         function updateBuyButton(hasStock, stock) {
             const buyButton = document.getElementById('buy-button');
             if (!buyButton) return;
@@ -406,10 +437,17 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize variant select handler
-            const variantSelect = document.getElementById('variant-select');
-            if (variantSelect) {
-                variantSelect.addEventListener('change', handleVariantChange);
+            // Initialize variant button handlers
+            const variantButtons = document.querySelectorAll('.variant-button');
+            variantButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    handleVariantSelection(this);
+                });
+            });
+
+            // Auto-select first variant if available
+            if (variantButtons.length > 0) {
+                handleVariantSelection(variantButtons[0]);
             }
 
             // Tab functionality
