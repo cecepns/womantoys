@@ -123,6 +123,9 @@
                                 <h3 class="font-medium text-xs sm:text-sm text-gray-800 mb-1 sm:mb-2 break-words">
                                     {{ $item->product_name }}</h3>
                                 <div class="space-y-1 mb-2 sm:mb-3">
+                                    @if ($item->variant_name)
+                                        <p class="text-xs text-gray-600">Varian: <span class="font-medium">{{ $item->variant_name }}</span></p>
+                                    @endif
                                     <p class="text-xs text-gray-600">Jumlah: {{ $item->quantity }} pcs</p>
                                     @if ($item->product && $item->product->weight)
                                         <p class="text-xs text-gray-600">Berat: {{ $item->product->formatted_weight }} / pcs
@@ -154,6 +157,9 @@
                                     <h3 class="font-medium text-sm md:text-base text-gray-800 break-words">
                                         {{ $item->product_name }}</h3>
                                     <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-1">
+                                        @if ($item->variant_name)
+                                            <p class="text-xs sm:text-sm text-gray-600">Varian: <span class="font-medium">{{ $item->variant_name }}</span></p>
+                                        @endif
                                         <p class="text-xs sm:text-sm text-gray-600">Jumlah: {{ $item->quantity }} pcs</p>
                                         @if ($item->product && $item->product->weight)
                                             <p class="text-xs sm:text-sm text-gray-600">Berat:
