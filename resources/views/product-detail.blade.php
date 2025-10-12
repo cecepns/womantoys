@@ -61,6 +61,14 @@
                             class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200 thumbnail-image flex-shrink-0"
                             data-image="{{ asset('storage/' . $image->image_path) }}">
                     @endforeach
+                    @foreach ($product->variants()->active()->get() as $variant)
+                        @if ($variant->image_url)
+                            <img src="{{ $variant->image_url }}"
+                                alt="{{ $product->name }} - {{ $variant->name }}"
+                                class="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg border-2 border-gray-300 cursor-pointer hover:border-pink-600 transition-colors duration-200 thumbnail-image flex-shrink-0"
+                                data-image="{{ $variant->image_url }}">
+                        @endif
+                    @endforeach
                 </div>
             </div>
 
