@@ -1038,6 +1038,17 @@
                     // No additional discount amount needed
                     voucherDiscountAmount = 0;
                 }
+
+                // Update hidden discount amount with recalculated value
+                document.getElementById('hidden_discount_amount').value = voucherDiscountAmount;
+
+                // Update voucher discount display
+                const discountAmount = document.getElementById('voucher-discount-amount');
+                if (currentVoucher.type === 'free_shipping') {
+                    discountAmount.textContent = 'Gratis';
+                } else {
+                    discountAmount.textContent = '-Rp ' + formatNumber(voucherDiscountAmount);
+                }
             }
 
             // Update subtotal display
