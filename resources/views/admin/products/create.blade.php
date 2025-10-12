@@ -25,7 +25,7 @@
     </div>
 
     <!-- Product Form -->
-    <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" class="space-y-8">
+    <form id="product-create-form" method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" class="space-y-8">
         @csrf
 
         <!-- Basic Information Section -->
@@ -483,158 +483,337 @@
     </div>
 
     <script>
+        // ANCHOR: State Management
+        const state = {
+            variants: [],
+            editingVariantIndex: null,
+            selectedGalleryFiles: [],
+            isSubmitting: false
+        };
+
+        const ELEMENTS = {
+            form: document.getElementById('product-create-form'),
+            submitButton: null,
+            variantModal: document.getElementById('variantModal'),
+            modalTitle: document.getElementById('modalTitle'),
+            variantsList: document.getElementById('variants-list'),
+            variantsTbody: document.getElementById('variants-tbody'),
+            noVariantsMessage: document.getElementById('no-variants-message'),
+            variantsJson: document.getElementById('variants_json')
+        };
+
+        ELEMENTS.submitButton = ELEMENTS.form?.querySelector('button[type="submit"]');
+        const ORIGINAL_BUTTON_TEXT = ELEMENTS.submitButton?.innerHTML || '';
+
+        // ANCHOR: Element Validation
+        if (!ELEMENTS.form) {
+            alert('Error: Form tidak ditemukan. Silakan refresh halaman.');
+        }
+
+        const REQUIRED_FIELDS = ['name', 'category_id', 'price', 'short_description', 'description', 'main_image'];
+        const SUBMIT_TIMEOUT = 180000; // 3 minutes
+
+        // ANCHOR: Utility Functions
+        const getElement = (id) => document.getElementById(id);
+        
+        const toggleVisibility = (element, show) => {
+            element?.classList[show ? 'remove' : 'add']('hidden');
+        };
+
+        const formatPrice = (price) => price.toLocaleString('id-ID');
+
+        const validateDiscountPrice = (price, discountPrice) => {
+            if (!discountPrice) return true;
+            return parseFloat(discountPrice) < parseFloat(price);
+        };
+
+        const createImagePreview = (src, alt = 'Preview') => {
+            if (!src) return '';
+            return `<img src="${src}" alt="${alt}" class="h-12 w-12 object-cover rounded">`;
+        };
+
+        const createPlaceholderImage = () => `
+            <div class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
+                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+            </div>`;
+
+        const createRemoveButton = () => `
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>`;
+
+        // ANCHOR: Image Preview Handlers
+        const handleImagePreview = (file, previewImgId, previewContainerId) => {
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const previewImg = getElement(previewImgId);
+                const previewContainer = getElement(previewContainerId);
+                
+                if (previewImg) previewImg.src = e.target.result;
+                toggleVisibility(previewContainer, true);
+            };
+            reader.readAsDataURL(file);
+        };
+
+        const handleMainImageChange = (e) => {
+            handleImagePreview(e.target.files[0], 'main_preview_img', 'main_image_preview');
+        };
+
+        const removeMainImage = () => {
+            const mainImage = getElement('main_image');
+            const previewContainer = getElement('main_image_preview');
+            
+            if (mainImage) mainImage.value = '';
+            toggleVisibility(previewContainer, false);
+        };
+
+        const handleVariantImageChange = (e) => {
+            handleImagePreview(e.target.files[0], 'variant_preview_img', 'variant_image_preview');
+        };
+
+        const removeVariantImagePreview = () => {
+            const variantImage = getElement('variant_image');
+            const previewContainer = getElement('variant_image_preview');
+            
+            if (variantImage) variantImage.value = '';
+            toggleVisibility(previewContainer, false);
+        };
+
+        // ANCHOR: Gallery Image Handlers
+        const updateGalleryFileInput = (files) => {
+            const input = getElement('gallery_images');
+            if (!input) return;
+            
+            const dataTransfer = new DataTransfer();
+            files.forEach(file => dataTransfer.items.add(file));
+            input.files = dataTransfer.files;
+        };
+
+        const createGalleryImageElement = (file, index) => {
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const container = getElement('gallery_images_container');
+                if (!container) return;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'relative';
+
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Gallery Preview';
+                img.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors';
+                removeBtn.title = 'Hapus gambar';
+                removeBtn.onclick = () => removeGalleryImage(index);
+                removeBtn.innerHTML = createRemoveButton();
+
+                wrapper.appendChild(img);
+                wrapper.appendChild(removeBtn);
+                container.appendChild(wrapper);
+            };
+            
+            reader.readAsDataURL(file);
+        };
+
+        const updateGalleryPreview = () => {
+            const container = getElement('gallery_images_container');
+            const preview = getElement('gallery_preview');
+            
+            if (!container || !preview) return;
+            
+            container.innerHTML = '';
+            
+            const hasFiles = state.selectedGalleryFiles.length > 0;
+            toggleVisibility(preview, hasFiles);
+            
+            if (hasFiles) {
+                state.selectedGalleryFiles.forEach((file, index) => {
+                    createGalleryImageElement(file, index);
+                });
+            }
+        };
+
+        const handleGalleryImagesChange = (e) => {
+            const newFiles = Array.from(e.target.files);
+            state.selectedGalleryFiles = [...state.selectedGalleryFiles, ...newFiles];
+            updateGalleryFileInput(state.selectedGalleryFiles);
+            updateGalleryPreview();
+        };
+
+        const removeGalleryImage = (index) => {
+            state.selectedGalleryFiles.splice(index, 1);
+            updateGalleryFileInput(state.selectedGalleryFiles);
+            updateGalleryPreview();
+        };
+
         // ANCHOR: Variant Management
-        let variants = [];
-        let editingVariantIndex = null;
+        const getVariantFormData = () => ({
+            name: getElement('variant_name')?.value.trim(),
+            sku: getElement('variant_sku')?.value.trim(),
+            price: getElement('variant_price')?.value,
+            discount_price: getElement('variant_discount_price')?.value,
+            stock: getElement('variant_stock')?.value,
+            is_active: getElement('variant_is_active')?.checked,
+            imageFile: getElement('variant_image')?.files[0]
+        });
 
-        function openVariantModal(index = null) {
-            const modal = document.getElementById('variantModal');
-            const modalTitle = document.getElementById('modalTitle');
-            
-            if (index !== null) {
-                // Edit mode
-                editingVariantIndex = index;
-                const variant = variants[index];
-                modalTitle.textContent = 'Edit Variant';
-                
-                document.getElementById('variant_name').value = variant.name;
-                document.getElementById('variant_sku').value = variant.sku || '';
-                document.getElementById('variant_price').value = variant.price;
-                document.getElementById('variant_discount_price').value = variant.discount_price || '';
-                document.getElementById('variant_stock').value = variant.stock;
-                document.getElementById('variant_is_active').checked = variant.is_active;
-                
-                if (variant.image_preview) {
-                    document.getElementById('variant_preview_img').src = variant.image_preview;
-                    document.getElementById('variant_image_preview').classList.remove('hidden');
-                }
-            } else {
-                // Add mode
-                editingVariantIndex = null;
-                modalTitle.textContent = 'Tambah Variant';
-                clearVariantForm();
-            }
-            
-            modal.classList.remove('hidden');
-        }
-
-        function closeVariantModal() {
-            document.getElementById('variantModal').classList.add('hidden');
-            clearVariantForm();
-            editingVariantIndex = null;
-        }
-
-        function clearVariantForm() {
-            document.getElementById('variant_name').value = '';
-            document.getElementById('variant_sku').value = '';
-            document.getElementById('variant_price').value = '';
-            document.getElementById('variant_discount_price').value = '';
-            document.getElementById('variant_stock').value = '';
-            document.getElementById('variant_image').value = '';
-            document.getElementById('variant_is_active').checked = true;
-            document.getElementById('variant_image_preview').classList.add('hidden');
-        }
-
-        function saveVariant() {
-            const name = document.getElementById('variant_name').value.trim();
-            const sku = document.getElementById('variant_sku').value.trim();
-            const price = document.getElementById('variant_price').value;
-            const discount_price = document.getElementById('variant_discount_price').value;
-            const stock = document.getElementById('variant_stock').value;
-            const is_active = document.getElementById('variant_is_active').checked;
-            const imageFile = document.getElementById('variant_image').files[0];
-            
-            if (!name || !price || !stock) {
-                alert('Nama, Harga, dan Stok wajib diisi!');
-                return;
-            }
-
-            if (discount_price && parseFloat(discount_price) >= parseFloat(price)) {
-                alert('Harga diskon harus lebih kecil dari harga normal!');
-                return;
-            }
-
-            const variantData = {
-                name,
-                sku,
-                price: parseFloat(price),
-                discount_price: discount_price ? parseFloat(discount_price) : null,
-                stock: parseInt(stock),
-                is_active,
-                image_file: imageFile || null,
-                image_preview: imageFile ? document.getElementById('variant_preview_img').src : null
+        const setVariantFormData = (variant) => {
+            const elements = {
+                name: getElement('variant_name'),
+                sku: getElement('variant_sku'),
+                price: getElement('variant_price'),
+                discount_price: getElement('variant_discount_price'),
+                stock: getElement('variant_stock'),
+                is_active: getElement('variant_is_active')
             };
 
-            if (editingVariantIndex !== null) {
-                // Update existing variant
-                variants[editingVariantIndex] = variantData;
-            } else {
-                // Add new variant
-                variants.push(variantData);
+            if (elements.name) elements.name.value = variant.name;
+            if (elements.sku) elements.sku.value = variant.sku || '';
+            if (elements.price) elements.price.value = variant.price;
+            if (elements.discount_price) elements.discount_price.value = variant.discount_price || '';
+            if (elements.stock) elements.stock.value = variant.stock;
+            if (elements.is_active) elements.is_active.checked = variant.is_active;
+                
+                if (variant.image_preview) {
+                const previewImg = getElement('variant_preview_img');
+                const previewContainer = getElement('variant_image_preview');
+                if (previewImg) previewImg.src = variant.image_preview;
+                toggleVisibility(previewContainer, true);
             }
+        };
 
-            updateVariantsDisplay();
-            closeVariantModal();
-        }
+        const clearVariantForm = () => {
+            const fields = ['variant_name', 'variant_sku', 'variant_price', 'variant_discount_price', 'variant_stock', 'variant_image'];
+            fields.forEach(id => {
+                const element = getElement(id);
+                if (element) element.value = '';
+            });
 
-        function deleteVariant(index) {
-            if (confirm('Yakin ingin menghapus variant ini?')) {
-                variants.splice(index, 1);
-                updateVariantsDisplay();
-            }
-        }
-
-        function toggleVariantActive(index) {
-            variants[index].is_active = !variants[index].is_active;
-            updateVariantsDisplay();
-        }
-
-        function updateVariantsDisplay() {
-            const tbody = document.getElementById('variants-tbody');
-            const variantsList = document.getElementById('variants-list');
-            const noVariantsMessage = document.getElementById('no-variants-message');
+            const isActiveCheckbox = getElement('variant_is_active');
+            if (isActiveCheckbox) isActiveCheckbox.checked = true;
             
-            if (variants.length === 0) {
-                variantsList.classList.add('hidden');
-                noVariantsMessage.classList.remove('hidden');
+            toggleVisibility(getElement('variant_image_preview'), false);
+        };
+
+        const openVariantModal = (index = null) => {
+            const isEditMode = index !== null;
+            state.editingVariantIndex = isEditMode ? index : null;
+
+            if (ELEMENTS.modalTitle) {
+                ELEMENTS.modalTitle.textContent = isEditMode ? 'Edit Variant' : 'Tambah Variant';
+            }
+
+            if (isEditMode) {
+                setVariantFormData(state.variants[index]);
+            } else {
+                clearVariantForm();
+            }
+
+            toggleVisibility(ELEMENTS.variantModal, true);
+        };
+
+        const closeVariantModal = () => {
+            toggleVisibility(ELEMENTS.variantModal, false);
+            clearVariantForm();
+            state.editingVariantIndex = null;
+        };
+
+        const validateVariantData = (data) => {
+            if (!data.name || !data.price || !data.stock) {
+                alert('Nama, Harga, dan Stok wajib diisi!');
+                return false;
+            }
+
+            if (!validateDiscountPrice(data.price, data.discount_price)) {
+                alert('Harga diskon harus lebih kecil dari harga normal!');
+                return false;
+            }
+
+            return true;
+        };
+
+        const createVariantData = (formData) => ({
+            name: formData.name,
+            sku: formData.sku,
+            price: parseFloat(formData.price),
+            discount_price: formData.discount_price ? parseFloat(formData.discount_price) : null,
+            stock: parseInt(formData.stock),
+            is_active: formData.is_active,
+            image_file: formData.imageFile || null,
+            image_preview: formData.imageFile ? getElement('variant_preview_img')?.src : null
+        });
+
+        const saveVariant = () => {
+            
+            const formData = getVariantFormData();
+            
+            if (!validateVariantData(formData)) {
                 return;
             }
 
-            variantsList.classList.remove('hidden');
-            noVariantsMessage.classList.add('hidden');
+            const variantData = createVariantData(formData);
 
-            tbody.innerHTML = variants.map((variant, index) => {
-                const hasDiscount = variant.discount_price && variant.discount_price < variant.price;
-                const finalPrice = hasDiscount ? variant.discount_price : variant.price;
-                const discountPercentage = hasDiscount ? Math.round(((variant.price - variant.discount_price) / variant.price) * 100) : 0;
+            if (state.editingVariantIndex !== null) {
+                state.variants[state.editingVariantIndex] = variantData;
+            } else {
+                state.variants.push(variantData);
+            }
+            updateVariantsDisplay();
+            closeVariantModal();
+        };
+
+        const deleteVariant = (index) => {
+            if (!confirm('Yakin ingin menghapus variant ini?')) return;
+            
+            state.variants.splice(index, 1);
+                updateVariantsDisplay();
+        };
+
+        const toggleVariantActive = (index) => {
+            state.variants[index].is_active = !state.variants[index].is_active;
+            updateVariantsDisplay();
+        };
+
+        const createVariantPriceDisplay = (variant) => {
+            const hasDiscount = variant.discount_price && variant.discount_price < variant.price;
+            const finalPrice = hasDiscount ? variant.discount_price : variant.price;
+
+            if (!hasDiscount) return `Rp ${formatPrice(variant.price)}`;
+
+            return `
+                <div class="flex flex-col">
+                    <span class="text-red-600 font-medium">Rp ${formatPrice(finalPrice)}</span>
+                    <span class="text-gray-400 line-through text-xs">Rp ${formatPrice(variant.price)}</span>
+                </div>`;
+        };
+
+        const createVariantRow = (variant, index) => {
+            const imageDisplay = variant.image_preview ? 
+                createImagePreview(variant.image_preview, variant.name) : 
+                createPlaceholderImage();
+
+            const activeClass = variant.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+            const activeText = variant.is_active ? 'Aktif' : 'Nonaktif';
 
                 return `
                     <tr>
-                        <td class="px-4 py-4 whitespace-nowrap">
-                            ${variant.image_preview ? 
-                                `<img src="${variant.image_preview}" alt="${variant.name}" class="h-12 w-12 object-cover rounded">` :
-                                `<div class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>`
-                            }
-                        </td>
+                    <td class="px-4 py-4 whitespace-nowrap">${imageDisplay}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${variant.name}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${variant.sku || '-'}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${hasDiscount ? `
-                                <div class="flex flex-col">
-                                    <span class="text-red-600 font-medium">Rp ${finalPrice.toLocaleString('id-ID')}</span>
-                                    <span class="text-gray-400 line-through text-xs">Rp ${variant.price.toLocaleString('id-ID')}</span>
-                                </div>
-                            ` : `Rp ${variant.price.toLocaleString('id-ID')}`}
-                        </td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${createVariantPriceDisplay(variant)}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${variant.stock}</td>
                         <td class="px-4 py-4 whitespace-nowrap">
                             <button type="button" onclick="toggleVariantActive(${index})" 
-                                class="text-xs px-2 py-1 rounded ${variant.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
-                                ${variant.is_active ? 'Aktif' : 'Nonaktif'}
+                            class="text-xs px-2 py-1 rounded ${activeClass}">
+                            ${activeText}
                             </button>
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
@@ -643,40 +822,25 @@
                             <button type="button" onclick="deleteVariant(${index})"
                                 class="text-red-600 hover:text-red-900">Hapus</button>
                         </td>
-                    </tr>
-                `;
-            }).join('');
-        }
+                </tr>`;
+        };
 
-        // Preview variant image on change
-        document.getElementById('variant_image').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('variant_preview_img').src = e.target.result;
-                    document.getElementById('variant_image_preview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
+        const updateVariantsDisplay = () => {
+            const hasVariants = state.variants.length > 0;
+            
+            toggleVisibility(ELEMENTS.variantsList, hasVariants);
+            toggleVisibility(ELEMENTS.noVariantsMessage, !hasVariants);
+
+            if (hasVariants && ELEMENTS.variantsTbody) {
+                ELEMENTS.variantsTbody.innerHTML = state.variants
+                    .map((variant, index) => createVariantRow(variant, index))
+                    .join('');
             }
-        });
+        };
 
-        function removeVariantImagePreview() {
-            document.getElementById('variant_image').value = '';
-            document.getElementById('variant_image_preview').classList.add('hidden');
-        }
-
-        // Close modal when clicking outside
-        document.getElementById('variantModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeVariantModal();
-            }
-        });
-
-        // Before form submit, convert variants to JSON and handle file uploads
-        document.querySelector('form').addEventListener('submit', function(e) {
-            // Prepare variants data (without image files for JSON)
-            const variantsForJson = variants.map(v => ({
+        // ANCHOR: Form Submission
+        const prepareVariantsForSubmission = () => {
+            return state.variants.map(v => ({
                 name: v.name,
                 sku: v.sku,
                 price: v.price,
@@ -685,15 +849,17 @@
                 is_active: v.is_active,
                 has_image: v.image_file !== null
             }));
+        };
             
-            document.getElementById('variants_json').value = JSON.stringify(variantsForJson);
-            
-            // Remove old variant image inputs
+        const removeOldVariantImageInputs = () => {
             document.querySelectorAll('input[name^="variant_images"]').forEach(input => input.remove());
-            
-            // Create file inputs for variant images and append to form
-            variants.forEach((variant, index) => {
-                if (variant.image_file) {
+        };
+
+        const createVariantImageInputs = (form) => {
+            return state.variants.reduce((count, variant, index) => {
+                if (!variant.image_file) return count;
+
+                try {
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(variant.image_file);
                     
@@ -703,130 +869,102 @@
                     fileInput.files = dataTransfer.files;
                     fileInput.style.display = 'none';
                     
-                    this.appendChild(fileInput);
+                    form.appendChild(fileInput);
+                    return count + 1;
+                } catch (error) {
+                    return count;
                 }
+            }, 0);
+        };
+
+        const validateRequiredFields = () => {
+            return REQUIRED_FIELDS.every(fieldId => {
+                const field = getElement(fieldId);
+                if (!field) return true;
+
+                const isValid = field.value.trim() !== '';
+                field.classList[isValid ? 'remove' : 'add']('border-red-500');
+                return isValid;
             });
-        });
-    </script>
+        };
 
-    <script>
-        // Simple image preview
-        document.getElementById('main_image').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('main_preview_img').src = e.target.result;
-                    document.getElementById('main_image_preview').classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
+        const disableSubmitButton = () => {
+            if (!ELEMENTS.submitButton) return;
+
+            ELEMENTS.submitButton.disabled = true;
+            ELEMENTS.submitButton.classList.add('opacity-50', 'cursor-not-allowed');
+            ELEMENTS.submitButton.innerHTML = `
+                <svg class="animate-spin h-5 w-5 mr-2 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Memproses...`;
+        };
+
+        const enableSubmitButton = () => {
+            if (!ELEMENTS.submitButton) return;
+            ELEMENTS.submitButton.disabled = false;
+            ELEMENTS.submitButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            ELEMENTS.submitButton.innerHTML = ORIGINAL_BUTTON_TEXT;
+        };
+
+        const handleFormSubmit = function(e) {   
+            if (state.isSubmitting) {
+                e.preventDefault();
+                return false;
             }
-        });
-
-        // Remove main image function
-        function removeMainImage() {
-            document.getElementById('main_image').value = '';
-            document.getElementById('main_image_preview').classList.add('hidden');
-        }
-
-        // Gallery preview with individual remove
-        let selectedGalleryFiles = [];
-
-        document.getElementById('gallery_images').addEventListener('change', function(e) {
-            const files = Array.from(e.target.files);
-
-            // Add new files to selected files
-            selectedGalleryFiles = selectedGalleryFiles.concat(files);
-
-            // Update the file input
-            const dt = new DataTransfer();
-            selectedGalleryFiles.forEach(file => dt.items.add(file));
-            e.target.files = dt.files;
-
-            // Update preview
-            updateGalleryPreview();
-        });
-
-        function updateGalleryPreview() {
-            const container = document.getElementById('gallery_images_container');
-            const preview = document.getElementById('gallery_preview');
-
-            container.innerHTML = '';
-
-            if (selectedGalleryFiles.length > 0) {
-                preview.classList.remove('hidden');
-
-                selectedGalleryFiles.forEach((file, index) => {
-                    const reader = new FileReader();
-
-                    reader.onload = function(e) {
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'relative';
-
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.alt = 'Gallery Preview';
-                        img.className = 'w-full h-24 object-cover rounded-lg border border-gray-300';
-
-                        const removeBtn = document.createElement('button');
-                        removeBtn.type = 'button';
-                        removeBtn.className =
-                            'absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors';
-                        removeBtn.title = 'Hapus gambar';
-                        removeBtn.onclick = () => removeGalleryImage(index);
-
-                        removeBtn.innerHTML = `
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                `;
-
-                        wrapper.appendChild(img);
-                        wrapper.appendChild(removeBtn);
-                        container.appendChild(wrapper);
-                    };
-
-                    reader.readAsDataURL(file);
-                });
-            } else {
-                preview.classList.add('hidden');
+            
+            if (ELEMENTS.variantsJson && state.variants.length > 0) {
+                const variantsData = prepareVariantsForSubmission();
+                const jsonString = JSON.stringify(variantsData);
+                ELEMENTS.variantsJson.value = jsonString;
             }
-        }
+            removeOldVariantImageInputs();
+            createVariantImageInputs(this);
 
-        function removeGalleryImage(index) {
-            selectedGalleryFiles.splice(index, 1);
-
-            // Update the file input
-            const input = document.getElementById('gallery_images');
-            const dt = new DataTransfer();
-            selectedGalleryFiles.forEach(file => dt.items.add(file));
-            input.files = dt.files;
-
-            // Update preview
-            updateGalleryPreview();
-        }
-
-        // Simple form validation
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const requiredFields = ['name', 'category_id', 'price', 'short_description', 'description',
-                'main_image'
-            ];
-            let isValid = true;
-
-            requiredFields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (!field.value.trim()) {
-                    field.classList.add('border-red-500');
-                    isValid = false;
-                } else {
-                    field.classList.remove('border-red-500');
-                }
-            });
-
-            if (!isValid) {
+            if (!validateRequiredFields()) {
                 e.preventDefault();
                 alert('Mohon lengkapi semua field yang wajib diisi.');
+                return false;
             }
-        });
+
+            state.isSubmitting = true;
+            disableSubmitButton();
+
+            setTimeout(() => {
+                if (state.isSubmitting) {
+                    state.isSubmitting = false;
+                    enableSubmitButton();
+                }
+            }, SUBMIT_TIMEOUT);
+
+            return true;
+        };
+
+        const handlePageShow = (event) => {
+            if (event.persisted) {
+                state.isSubmitting = false;
+                enableSubmitButton();
+            }
+        };
+
+        const handleModalOutsideClick = (e) => {
+            if (e.target === ELEMENTS.variantModal) {
+                closeVariantModal();
+            }
+        };
+
+        // ANCHOR: Event Listeners
+        getElement('main_image')?.addEventListener('change', handleMainImageChange);
+        getElement('gallery_images')?.addEventListener('change', handleGalleryImagesChange);
+        getElement('variant_image')?.addEventListener('change', handleVariantImageChange);
+        ELEMENTS.variantModal?.addEventListener('click', handleModalOutsideClick);
+        
+        // Form submit event listener with validation
+        if (ELEMENTS.form) {
+            ELEMENTS.form.addEventListener('submit', handleFormSubmit);
+        }
+        
+        window.addEventListener('pageshow', handlePageShow);
     </script>
 @endsection

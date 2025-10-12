@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ProductStoreRequest;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\Category;
 use App\Models\ProductImage;
+use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -67,104 +70,274 @@ class ProductController extends Controller
     /**
      * ANCHOR: Store a newly created product in storage.
      */
-    public function store(Request $request)
+    public function store(ProductStoreRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
-            'short_description' => 'required|string|max:500',
-            'description' => 'required|string',
-            'specifications' => 'required|string',
-            'care_instructions' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'discount_price' => 'nullable|numeric|min:0|lt:price',
-            'weight' => 'nullable|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'status' => 'required|in:active,draft,out_of_stock',
-            'is_featured' => 'nullable|boolean',
-            'main_image' => 'required|image|mimes:jpeg,png,jpg,gif',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif',
-            'variants_json' => 'nullable|json',
-            'variant_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ], [
-            'main_image.required' => 'Gambar utama wajib diupload.',
-            'main_image.image' => 'File harus berupa gambar.',
-            'main_image.mimes' => 'Format gambar harus JPEG, PNG, JPG, atau GIF.',
-            'gallery_images.*.image' => 'File galeri harus berupa gambar.',
-            'gallery_images.*.mimes' => 'Format gambar galeri harus JPEG, PNG, JPG, atau GIF.',
-            'discount_price.lt' => 'Harga diskon harus lebih kecil dari harga normal.',
-        ]);
+        // Generate request token for deduplication
+        $requestToken = $this->generateRequestToken($request);
+        $lockKey = 'product_create_' . $requestToken;
+
+        //Check if this request is already being processed
+        if (Cache::has($lockKey)) {
+            notify()->warning('Permintaan sedang diproses. Mohon tunggu.', 'Peringatan');
+            return redirect()->back();
+        }
+
+        // Lock this request for 2 minutes
+        Cache::put($lockKey, true, 120);
+
+        $imageService = new ImageUploadService();
+        $product = null;
 
         DB::beginTransaction();
+        
         try {
-            // Handle main image upload first
+            // Check memory usage before starting
+            $this->checkMemoryUsage();
+
+            // Upload main image with validation
             $mainImagePath = null;
             if ($request->hasFile('main_image')) {
-                $mainImagePath = $request->file('main_image')->store('products', 'public');
+                $mainImagePath = $imageService->upload($request->file('main_image'), 'products');
+                Log::info('Main image uploaded', ['path' => $mainImagePath]);
             }
 
-            // Create product with main image
+            // Prepare product data
             $productData = $request->except(['main_image', 'gallery_images', 'variants_json', 'variant_images']);
             $productData['main_image'] = $mainImagePath;
-
-            // Ensure is_featured is properly cast to boolean
             $productData['is_featured'] = $request->boolean('is_featured');
 
+            // Create product
             $product = Product::create($productData);
+            Log::info('Product created', ['id' => $product->id, 'name' => $product->name]);
+
+            // Check database connection before continuing
+            $this->checkDatabaseConnection();
 
             // Handle gallery images upload
             if ($request->hasFile('gallery_images')) {
-                $galleryImages = $request->file('gallery_images');
-                $order = 1;
-
-                foreach ($galleryImages as $image) {
-                    $imagePath = $image->store('products', 'public');
-                    ProductImage::create([
-                        'product_id' => $product->id,
-                        'image_path' => $imagePath,
-                        'order' => $order++
-                    ]);
-                }
+                $this->uploadGalleryImages($request, $product, $imageService);
             }
 
             // Handle variants creation
             if ($request->filled('variants_json')) {
-                $variants = json_decode($request->variants_json, true);
+                Log::info('Processing variants', [
+                    'variants_json' => $request->variants_json,
+                    'has_variant_images' => $request->hasFile('variant_images'),
+                    'variant_images_count' => $request->file('variant_images') ? count($request->file('variant_images')) : 0
+                ]);
                 
-                if (is_array($variants) && count($variants) > 0) {
-                    foreach ($variants as $index => $variantData) {
-                        $variantImagePath = null;
-                        
-                        // Handle variant image upload
-                        if ($request->hasFile("variant_images.{$index}")) {
-                            $variantImagePath = $request->file("variant_images.{$index}")->store('products/variants', 'public');
-                        }
-
-                        ProductVariant::create([
-                            'product_id' => $product->id,
-                            'name' => $variantData['name'],
-                            'sku' => $variantData['sku'] ?? null,
-                            'price' => $variantData['price'],
-                            'discount_price' => $variantData['discount_price'] ?? null,
-                            'stock' => $variantData['stock'],
-                            'image' => $variantImagePath,
-                            'is_active' => $variantData['is_active'] ?? true,
-                            'order' => $index + 1,
-                        ]);
-                    }
-                }
+                $this->createProductVariants($request, $product, $imageService);
+            } else {
+                Log::info('No variants to process', ['variants_json_filled' => $request->filled('variants_json')]);
             }
 
+            // Everything succeeded - commit and clear tracking
             DB::commit();
+            $imageService->clearTracking();
+            Cache::forget($lockKey);
+
+            Log::info('Product created successfully', [
+                'product_id' => $product->id,
+                'uploaded_files' => count($imageService->getUploadedFiles())
+            ]);
+
             notify()->success('Produk berhasil ditambahkan.', 'Berhasil');
             return redirect()->route('admin.products.index');
 
-        } catch (\Exception $e) {
+        } catch (\InvalidArgumentException $e) {
+            // Validation error from ImageUploadService
             DB::rollBack();
-            Log::error('Failed to create product with variants', ['error' => $e->getMessage()]);
+            $imageService->cleanup();
+            Cache::forget($lockKey);
+
+            Log::warning('Product creation failed - validation error', [
+                'error' => $e->getMessage(),
+                'product_id' => $product?->id
+            ]);
+
+            notify()->error($e->getMessage(), 'Validasi Gagal');
+            return redirect()->back()->withInput();
+
+        } catch (\PDOException $e) {
+            // Database error
+            DB::rollBack();
+            $imageService->cleanup();
+            Cache::forget($lockKey);
+
+            Log::error('Product creation failed - database error', [
+                'error' => $e->getMessage(),
+                'code' => $e->getCode(),
+                'product_id' => $product?->id
+            ]);
+
+            notify()->error('Terjadi kesalahan pada database. Silakan coba lagi atau hubungi administrator.', 'Error Database');
+            return redirect()->back()->withInput();
+
+        } catch (\Exception $e) {
+            // Generic error
+            DB::rollBack();
+            $imageService->cleanup();
+            Cache::forget($lockKey);
+
+            Log::error('Product creation failed - general error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'product_id' => $product?->id,
+                'uploaded_files_cleaned' => count($imageService->getUploadedFiles())
+            ]);
+
             notify()->error('Gagal menambahkan produk. Silakan coba lagi.', 'Error');
             return redirect()->back()->withInput();
         }
+    }
+
+    /**
+     * ANCHOR: Upload gallery images for product
+     */
+    private function uploadGalleryImages(ProductStoreRequest $request, Product $product, ImageUploadService $imageService): void
+    {
+        $galleryImages = $request->file('gallery_images');
+        $order = 1;
+
+        foreach ($galleryImages as $image) {
+            // Check memory before each upload
+            $this->checkMemoryUsage();
+
+            $imagePath = $imageService->upload($image, 'products');
+
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image_path' => $imagePath,
+                'order' => $order++
+            ]);
+
+            Log::info('Gallery image uploaded', [
+                'product_id' => $product->id,
+                'path' => $imagePath,
+                'order' => $order - 1
+            ]);
+        }
+    }
+
+    /**
+     * ANCHOR: Create product variants with images
+     */
+    private function createProductVariants(ProductStoreRequest $request, Product $product, ImageUploadService $imageService): void
+    {
+        $variants = json_decode($request->variants_json, true);
+
+        // This should never happen because of validation, but double check
+        if (!is_array($variants) || count($variants) === 0) {
+            throw new \Exception('Invalid variants data');
+        }
+
+        // Get variant images array
+        $variantImages = $request->file('variant_images', []);
+
+        foreach ($variants as $index => $variantData) {
+            // Check memory before each variant
+            $this->checkMemoryUsage();
+
+            $variantImagePath = null;
+
+            // Handle variant image upload - access as array
+            if (isset($variantImages[$index]) && $variantImages[$index] instanceof \Illuminate\Http\UploadedFile) {
+                $variantImagePath = $imageService->upload(
+                    $variantImages[$index],
+                    'products/variants'
+                );
+                
+                Log::info('Variant image uploaded', [
+                    'product_id' => $product->id,
+                    'variant_index' => $index,
+                    'path' => $variantImagePath
+                ]);
+            }
+
+            $variant = ProductVariant::create([
+                'product_id' => $product->id,
+                'name' => $variantData['name'],
+                'sku' => $variantData['sku'] ?? null,
+                'price' => $variantData['price'],
+                'discount_price' => $variantData['discount_price'] ?? null,
+                'stock' => $variantData['stock'],
+                'image' => $variantImagePath,
+                'is_active' => $variantData['is_active'] ?? true,
+                'order' => $index + 1,
+            ]);
+
+            Log::info('Product variant created', [
+                'product_id' => $product->id,
+                'variant_id' => $variant->id,
+                'name' => $variant->name,
+                'has_image' => $variantImagePath !== null
+            ]);
+        }
+    }
+
+    /**
+     * ANCHOR: Check memory usage to prevent memory exhaustion
+     */
+    private function checkMemoryUsage(): void
+    {
+        $memoryUsage = memory_get_usage(true);
+        $memoryLimit = ini_get('memory_limit');
+        $memoryLimitBytes = $this->convertToBytes($memoryLimit);
+
+        // Warn if using more than 80% of memory
+        if ($memoryUsage > ($memoryLimitBytes * 0.8)) {
+            Log::warning('High memory usage detected', [
+                'usage' => round($memoryUsage / 1024 / 1024, 2) . 'MB',
+                'limit' => $memoryLimit,
+                'percentage' => round(($memoryUsage / $memoryLimitBytes) * 100, 2) . '%'
+            ]);
+
+            throw new \Exception('Memory limit approaching. Please reduce image count or size.');
+        }
+    }
+
+    /**
+     * ANCHOR: Convert PHP memory limit to bytes
+     */
+    private function convertToBytes(string $value): int
+    {
+        $unit = strtolower(substr($value, -1));
+        $numericValue = (int) $value;
+
+        switch ($unit) {
+            case 'g':
+                $numericValue *= 1024;
+                // fall through
+            case 'm':
+                $numericValue *= 1024;
+                // fall through
+            case 'k':
+                $numericValue *= 1024;
+        }
+
+        return $numericValue;
+    }
+
+    /**
+     * ANCHOR: Check database connection is still alive
+     */
+    private function checkDatabaseConnection(): void
+    {
+        try {
+            DB::connection()->getPdo();
+        } catch (\Exception $e) {
+            Log::error('Database connection lost', ['error' => $e->getMessage()]);
+            throw new \PDOException('Database connection lost. Please try again.');
+        }
+    }
+
+    /**
+     * ANCHOR: Generate unique request token for deduplication
+     */
+    private function generateRequestToken(ProductStoreRequest $request): string
+    {
+        $data = $request->except(['_token', 'main_image', 'gallery_images', 'variant_images']);
+        return md5($request->input('_token') . json_encode($data));
     }
 
     /**

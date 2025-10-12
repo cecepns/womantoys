@@ -40,16 +40,49 @@ class Product extends Model
         // Auto-generate slug from name if not provided
         static::creating(function ($product) {
             if (empty($product->slug)) {
-                $product->slug = Str::slug($product->name);
+                $product->slug = static::generateUniqueSlug($product->name);
             }
         });
 
         // Update slug when name is updated
         static::updating(function ($product) {
             if ($product->isDirty('name') && !$product->isDirty('slug')) {
-                $product->slug = Str::slug($product->name);
+                $product->slug = static::generateUniqueSlug($product->name, $product->id);
             }
         });
+    }
+
+    /**
+     * Generate a unique slug for the product.
+     *
+     * @param string $name
+     * @param int|null $ignoreId
+     * @return string
+     */
+    private static function generateUniqueSlug(string $name, ?int $ignoreId = null): string
+    {
+        $slug = Str::slug($name);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        // Keep trying until we find a unique slug
+        while (true) {
+            $query = static::where('slug', $slug);
+            
+            // Ignore current product when updating
+            if ($ignoreId) {
+                $query->where('id', '!=', $ignoreId);
+            }
+            
+            if (!$query->exists()) {
+                break;
+            }
+            
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
     }
 
     /**
