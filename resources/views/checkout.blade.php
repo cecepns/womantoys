@@ -190,24 +190,9 @@
                                             @endif
                                         </div>
                                         <div class="text-right">
-                                            @if ($product->hasDiscount())
-                                                <div class="space-y-1">
-                                                    <p class="font-semibold text-sm text-pink-600" id="product-price">
-                                                        {{ $product->formatted_discount_price }}
-                                                    </p>
-                                                    <p class="text-xs text-gray-400 line-through">
-                                                        {{ $product->formatted_price }}
-                                                    </p>
-                                                    <span
-                                                        class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                                        Hemat {{ $product->discount_percentage }}%
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <p class="font-semibold text-sm text-gray-800" id="product-price">
-                                                    {{ $product->formatted_final_price }}
-                                                </p>
-                                            @endif
+                                            <div id="product-price-mobile">
+                                                <!-- Price will be dynamically updated -->
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -288,24 +273,9 @@
                                 </div>
                             </div>
                             <div class="text-right flex-shrink-0">
-                                @if ($product->hasDiscount())
-                                    <div class="space-y-1">
-                                        <p class="font-semibold text-base text-pink-600" id="product-price">
-                                            {{ $product->formatted_discount_price }}
-                                        </p>
-                                        <p class="text-sm text-gray-400 line-through">
-                                            {{ $product->formatted_price }}
-                                        </p>
-                                        <span
-                                            class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
-                                            Hemat {{ $product->discount_percentage }}%
-                                        </span>
-                                    </div>
-                                @else
-                                    <p class="font-semibold text-base text-gray-800" id="product-price">
-                                        {{ $product->formatted_final_price }}
-                                    </p>
-                                @endif
+                                <div id="product-price-desktop">
+                                    <!-- Price will be dynamically updated -->
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -362,21 +332,17 @@
 
                     <!-- Cost Breakdown -->
                     <div class="space-y-2 md:space-y-3 mb-4 md:mb-6">
-                        @if ($product->hasDiscount())
-                            <div class="flex justify-between text-sm md:text-base text-gray-600 original-price-row">
-                                <span>Harga Normal</span>
-                                <span class="original-price line-through">Rp
-                                    {{ number_format($product->price, 0, ',', '.') }}</span>
-                            </div>
-                            <div class="flex justify-between text-sm md:text-base text-red-600 product-discount-row">
-                                <span>Diskon Produk ({{ $product->discount_percentage }}%)</span>
-                                <span
-                                    class="discount-amount">-{{ \App\Helpers\FormatHelper::formatCurrency($product->price - $product->discount_price) }}</span>
-                            </div>
-                        @endif
+                        <div class="flex justify-between text-sm md:text-base text-gray-600 original-price-row" style="display: none;">
+                            <span>Harga Normal</span>
+                            <span class="original-price line-through"></span>
+                        </div>
+                        <div class="flex justify-between text-sm md:text-base text-red-600 product-discount-row" style="display: none;">
+                            <span class="discount-label">Diskon Produk</span>
+                            <span class="discount-amount"></span>
+                        </div>
                         <div class="flex justify-between text-sm md:text-base text-gray-600">
                             <span>Subtotal</span>
-                            <span id="subtotal">Rp {{ number_format($product->final_price, 0, ',', '.') }}</span>
+                            <span id="subtotal"></span>
                         </div>
                         <div id="voucher-discount-row"
                             class="flex justify-between text-sm md:text-base text-green-600 hidden">
@@ -824,22 +790,30 @@
             document.getElementById('total-amount').textContent = 'Rp ' + formatNumber(total);
 
             // Update product discount info if exists
-            if (productData.hasDiscount) {
+            const originalPriceRow = document.querySelector('.original-price-row');
+            const discountRow = document.querySelector('.product-discount-row');
+
+            if (productData.hasDiscount && productData.discountPrice) {
                 const quantity = parseInt(document.getElementById('quantity').value) || 1;
                 const originalSubtotal = productData.originalPrice * quantity;
                 const discountAmount = (productData.originalPrice - productData.discountPrice) * quantity;
 
-                // Update original price display
-                const originalPriceRow = document.querySelector('.original-price-row');
+                // Show and update original price display
                 if (originalPriceRow) {
+                    originalPriceRow.style.display = 'flex';
                     originalPriceRow.querySelector('.original-price').textContent = 'Rp ' + formatNumber(originalSubtotal);
                 }
 
-                // Update discount display
-                const discountRow = document.querySelector('.product-discount-row');
+                // Show and update discount display
                 if (discountRow) {
+                    discountRow.style.display = 'flex';
+                    discountRow.querySelector('.discount-label').textContent = `Diskon Produk (${productData.discountPercentage}%)`;
                     discountRow.querySelector('.discount-amount').textContent = '-Rp ' + formatNumber(discountAmount);
                 }
+            } else {
+                // Hide discount rows if no discount
+                if (originalPriceRow) originalPriceRow.style.display = 'none';
+                if (discountRow) discountRow.style.display = 'none';
             }
         }
 
@@ -1070,22 +1044,29 @@
             document.getElementById('subtotal').textContent = 'Rp ' + formatNumber(subtotal);
 
             // Update product discount info if exists
-            if (productData.hasDiscount) {
+            const originalPriceRow = document.querySelector('.original-price-row');
+            const discountRow = document.querySelector('.product-discount-row');
+
+            if (productData.hasDiscount && productData.discountPrice) {
                 const originalSubtotal = productData.originalPrice * quantity;
                 const productDiscountAmount = (productData.originalPrice - productData.discountPrice) * quantity;
 
-                // Update original price display
-                const originalPriceRow = document.querySelector('.original-price-row');
+                // Show and update original price display
                 if (originalPriceRow) {
+                    originalPriceRow.style.display = 'flex';
                     originalPriceRow.querySelector('.original-price').textContent = 'Rp ' + formatNumber(originalSubtotal);
                 }
 
-                // Update discount display
-                const discountRow = document.querySelector('.product-discount-row');
+                // Show and update discount display
                 if (discountRow) {
-                    discountRow.querySelector('.discount-amount').textContent = '-Rp ' + formatNumber(
-                        productDiscountAmount);
+                    discountRow.style.display = 'flex';
+                    discountRow.querySelector('.discount-label').textContent = `Diskon Produk (${productData.discountPercentage}%)`;
+                    discountRow.querySelector('.discount-amount').textContent = '-Rp ' + formatNumber(productDiscountAmount);
                 }
+            } else {
+                // Hide discount rows if no discount
+                if (originalPriceRow) originalPriceRow.style.display = 'none';
+                if (discountRow) discountRow.style.display = 'none';
             }
 
             // Get shipping cost
@@ -1117,12 +1098,52 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         }
 
+        // ANCHOR: Update product price display based on variant
+        function updateProductPriceDisplay() {
+            const mobilePriceEl = document.getElementById('product-price-mobile');
+            const desktopPriceEl = document.getElementById('product-price-desktop');
+            
+            if (!mobilePriceEl || !desktopPriceEl) return;
+
+            let priceHTML = '';
+
+            if (productData.hasDiscount && productData.discountPrice) {
+                priceHTML = `
+                    <div class="space-y-1">
+                        <p class="font-semibold text-pink-600">
+                            Rp ${formatNumber(productData.discountPrice)}
+                        </p>
+                        <p class="text-gray-400 line-through">
+                            Rp ${formatNumber(productData.originalPrice)}
+                        </p>
+                        <span class="inline-block bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-full">
+                            Hemat ${productData.discountPercentage}%
+                        </span>
+                    </div>
+                `;
+            } else {
+                priceHTML = `
+                    <p class="font-semibold text-gray-800">
+                        Rp ${formatNumber(productData.finalPrice)}
+                    </p>
+                `;
+            }
+
+            // Mobile uses smaller font
+            mobilePriceEl.innerHTML = priceHTML.replace('font-semibold', 'font-semibold text-sm').replace('text-gray-400', 'text-xs text-gray-400');
+            // Desktop uses base font
+            desktopPriceEl.innerHTML = priceHTML.replace('font-semibold', 'font-semibold text-base').replace('text-gray-400', 'text-sm text-gray-400');
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const quantityInputs = document.querySelectorAll('#quantity');
             const initialQuantity = parseInt(quantityInputs[0].value) || 1;
 
             // Initialize hidden quantity input
             document.getElementById('hidden_quantity').value = initialQuantity;
+
+            // Update product price display with variant data
+            updateProductPriceDisplay();
 
             updatePricing(initialQuantity);
             initRajaOngkirAutocomplete();
