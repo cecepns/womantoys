@@ -201,6 +201,11 @@
                                                 <div class="text-sm font-medium text-gray-900">
                                                     {{ $item->product->name ?? 'Produk tidak ditemukan' }}
                                                 </div>
+                                                @if ($item->variant_name)
+                                                    <div class="text-sm text-gray-600">
+                                                        Varian: <span class="font-medium">{{ $item->variant_name }}</span>
+                                                    </div>
+                                                @endif
                                                 <div class="text-sm text-gray-500">
                                                     @if ($item->product)
                                                         {{ $item->product->category->name ?? 'Kategori tidak ditemukan' }}
