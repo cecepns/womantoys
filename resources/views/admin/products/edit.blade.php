@@ -479,12 +479,16 @@
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
                                     <button type="button" onclick='openVariantModal({{ json_encode($variant) }})'
-                                        class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                        Edit
+                                    </button>
                                     <form action="{{ route('admin.products.variants.destroy', [$product, $variant]) }}" method="POST" class="inline"
                                         onsubmit="return confirm('Yakin ingin menghapus variant ini?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                            Hapus
+                                        </button>
                                     </form>
                                 </td>
                             </tr>

@@ -818,9 +818,9 @@
                         </td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm font-medium">
                             <button type="button" onclick="openVariantModal(${index})"
-                                class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</button>
+                                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">Edit</button>
                             <button type="button" onclick="deleteVariant(${index})"
-                                class="text-red-600 hover:text-red-900">Hapus</button>
+                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">Hapus</button>
                         </td>
                 </tr>`;
         };
