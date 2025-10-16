@@ -708,6 +708,49 @@
         const GALLERY_INPUT_ID = 'gallery_images';
         const GALLERY_CONTAINER_ID = 'gallery_container';
 
+        // Numeric normalization helpers (remove leading zeros on input)
+        const getElement = (id) => document.getElementById(id);
+
+        const normalizeNumberInputValue = (value, allowDecimal = false) => {
+            if (value === undefined || value === null) return '';
+            value = String(value);
+            if (value === '') return '';
+
+            if (value === '.') return '0.';
+
+            if (allowDecimal && value.includes('.')) {
+                const parts = value.split('.');
+                const intPart = parts.shift();
+                const fracPart = parts.join('.');
+
+                let normalizedInt = intPart.replace(/^0+/, '');
+                if (normalizedInt === '') normalizedInt = '0';
+                return fracPart.length > 0 ? `${normalizedInt}.${fracPart}` : `${normalizedInt}.`;
+            }
+
+            const intOnly = value.split('.')[0];
+            let normalized = intOnly.replace(/^0+/, '');
+            if (normalized === '') normalized = '0';
+            return normalized;
+        };
+
+        const attachNormalizeListener = (id, allowDecimal = false) => {
+            const el = getElement(id);
+            if (!el) return;
+            el.addEventListener('input', (e) => {
+                const before = el.value;
+                const normalized = normalizeNumberInputValue(before, allowDecimal);
+                if (normalized !== before) {
+                    const prevSelectionStart = el.selectionStart ?? null;
+                    el.value = normalized;
+                    if (prevSelectionStart !== null) {
+                        const delta = normalized.length - before.length;
+                        try { el.setSelectionRange(prevSelectionStart + delta, prevSelectionStart + delta); } catch (err) {}
+                    }
+                }
+            });
+        };
+
 
         function rebuildGalleryInputFiles() {
             const input = document.getElementById(GALLERY_INPUT_ID);
@@ -885,6 +928,14 @@
                     input.setAttribute('data-initialized', 'true');
                 }
             });
+            // attach numeric normalization listeners
+            attachNormalizeListener('price', false);
+            attachNormalizeListener('discount_price', false);
+            attachNormalizeListener('weight', true);
+            attachNormalizeListener('stock', false);
+            attachNormalizeListener('variant_price', false);
+            attachNormalizeListener('variant_discount_price', false);
+            attachNormalizeListener('variant_stock', false);
         });
 
         document.getElementById('product_form').addEventListener('submit', function(e) {

@@ -256,7 +256,7 @@
                     <label for="stock" class="block text-sm font-medium text-gray-700 mb-2">
                         Jumlah Stok
                     </label>
-                    <input type="number" id="stock" name="stock" value="{{ old('stock', 0) }}"
+                    <input type="number" id="stock" name="stock" value="{{ old('stock', '') }}"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent @error('stock') border-red-500 @enderror"
                         placeholder="0" min="0">
                     @error('stock')
@@ -543,6 +543,53 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
             </svg>`;
+
+        const normalizeNumberInputValue = (value, allowDecimal = false) => {
+            if (value === undefined || value === null) return '';
+            value = String(value);
+            if (value === '') return '';
+
+            // If user types just a dot, convert to 0.
+            if (value === '.') return '0.';
+
+            // If there's a decimal part and decimals are allowed, split and process integer part only
+            if (allowDecimal && value.includes('.')) {
+                const parts = value.split('.');
+                const intPart = parts.shift();
+                const fracPart = parts.join('.');
+
+                // remove leading zeros from integer part but leave a single zero if empty
+                let normalizedInt = intPart.replace(/^0+/, '');
+                if (normalizedInt === '') normalizedInt = '0';
+
+                // preserve fractional part exactly as typed (including trailing zeros)
+                return fracPart.length > 0 ? `${normalizedInt}.${fracPart}` : `${normalizedInt}.`;
+            }
+
+            // No decimals allowed: remove any fractional input and normalize integer part
+            const intOnly = value.split('.')[0];
+            let normalized = intOnly.replace(/^0+/, '');
+            if (normalized === '') normalized = '0';
+            return normalized;
+        };
+
+        const attachNormalizeListener = (id, allowDecimal = false) => {
+            const el = getElement(id);
+            if (!el) return;
+            el.addEventListener('input', (e) => {
+                const before = el.value;
+                const normalized = normalizeNumberInputValue(before, allowDecimal);
+                if (normalized !== before) {
+                    const prevSelectionStart = el.selectionStart ?? null;
+                    el.value = normalized;
+                    // best-effort to restore cursor position
+                    if (prevSelectionStart !== null) {
+                        const delta = normalized.length - before.length;
+                        try { el.setSelectionRange(prevSelectionStart + delta, prevSelectionStart + delta); } catch (err) {}
+                    }
+                }
+            });
+        };
 
         // ANCHOR: Image Preview Handlers
         const handleImagePreview = (file, previewImgId, previewContainerId) => {
@@ -967,6 +1014,14 @@
         getElement('gallery_images')?.addEventListener('change', handleGalleryImagesChange);
         getElement('variant_image')?.addEventListener('change', handleVariantImageChange);
         ELEMENTS.variantModal?.addEventListener('click', handleModalOutsideClick);
+
+        attachNormalizeListener('price', false);
+        attachNormalizeListener('discount_price', false);
+        attachNormalizeListener('weight', true); // allow decimals for weight
+        attachNormalizeListener('stock', false);
+        attachNormalizeListener('variant_price', false);
+        attachNormalizeListener('variant_discount_price', false);
+        attachNormalizeListener('variant_stock', false);
         
         // Form submit event listener with validation
         if (ELEMENTS.form) {
