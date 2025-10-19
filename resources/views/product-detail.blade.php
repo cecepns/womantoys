@@ -217,25 +217,34 @@
                     @endif
                 </div>
 
-                <!-- Buy Now Button -->
-                <div id="buy-button-container">
+                <!-- Action Buttons -->
+                <div id="buy-button-container" class="flex flex-col sm:flex-row gap-3">
                     @if ($product->hasActiveVariants())
-                        <button id="buy-button" onclick="handleBuyNow()"
-                            class="w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl cursor-not-allowed"
+                        <button id="add-to-cart-button" onclick="handleAddToCart()"
+                            class="w-full sm:w-1/2 bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed"
                             disabled>
-                            Pilih Variant Terlebih Dahulu
+                            Tambah ke Keranjang
+                        </button>
+                        <button id="buy-button" onclick="handleBuyNow()"
+                            class="w-full sm:w-1/2 bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed"
+                            disabled>
+                            Beli Sekarang
                         </button>
                     @else
                         @if ($product->stock > 0)
-                            <a href="{{ route('checkout') }}?product={{ $product->id }}" class="block">
+                            <button onclick="handleAddToCart()"
+                                class="w-full sm:w-1/2 bg-white border-2 border-pink-600 text-pink-600 hover:bg-pink-50 font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-colors duration-200">
+                                Tambah ke Keranjang
+                            </button>
+                            <a href="{{ route('checkout') }}?product={{ $product->id }}" class="w-full sm:w-1/2">
                                 <button
-                                    class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl transition-colors duration-200 shadow-lg hover:shadow-xl">
+                                    class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-colors duration-200 shadow-lg hover:shadow-xl">
                                     Beli Sekarang
                                 </button>
                             </a>
                         @else
                             <button
-                                class="w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl cursor-not-allowed"
+                                class="w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed"
                                 disabled>
                                 Habis Stok
                             </button>
@@ -419,28 +428,64 @@
 
         function updateBuyButton(hasStock, stock) {
             const buyButton = document.getElementById('buy-button');
+            const addToCartButton = document.getElementById('add-to-cart-button');
+            
             if (!buyButton) return;
 
             if (!selectedVariantId) {
                 buyButton.disabled = true;
-                buyButton.className = 'w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl cursor-not-allowed';
+                buyButton.className = 'w-full sm:w-1/2 bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed';
                 buyButton.textContent = 'Pilih Variant Terlebih Dahulu';
                 buyButton.onclick = null;
+                
+                if (addToCartButton) {
+                    addToCartButton.disabled = true;
+                    addToCartButton.className = 'w-full sm:w-1/2 bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed';
+                    addToCartButton.textContent = 'Pilih Variant Terlebih Dahulu';
+                    addToCartButton.onclick = null;
+                }
             } else if (hasStock) {
                 buyButton.disabled = false;
-                buyButton.className = 'w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl transition-colors duration-200 shadow-lg hover:shadow-xl';
+                buyButton.className = 'w-full sm:w-1/2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-colors duration-200 shadow-lg hover:shadow-xl';
                 buyButton.textContent = 'Beli Sekarang';
+                
+                if (addToCartButton) {
+                    addToCartButton.disabled = false;
+                    addToCartButton.className = 'w-full sm:w-1/2 bg-white border-2 border-pink-600 text-pink-600 hover:bg-pink-50 font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-colors duration-200';
+                    addToCartButton.textContent = 'Tambah ke Keranjang';
+                }
             } else {
                 buyButton.disabled = true;
-                buyButton.className = 'w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-lg md:text-xl cursor-not-allowed';
+                buyButton.className = 'w-full sm:w-1/2 bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed';
                 buyButton.textContent = 'Habis Stok';
                 buyButton.onclick = null;
+                
+                if (addToCartButton) {
+                    addToCartButton.disabled = true;
+                    addToCartButton.className = 'w-full sm:w-1/2 bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed';
+                    addToCartButton.textContent = 'Habis Stok';
+                    addToCartButton.onclick = null;
+                }
             }
         }
 
         function handleBuyNow() {
             if (selectedVariantId) {
                 window.location.href = `{{ route('checkout') }}?product={{ $product->id }}&variant=${selectedVariantId}`;
+            }
+        }
+
+        function handleAddToCart() {
+            // TODO: Implement add to cart functionality
+            // This will add the product/variant to the shopping cart
+            const productId = {{ $product->id }};
+            
+            if (selectedVariantId) {
+                console.log('Adding to cart: Product ID:', productId, 'Variant ID:', selectedVariantId);
+                alert('Produk berhasil ditambahkan ke keranjang!\n(Fitur keranjang belum diimplementasi)');
+            } else {
+                console.log('Adding to cart: Product ID:', productId);
+                alert('Produk berhasil ditambahkan ke keranjang!\n(Fitur keranjang belum diimplementasi)');
             }
         }
 
