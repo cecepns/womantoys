@@ -12,6 +12,11 @@ Route::get('/product/{product:slug}', [App\Http\Controllers\ProductController::c
 Route::get('/checkout', [App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout');
 Route::post('/checkout', [App\Http\Controllers\CheckoutController::class, 'store'])->name('checkout.store');
 
+// Cart (public) - static/dummy view for frontend
+Route::get('/cart', function () {
+    return view('cart');
+})->name('cart');
+
 // API Routes
 Route::prefix('api')->group(function () {
     // RajaOngkir API Routes
