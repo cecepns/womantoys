@@ -327,11 +327,10 @@
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gambar</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Variant</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                    <th style="width: 150px" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="variants-tbody" class="bg-white divide-y divide-gray-200">
@@ -392,15 +391,6 @@
                             <input type="text" id="variant_name" required
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                                 placeholder="contoh: Ukuran S, Warna Merah">
-                        </div>
-
-                        <div>
-                            <label for="variant_sku" class="block text-sm font-medium text-gray-700 mb-1">
-                                SKU (Opsional)
-                            </label>
-                            <input type="text" id="variant_sku"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                placeholder="contoh: PROD-VAR-001">
                         </div>
                     </div>
 
@@ -712,7 +702,6 @@
         // ANCHOR: Variant Management
         const getVariantFormData = () => ({
             name: getElement('variant_name')?.value.trim(),
-            sku: getElement('variant_sku')?.value.trim(),
             price: getElement('variant_price')?.value,
             discount_price: getElement('variant_discount_price')?.value,
             stock: getElement('variant_stock')?.value,
@@ -723,7 +712,6 @@
         const setVariantFormData = (variant) => {
             const elements = {
                 name: getElement('variant_name'),
-                sku: getElement('variant_sku'),
                 price: getElement('variant_price'),
                 discount_price: getElement('variant_discount_price'),
                 stock: getElement('variant_stock'),
@@ -731,7 +719,6 @@
             };
 
             if (elements.name) elements.name.value = variant.name;
-            if (elements.sku) elements.sku.value = variant.sku || '';
             if (elements.price) elements.price.value = variant.price;
             if (elements.discount_price) elements.discount_price.value = variant.discount_price || '';
             if (elements.stock) elements.stock.value = variant.stock;
@@ -746,7 +733,7 @@
         };
 
         const clearVariantForm = () => {
-            const fields = ['variant_name', 'variant_sku', 'variant_price', 'variant_discount_price', 'variant_stock', 'variant_image'];
+            const fields = ['variant_name', 'variant_price', 'variant_discount_price', 'variant_stock', 'variant_image'];
             fields.forEach(id => {
                 const element = getElement(id);
                 if (element) element.value = '';
@@ -797,7 +784,6 @@
 
         const createVariantData = (formData) => ({
             name: formData.name,
-            sku: formData.sku,
             price: parseFloat(formData.price),
             discount_price: formData.discount_price ? parseFloat(formData.discount_price) : null,
             stock: parseInt(formData.stock),
@@ -862,7 +848,6 @@
                     <tr>
                     <td class="px-4 py-4 whitespace-nowrap">${imageDisplay}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${variant.name}</td>
-                        <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${variant.sku || '-'}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${createVariantPriceDisplay(variant)}</td>
                         <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${variant.stock}</td>
                         <td class="px-4 py-4 whitespace-nowrap">
@@ -897,7 +882,6 @@
         const prepareVariantsForSubmission = () => {
             return state.variants.map(v => ({
                 name: v.name,
-                sku: v.sku,
                 price: v.price,
                 discount_price: v.discount_price,
                 stock: v.stock,

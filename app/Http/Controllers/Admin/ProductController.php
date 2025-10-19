@@ -257,7 +257,6 @@ class ProductController extends Controller
             $variant = ProductVariant::create([
                 'product_id' => $product->id,
                 'name' => $variantData['name'],
-                'sku' => $variantData['sku'] ?? null,
                 'price' => $variantData['price'],
                 'discount_price' => $variantData['discount_price'] ?? null,
                 'stock' => $variantData['stock'],

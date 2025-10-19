@@ -17,7 +17,6 @@ class ProductVariantController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'nullable|string|max:255|unique:product_variants,sku',
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0|lt:price',
             'stock' => 'required|integer|min:0',
@@ -39,7 +38,6 @@ class ProductVariantController extends Controller
         // Create variant
         $variant = $product->variants()->create([
             'name' => $request->name,
-            'sku' => $request->sku,
             'price' => $request->price,
             'discount_price' => $request->discount_price,
             'stock' => $request->stock,
@@ -65,7 +63,6 @@ class ProductVariantController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'nullable|string|max:255|unique:product_variants,sku,' . $variant->id,
             'price' => 'required|numeric|min:0',
             'discount_price' => 'nullable|numeric|min:0|lt:price',
             'stock' => 'required|integer|min:0',
@@ -79,7 +76,6 @@ class ProductVariantController extends Controller
         // Prepare update data
         $updateData = [
             'name' => $request->name,
-            'sku' => $request->sku,
             'price' => $request->price,
             'discount_price' => $request->discount_price,
             'stock' => $request->stock,

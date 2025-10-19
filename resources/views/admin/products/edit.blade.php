@@ -441,11 +441,10 @@
                         <tr>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gambar</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Variant</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Harga</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stok</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                            <th style="width: 150px" class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -463,7 +462,6 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $variant->name }}</td>
-                                <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">{{ $variant->sku ?? '-' }}</td>
                                 <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
                                     @if ($variant->hasDiscount())
                                         <div class="flex flex-col">
@@ -539,15 +537,6 @@
                             <input type="text" id="variant_name" name="name" required
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                                 placeholder="contoh: Ukuran S, Warna Merah">
-                        </div>
-
-                        <div>
-                            <label for="variant_sku" class="block text-sm font-medium text-gray-700 mb-1">
-                                SKU (Opsional)
-                            </label>
-                            <input type="text" id="variant_sku" name="sku"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                                placeholder="contoh: PROD-VAR-001">
                         </div>
                     </div>
 
@@ -643,7 +632,6 @@
                 document.getElementById('variantMethod').value = 'PUT';
                 document.getElementById('variantId').value = variant.id;
                 document.getElementById('variant_name').value = variant.name;
-                document.getElementById('variant_sku').value = variant.sku || '';
                 document.getElementById('variant_price').value = variant.price;
                 document.getElementById('variant_discount_price').value = variant.discount_price || '';
                 document.getElementById('variant_stock').value = variant.stock;
