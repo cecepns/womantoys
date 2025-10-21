@@ -234,12 +234,12 @@
                 <!-- Action Buttons -->
                 <div id="buy-button-container" class="flex flex-col sm:flex-row gap-3">
                     @if ($product->hasActiveVariants())
-                        <button id="add-to-cart-button" onclick="handleAddToCart()"
+                        <button id="add-to-cart-button"
                             class="w-full sm:w-1/2 bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed"
                             disabled>
                             Tambah ke Keranjang
                         </button>
-                        <button id="buy-button" onclick="handleBuyNow()"
+                        <button id="buy-button"
                             class="w-full sm:w-1/2 bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed"
                             disabled>
                             Beli Sekarang
@@ -362,7 +362,11 @@
 
         function updateQuantityMax(stock) {
             const quantityInput = document.getElementById('quantity-input');
-            const stockInfo = document.getElementById('stock-info');
+            
+            if (!quantityInput) {
+                console.warn('Quantity input element not found');
+                return;
+            }
             
             quantityInput.max = stock;
             
@@ -371,11 +375,8 @@
                 quantityInput.value = 1;
             }
             
-            // Update stock info text
-            if (stock > 0) {
-                stockInfo.textContent = `Stok: ${stock}`;
-            } else {
-                stockInfo.textContent = 'Stok habis';
+            // If stock is 0, reset to minimum
+            if (stock <= 0) {
                 quantityInput.value = 1;
                 quantityInput.max = 1;
             }
@@ -396,13 +397,19 @@
             selectedVariantId = button.dataset.variantId;
             const price = button.dataset.price;
             const discountPrice = button.dataset.discountPrice;
-            const stock = parseInt(button.dataset.stock);
+            const stock = parseInt(button.dataset.stock) || 0;
             const image = button.dataset.image;
             const formattedPrice = button.dataset.formattedPrice;
             const formattedDiscountPrice = button.dataset.formattedDiscountPrice;
             const formattedFinalPrice = button.dataset.formattedFinalPrice;
             const hasDiscount = button.dataset.hasDiscount === 'true';
             const discountPercentage = button.dataset.discountPercentage;
+
+            console.log('Variant selected:', {
+                variantId: selectedVariantId,
+                stock: stock,
+                hasStock: stock > 0
+            });
 
             // Update price display
             updatePriceDisplay(hasDiscount, formattedFinalPrice, formattedPrice, formattedDiscountPrice, discountPercentage);
@@ -411,7 +418,7 @@
             updateStockDisplay(stock);
 
             // Update image if variant has one
-            if (image) {
+            if (image && image !== 'null' && image !== '') {
                 updateMainImage(image);
                 updateThumbnailSelection(image);
             }
@@ -494,9 +501,21 @@
             const buyButton = document.getElementById('buy-button');
             const addToCartButton = document.getElementById('add-to-cart-button');
             
-            if (!buyButton) return;
+            console.log('updateBuyButton called:', {
+                selectedVariantId: selectedVariantId,
+                hasStock: hasStock,
+                stock: stock,
+                buyButtonExists: !!buyButton,
+                addToCartButtonExists: !!addToCartButton
+            });
+
+            if (!buyButton) {
+                console.error('Buy button not found!');
+                return;
+            }
 
             if (!selectedVariantId) {
+                console.log('No variant selected - disabling buttons');
                 buyButton.disabled = true;
                 buyButton.className = 'w-full sm:w-1/2 bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed';
                 buyButton.textContent = 'Pilih Variant Terlebih Dahulu';
@@ -509,16 +528,20 @@
                     addToCartButton.onclick = null;
                 }
             } else if (hasStock) {
+                console.log('Has stock - enabling buttons');
                 buyButton.disabled = false;
                 buyButton.className = 'w-full sm:w-1/2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-colors duration-200 shadow-lg hover:shadow-xl';
                 buyButton.textContent = 'Beli Sekarang';
+                buyButton.onclick = handleBuyNow;
                 
                 if (addToCartButton) {
                     addToCartButton.disabled = false;
                     addToCartButton.className = 'w-full sm:w-1/2 bg-white border-2 border-pink-600 text-pink-600 hover:bg-pink-50 font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-colors duration-200';
                     addToCartButton.textContent = 'Tambah ke Keranjang';
+                    addToCartButton.onclick = handleAddToCart;
                 }
             } else {
+                console.log('No stock - disabling buttons');
                 buyButton.disabled = true;
                 buyButton.className = 'w-full sm:w-1/2 bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed';
                 buyButton.textContent = 'Habis Stok';
@@ -594,6 +617,8 @@
 
             // Initialize variant button handlers
             const variantButtons = document.querySelectorAll('.variant-button');
+            console.log('Found variant buttons:', variantButtons.length);
+            
             variantButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     handleVariantSelection(this);
@@ -602,7 +627,10 @@
 
             // Auto-select first variant if available
             if (variantButtons.length > 0) {
+                console.log('Auto-selecting first variant...');
                 handleVariantSelection(variantButtons[0]);
+            } else {
+                console.log('No variant buttons found - product has no variants or no active variants');
             }
 
             // Tab functionality
