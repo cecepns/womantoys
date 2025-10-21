@@ -235,7 +235,7 @@
                     </button>
                 </div>
                 <div id="categories-container"
-                    class="hidden flex flex-col justify-center items-center lg:flex lg:flex-row lg:flex-nowrap gap-5 lg:gap-3 py-2">
+                    class="hidden flex flex-col justify-center lg:items-center lg:flex lg:flex-row lg:flex-nowrap gap-5 lg:gap-3 py-2">
                     @if (isset($mainCategories) && $mainCategories->count() > 0)
                         @foreach ($mainCategories as $main)
                             <div class="relative group shrink-0 category-item">
