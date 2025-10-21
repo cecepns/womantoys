@@ -54,7 +54,7 @@
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
                     <input type="hidden" name="variant_id" value="{{ $variant->id ?? '' }}">
-                    <input type="hidden" name="quantity" id="hidden_quantity" value="{{ old('quantity', 1) }}">
+                    <input type="hidden" name="quantity" id="hidden_quantity" value="{{ $quantity }}">
                     <input type="hidden" name="voucher_id" id="hidden_voucher_id" value="">
                     <input type="hidden" name="voucher_code" id="hidden_voucher_code" value="">
                     <input type="hidden" name="discount_amount" id="hidden_discount_amount" value="0">
@@ -183,7 +183,7 @@
                                     </p>
                                     <div class="flex items-center justify-between">
                                         <div class="flex flex-col gap-1">
-                                            <p class="text-xs text-gray-500">Stok: {{ $checkoutStock ?? $product->stock }} unit</p>
+                                            <p class="text-xs text-gray-500">Jumlah: {{ $quantity }} unit</p>
                                             @if ($product->weight)
                                                 <p class="text-xs text-gray-500">Berat: {{ $product->formatted_weight }}
                                                 </p>
@@ -195,33 +195,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-
-                            <!-- Quantity Selector Mobile -->
-                            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
-                                <label class="text-sm font-medium text-gray-700">Jumlah:</label>
-                                <div class="flex items-center border border-gray-300 rounded-lg">
-                                    <button type="button"
-                                        class="px-3 py-2 text-gray-600 hover:text-pink-600 hover:bg-gray-50 transition-colors duration-200 border-r border-gray-300"
-                                        onclick="decreaseQuantity()">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M20 12H4"></path>
-                                        </svg>
-                                    </button>
-                                    <input type="number" id="quantity" name="quantity"
-                                        value="{{ old('quantity', 1) }}" min="1" max="{{ $product->stock }}"
-                                        class="w-16 text-center py-2 text-sm font-medium text-gray-800 focus:outline-none"
-                                        onchange="updateQuantity(this.value)">
-                                    <button type="button"
-                                        class="px-3 py-2 text-gray-600 hover:text-pink-600 hover:bg-gray-50 transition-colors duration-200 border-l border-gray-300"
-                                        onclick="increaseQuantity()">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 4v16m8-8H4"></path>
-                                        </svg>
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -237,39 +210,10 @@
                                 @endif
                                 <p class="text-sm text-gray-600 line-clamp-2">{{ $product->short_description }}</p>
                                 <div class="flex items-center gap-4 mt-1">
-                                    <p class="text-xs text-gray-500">Stok: {{ $checkoutStock ?? $product->stock }} unit</p>
+                                    <p class="text-xs text-gray-500">Jumlah: {{ $quantity }} unit</p>
                                     @if ($product->weight)
                                         <p class="text-xs text-gray-500">Berat: {{ $product->formatted_weight }}</p>
                                     @endif
-                                </div>
-
-                                <!-- Quantity Selector Desktop -->
-                                <div class="flex items-center space-x-3 mt-2">
-                                    <label class="text-sm font-medium text-gray-700">Jumlah:</label>
-                                    <div class="flex items-center border border-gray-300 rounded-lg">
-                                        <button type="button"
-                                            class="px-3 py-1 text-gray-600 hover:text-pink-600 hover:bg-gray-50 transition-colors duration-200 border-r border-gray-300"
-                                            onclick="decreaseQuantity()">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M20 12H4"></path>
-                                            </svg>
-                                        </button>
-                                        <input type="number" id="quantity" name="quantity"
-                                            value="{{ old('quantity', 1) }}" min="1" max="{{ $product->stock }}"
-                                            class="w-12 text-center py-1 text-sm font-medium text-gray-800 focus:outline-none"
-                                            onchange="updateQuantity(this.value)">
-                                        <button type="button"
-                                            class="px-3 py-1 text-gray-600 hover:text-pink-600 hover:bg-gray-50 transition-colors duration-200 border-l border-gray-300"
-                                            onclick="increaseQuantity()">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M12 4v16m8-8H4"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
                             <div class="text-right flex-shrink-0">
@@ -618,7 +562,7 @@
         async function calculateShippingCost() {
             const destinationId = document.getElementById('destination_id').value;
             const originId = document.getElementById('origin_id').value;
-            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const quantity = parseInt(document.getElementById('hidden_quantity').value) || 1;
             if (!destinationId) {
                 showShippingError('Pilih alamat tujuan terlebih dahulu');
                 return;
@@ -774,7 +718,7 @@
             if (currentVoucher) {
                 updatePricingWithVoucher();
             } else {
-                const quantity = parseInt(document.getElementById('quantity').value) || 1;
+                const quantity = getQuantity();
                 const subtotal = productData.finalPrice * quantity;
                 const total = subtotal + shippingCost;
 
@@ -794,7 +738,7 @@
             const discountRow = document.querySelector('.product-discount-row');
 
             if (productData.hasDiscount && productData.discountPrice) {
-                const quantity = parseInt(document.getElementById('quantity').value) || 1;
+                const quantity = getQuantity();
                 const originalSubtotal = productData.originalPrice * quantity;
                 const discountAmount = (productData.originalPrice - productData.discountPrice) * quantity;
 
@@ -837,54 +781,12 @@
             errorMessage.textContent = message;
         }
 
-        function decreaseQuantity() {
-            const quantityInputs = document.querySelectorAll('#quantity');
-            const currentValue = parseInt(quantityInputs[0].value);
-            if (currentValue > 1) {
-                const newValue = currentValue - 1;
-                updateQuantity(newValue);
-            }
+        function getQuantity() {
+            return parseInt(document.getElementById('hidden_quantity').value) || 1;
         }
 
-        function increaseQuantity() {
-            const quantityInputs = document.querySelectorAll('#quantity');
-            const currentValue = parseInt(quantityInputs[0].value);
-            if (currentValue < productData.stock) {
-                const newValue = currentValue + 1;
-                updateQuantity(newValue);
-            }
-        }
-
-        function updateQuantity(value) {
-            let quantity = parseInt(value);
-            if (quantity < 1) {
-                quantity = 1;
-            } else if (quantity > productData.stock) {
-                quantity = productData.stock;
-            }
-
-            // Update both mobile and desktop quantity inputs
-            const quantityInputs = document.querySelectorAll('#quantity');
-            quantityInputs.forEach(input => {
-                input.value = quantity;
-            });
-
-            // Update hidden input in form
-            document.getElementById('hidden_quantity').value = quantity;
-
-            const destinationId = document.getElementById('destination_id').value;
-            if (destinationId) {
-                calculateShippingCost();
-            } else {
-                if (currentVoucher) {
-                    updatePricingWithVoucher();
-                } else {
-                    updatePricing(quantity);
-                }
-            }
-        }
-
-        function updatePricing(quantity) {
+        function updatePricing() {
+            const quantity = getQuantity();
             const shippingMethodInput = document.querySelector('input[name="shipping"]:checked');
             let shippingCost = 0;
             if (shippingMethodInput) {
@@ -902,7 +804,7 @@
 
         function applyVoucher() {
             const voucherCode = document.getElementById('voucher-code').value.trim().toUpperCase();
-            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const quantity = getQuantity();
             const cartTotal = productData.finalPrice * quantity;
             const customerEmail = document.getElementById('email').value;
 
@@ -1019,7 +921,7 @@
         }
 
         function updatePricingWithVoucher() {
-            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const quantity = getQuantity();
             const subtotal = productData.finalPrice * quantity;
 
             // Calculate voucher discount based on current subtotal
@@ -1147,16 +1049,10 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const quantityInputs = document.querySelectorAll('#quantity');
-            const initialQuantity = parseInt(quantityInputs[0].value) || 1;
-
-            // Initialize hidden quantity input
-            document.getElementById('hidden_quantity').value = initialQuantity;
-
             // Update product price display with variant data
             updateProductPriceDisplay();
 
-            updatePricing(initialQuantity);
+            updatePricing();
             initRajaOngkirAutocomplete();
 
             // Voucher event listeners

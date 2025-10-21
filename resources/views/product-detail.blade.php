@@ -250,12 +250,10 @@
                                 class="w-full sm:w-1/2 bg-white border-2 border-pink-600 text-pink-600 hover:bg-pink-50 font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-colors duration-200">
                                 Tambah ke Keranjang
                             </button>
-                            <a href="{{ route('checkout') }}?product={{ $product->id }}" class="w-full sm:w-1/2">
-                                <button
-                                    class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-colors duration-200 shadow-lg hover:shadow-xl">
-                                    Beli Sekarang
-                                </button>
-                            </a>
+                            <button onclick="handleBuyNow()"
+                                class="w-full sm:w-1/2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg transition-colors duration-200 shadow-lg hover:shadow-xl">
+                                Beli Sekarang
+                            </button>
                         @else
                             <button
                                 class="w-full bg-gray-400 text-white font-bold py-3 md:py-4 px-6 md:px-8 rounded-lg text-base md:text-lg cursor-not-allowed"

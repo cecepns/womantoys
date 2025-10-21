@@ -16,12 +16,19 @@ class CheckoutController extends Controller
      */
     public function index(Request $request)
     {
-        // Get product ID and variant ID from query parameters
+        // Get product ID, variant ID, and quantity from query parameters
         $productId = $request->query('product');
         $variantId = $request->query('variant');
+        $quantity = $request->query('quantity', 1);
 
         if (!$productId) {
             return redirect()->route('catalog')->with('error', 'Produk tidak ditemukan.');
+        }
+
+        // Validate quantity
+        $quantity = (int) $quantity;
+        if ($quantity < 1) {
+            return redirect()->route('product-detail', ['product' => $productId])->with('error', 'Jumlah produk minimal 1.');
         }
 
         // Load product with relationships
@@ -62,9 +69,14 @@ class CheckoutController extends Controller
             return redirect()->route('product-detail', $product->slug)->with('error', 'Stok produk habis.');
         }
 
+        // Validate quantity against stock
+        if ($quantity > $checkoutStock) {
+            return redirect()->route('product-detail', $product->slug)->with('error', 'Jumlah yang dipilih melebihi stok tersedia.');
+        }
+
         // Get store origin ID for shipping calculation
         $originId = (int) Setting::getValue('store_origin_id', 17473);
-        return view('checkout', compact('product', 'variant', 'checkoutPrice', 'checkoutStock', 'originId'));
+        return view('checkout', compact('product', 'variant', 'checkoutPrice', 'checkoutStock', 'quantity', 'originId'));
     }
 
     /**
