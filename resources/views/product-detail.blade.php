@@ -217,6 +217,20 @@
                     @endif
                 </div>
 
+                <!-- Quantity Input -->
+                <div class="mb-6">
+                    <div class="inline-flex items-center">
+                        <button type="button" id="decrease-btn" class="px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-l-md hover:bg-gray-50 transition-colors duration-200">
+                            -
+                        </button>
+                        <input type="number" id="quantity-input" value="1" min="1" max="{{ $product->stock }}"
+                            class="w-20 px-2 py-2 border-t border-b border-gray-300 text-center focus:outline-none focus:border-pink-600">
+                        <button type="button" id="increase-btn" class="px-3 py-2 border border-gray-300 bg-white text-gray-700 rounded-r-md hover:bg-gray-50 transition-colors duration-200">
+                            +
+                        </button>
+                    </div>
+                </div>
+
                 <!-- Action Buttons -->
                 <div id="buy-button-container" class="flex flex-col sm:flex-row gap-3">
                     @if ($product->hasActiveVariants())
@@ -319,6 +333,55 @@
     <script>
         // ANCHOR: Handle variant selection
         let selectedVariantId = null;
+        let maxStock = {{ $product->stock }};
+
+        function updateQuantityForInput(input, triggerRecalc = false) {
+            const qty = Math.max(1, parseInt(input.value) || 1);
+            const max = parseInt(input.getAttribute('max')) || Infinity;
+            input.value = Math.min(qty, max);
+        }
+
+        function increaseQuantity() {
+            const quantityInput = document.getElementById('quantity-input');
+            const max = parseInt(quantityInput.getAttribute('max')) || Infinity;
+            let val = parseInt(quantityInput.value) || 1;
+            if (val < max) {
+                val++;
+            }
+            quantityInput.value = val;
+            updateQuantityForInput(quantityInput);
+        }
+
+        function decreaseQuantity() {
+            const quantityInput = document.getElementById('quantity-input');
+            let val = parseInt(quantityInput.value) || 1;
+            if (val > 1) {
+                val--;
+            }
+            quantityInput.value = val;
+            updateQuantityForInput(quantityInput);
+        }
+
+        function updateQuantityMax(stock) {
+            const quantityInput = document.getElementById('quantity-input');
+            const stockInfo = document.getElementById('stock-info');
+            
+            quantityInput.max = stock;
+            
+            // Reset quantity to 1 if current value exceeds new max
+            if (parseInt(quantityInput.value) > stock) {
+                quantityInput.value = 1;
+            }
+            
+            // Update stock info text
+            if (stock > 0) {
+                stockInfo.textContent = `Stok: ${stock}`;
+            } else {
+                stockInfo.textContent = 'Stok habis';
+                quantityInput.value = 1;
+                quantityInput.max = 1;
+            }
+        }
 
         function handleVariantSelection(button) {
             // Remove selection from all variant buttons
@@ -354,6 +417,9 @@
                 updateMainImage(image);
                 updateThumbnailSelection(image);
             }
+
+            // Update quantity max based on variant stock
+            updateQuantityMax(stock);
 
             // Update buy button
             updateBuyButton(stock > 0, stock);
@@ -470,8 +536,13 @@
         }
 
         function handleBuyNow() {
+            const quantityInput = document.getElementById('quantity-input');
+            const quantity = parseInt(quantityInput.value) || 1;
+            
             if (selectedVariantId) {
-                window.location.href = `{{ route('checkout') }}?product={{ $product->id }}&variant=${selectedVariantId}`;
+                window.location.href = `{{ route('checkout') }}?product={{ $product->id }}&variant=${selectedVariantId}&quantity=${quantity}`;
+            } else {
+                window.location.href = `{{ route('checkout') }}?product={{ $product->id }}&quantity=${quantity}`;
             }
         }
 
@@ -479,17 +550,50 @@
             // TODO: Implement add to cart functionality
             // This will add the product/variant to the shopping cart
             const productId = {{ $product->id }};
+            const quantityInput = document.getElementById('quantity-input');
+            const quantity = parseInt(quantityInput.value) || 1;
             
             if (selectedVariantId) {
-                console.log('Adding to cart: Product ID:', productId, 'Variant ID:', selectedVariantId);
-                alert('Produk berhasil ditambahkan ke keranjang!\n(Fitur keranjang belum diimplementasi)');
+                console.log('Adding to cart: Product ID:', productId, 'Variant ID:', selectedVariantId, 'Quantity:', quantity);
+                alert(`Produk berhasil ditambahkan ke keranjang!\nJumlah: ${quantity}\n(Fitur keranjang belum diimplementasi)`);
             } else {
-                console.log('Adding to cart: Product ID:', productId);
-                alert('Produk berhasil ditambahkan ke keranjang!\n(Fitur keranjang belum diimplementasi)');
+                console.log('Adding to cart: Product ID:', productId, 'Quantity:', quantity);
+                alert(`Produk berhasil ditambahkan ke keranjang!\nJumlah: ${quantity}\n(Fitur keranjang belum diimplementasi)`);
             }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize quantity input handlers
+            const quantityInput = document.getElementById('quantity-input');
+            const increaseBtn = document.getElementById('increase-btn');
+            const decreaseBtn = document.getElementById('decrease-btn');
+
+            // Wire up quantity input
+            if (quantityInput) {
+                // typing / paste / manual change
+                quantityInput.addEventListener('input', function() {
+                    updateQuantityForInput(this);
+                });
+
+                // loss of focus: ensure min applied
+                quantityInput.addEventListener('blur', function() {
+                    updateQuantityForInput(this);
+                });
+            }
+
+            // Increase / decrease buttons
+            if (increaseBtn) {
+                increaseBtn.addEventListener('click', function() {
+                    increaseQuantity();
+                });
+            }
+
+            if (decreaseBtn) {
+                decreaseBtn.addEventListener('click', function() {
+                    decreaseQuantity();
+                });
+            }
+
             // Initialize variant button handlers
             const variantButtons = document.querySelectorAll('.variant-button');
             variantButtons.forEach(button => {
