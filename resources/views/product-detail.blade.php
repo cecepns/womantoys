@@ -568,18 +568,95 @@
         }
 
         function handleAddToCart() {
-            // TODO: Implement add to cart functionality
-            // This will add the product/variant to the shopping cart
             const productId = {{ $product->id }};
             const quantityInput = document.getElementById('quantity-input');
             const quantity = parseInt(quantityInput.value) || 1;
             
+            // Prepare product data for cart
+            const productData = {
+                id: productId,
+                name: '{{ addslashes($product->name) }}',
+                slug: '{{ $product->slug }}',
+                image: '{{ $product->main_image_url ?? '/images/default-product.jpg' }}',
+                quantity: quantity
+            };
+
+            // Jika ada variant yang dipilih
             if (selectedVariantId) {
-                console.log('Adding to cart: Product ID:', productId, 'Variant ID:', selectedVariantId, 'Quantity:', quantity);
-                alert(`Produk berhasil ditambahkan ke keranjang!\nJumlah: ${quantity}\n(Fitur keranjang belum diimplementasi)`);
+                const variantButton = document.querySelector(`.variant-button[data-variant-id="${selectedVariantId}"]`);
+                if (!variantButton) {
+                    alert('Variant tidak valid. Silakan pilih variant lain.');
+                    return;
+                }
+
+                const variantName = variantButton.querySelector('p.text-sm.font-medium').textContent;
+                const variantPrice = parseFloat(variantButton.dataset.discountPrice) || parseFloat(variantButton.dataset.price);
+                const variantOriginalPrice = parseFloat(variantButton.dataset.price);
+                const variantStock = parseInt(variantButton.dataset.stock) || 0;
+                const hasDiscount = variantButton.dataset.hasDiscount === 'true';
+                const discountPercentage = parseInt(variantButton.dataset.discountPercentage) || 0;
+                const variantImage = variantButton.dataset.image;
+
+                // Check stock
+                if (variantStock <= 0) {
+                    alert('Maaf, variant ini sedang habis stok.');
+                    return;
+                }
+
+                if (quantity > variantStock) {
+                    alert(`Maaf, stok variant ini hanya tersedia ${variantStock} item.`);
+                    return;
+                }
+
+                productData.variantId = selectedVariantId;
+                productData.variantName = variantName;
+                productData.price = variantPrice;
+                productData.originalPrice = variantOriginalPrice;
+                productData.stock = variantStock;
+                productData.hasDiscount = hasDiscount;
+                productData.discountPercentage = discountPercentage;
+                if (variantImage && variantImage !== 'null' && variantImage !== '') {
+                    productData.image = variantImage;
+                }
             } else {
-                console.log('Adding to cart: Product ID:', productId, 'Quantity:', quantity);
-                alert(`Produk berhasil ditambahkan ke keranjang!\nJumlah: ${quantity}\n(Fitur keranjang belum diimplementasi)`);
+                // Product tanpa variant atau variant belum dipilih
+                @if ($product->hasActiveVariants())
+                    alert('Silakan pilih variant terlebih dahulu.');
+                    return;
+                @else
+                    const productPrice = {{ $product->discount_price ?? $product->price }};
+                    const productOriginalPrice = {{ $product->price }};
+                    const productStock = {{ $product->stock }};
+                    const hasDiscount = {{ $product->hasDiscount() ? 'true' : 'false' }};
+                    const discountPercentage = {{ $product->discount_percentage ?? 0 }};
+
+                    // Check stock
+                    if (productStock <= 0) {
+                        alert('Maaf, produk ini sedang habis stok.');
+                        return;
+                    }
+
+                    if (quantity > productStock) {
+                        alert(`Maaf, stok produk ini hanya tersedia ${productStock} item.`);
+                        return;
+                    }
+
+                    productData.price = productPrice;
+                    productData.originalPrice = productOriginalPrice;
+                    productData.stock = productStock;
+                    productData.hasDiscount = hasDiscount;
+                    productData.discountPercentage = discountPercentage;
+                @endif
+            }
+
+            // Add to cart using CartManager
+            const success = CartManager.addToCart(productData);
+            
+            if (success) {
+                CartManager.showNotification('✓ Produk berhasil ditambahkan ke keranjang!', 'success');
+                console.log('Product added to cart:', productData);
+            } else {
+                alert('Gagal menambahkan produk ke keranjang. Silakan coba lagi.');
             }
         }
 

@@ -174,6 +174,38 @@
                 height: 1.5rem;
             }
         }
+
+        /* Toast notification animations */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+        }
+
+        /* Responsive toast notification */
+        @media (max-width: 640px) {
+            body > div[style*="position: fixed"][style*="top: 100px"] {
+                right: 10px !important;
+                left: 10px !important;
+                max-width: calc(100% - 20px) !important;
+            }
+        }
     </style>
     <!-- !SECTION: HEAD -->
 </head>
@@ -197,6 +229,14 @@
                                 {{ $storeName ?? 'WomanToys' }}
                             @endif
                         </a>
+                        
+                        <!-- Cart Icon for Mobile -->
+                        <a href="{{ route('cart') }}" class="md:hidden relative inline-flex items-center p-2 text-gray-700 hover:text-pink-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            <span id="cart-badge-mobile" class="absolute bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center" style="display: none; top: -3px; right: -3px;">0</span>
+                        </a>
                     </div>
 
                     <!-- ANCHOR: Bilah Pencarian Produk -->
@@ -214,6 +254,16 @@
                                 </svg>
                             </button>
                         </form>
+                    </div>
+
+                    <!-- Cart Icon for Desktop -->
+                    <div class="hidden md:flex items-center">
+                        <a href="{{ route('cart') }}" class="relative inline-flex items-center p-2 text-gray-700 hover:text-pink-600 transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            <span id="cart-badge" class="absolute bg-pink-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center" style="display: none; top: -3px; right: -3px;">0</span>
+                        </a>
                     </div>
                 </div>
             </nav>
@@ -383,6 +433,9 @@
     <!-- !SECTION: FOOTER -->
 
     <!-- SECTION: SCRIPTS -->
+    <!-- ANCHOR: Cart Management Script -->
+    <script src="{{ asset('js/cart.js') }}"></script>
+
     <!-- ANCHOR: jQuery CDN -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
