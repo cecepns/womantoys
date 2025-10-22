@@ -536,6 +536,36 @@
     </div>
 
     <script>
+        // ========================================
+        // CLEAR CART AFTER SUCCESSFUL ORDER
+        // ========================================
+        @if (session('clear_cart'))
+            // Clear cart dari localStorage setelah order sukses
+            (function() {
+                try {
+                    if (typeof CartManager !== 'undefined') {
+                        // Method 1: Gunakan CartManager (preferred)
+                        const itemCount = CartManager.getCartCount();
+                        CartManager.clearCart();
+                        console.log('✓ Cart cleared successfully using CartManager');
+                        console.log(`   - ${itemCount} items removed from cart`);
+                    } else {
+                        // Method 2: Fallback - langsung clear localStorage
+                        localStorage.removeItem('cart');
+                        console.log('✓ Cart cleared successfully using localStorage');
+                    }
+                    
+                    // Dispatch event untuk update UI jika ada
+                    window.dispatchEvent(new Event('cartUpdated'));
+                    
+                    // Optional: Show subtle notification
+                    console.info('🛒 Your cart has been cleared after successful order');
+                } catch (error) {
+                    console.error('⚠️ Failed to clear cart:', error);
+                }
+            })();
+        @endif
+
         function copyPageLink(event) {
             // Pastikan event diterima dari onclick
             navigator.clipboard.writeText(window.location.href).then(function() {

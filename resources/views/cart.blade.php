@@ -41,7 +41,7 @@
                             <span>Total</span>
                             <span id="summary-total" class="text-lg text-pink-600">Rp 0</span>
                         </div>
-                        <a href="{{ route('checkout') }}" id="checkout-btn" class="block text-center px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors">
+                        <a href="{{ route('checkout') }}?mode=cart" id="checkout-btn" class="block text-center px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition-colors">
                             Lanjut ke Checkout
                         </a>
                     </div>
@@ -239,6 +239,16 @@
         // Initial render
         document.addEventListener('DOMContentLoaded', function() {
             renderCartItems();
+            
+            // Checkout button validation
+            document.getElementById('checkout-btn').addEventListener('click', function(e) {
+                const cartItems = CartManager.getCartItems();
+                if (!cartItems || cartItems.length === 0) {
+                    e.preventDefault();
+                    alert('Keranjang kosong! Tambahkan produk terlebih dahulu.');
+                    return false;
+                }
+            });
         });
     </script>
 @endsection

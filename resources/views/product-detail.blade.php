@@ -557,13 +557,17 @@
         }
 
         function handleBuyNow() {
+            const productId = {{ $product->id }};
             const quantityInput = document.getElementById('quantity-input');
             const quantity = parseInt(quantityInput.value) || 1;
             
+            // DIRECT CHECKOUT FLOW: bypass cart, langsung ke checkout
             if (selectedVariantId) {
-                window.location.href = `{{ route('checkout') }}?product={{ $product->id }}&variant=${selectedVariantId}&quantity=${quantity}`;
+                // Dengan variant
+                window.location.href = `{{ route('checkout') }}?product=${productId}&variant=${selectedVariantId}&quantity=${quantity}&mode=direct`;
             } else {
-                window.location.href = `{{ route('checkout') }}?product={{ $product->id }}&quantity=${quantity}`;
+                // Tanpa variant
+                window.location.href = `{{ route('checkout') }}?product=${productId}&quantity=${quantity}&mode=direct`;
             }
         }
 

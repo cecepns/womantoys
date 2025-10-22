@@ -9,12 +9,17 @@
             <ol class="flex flex-wrap items-center gap-1 md:gap-2 text-xs md:text-sm text-gray-600">
                 <li><a href="/" class="hover:text-pink-600 transition-colors duration-200">Beranda</a></li>
                 <li><span class="mx-1 md:mx-2">/</span></li>
-                <li><a href="/catalog" class="hover:text-pink-600 transition-colors duration-200">Koleksi</a></li>
-                <li><span class="mx-1 md:mx-2">/</span></li>
-                <li><a href="{{ route('product-detail', $product->slug) }}"
-                        class="hover:text-pink-600 transition-colors duration-200 truncate max-w-[120px] md:max-w-none">{{ $product->name }}</a>
-                </li>
-                <li><span class="mx-1 md:mx-2">/</span></li>
+                @if ($mode === 'cart')
+                    <li><a href="{{ route('cart') }}" class="hover:text-pink-600 transition-colors duration-200">Keranjang</a></li>
+                    <li><span class="mx-1 md:mx-2">/</span></li>
+                @else
+                    <li><a href="/catalog" class="hover:text-pink-600 transition-colors duration-200">Koleksi</a></li>
+                    <li><span class="mx-1 md:mx-2">/</span></li>
+                    <li><a href="{{ route('product-detail', $product->slug) }}"
+                            class="hover:text-pink-600 transition-colors duration-200 truncate max-w-[120px] md:max-w-none">{{ $product->name }}</a>
+                    </li>
+                    <li><span class="mx-1 md:mx-2">/</span></li>
+                @endif
                 <li class="text-gray-800 font-medium">Checkout</li>
             </ol>
         </nav>
@@ -52,14 +57,25 @@
                 <form id="checkout-form" class="space-y-4 md:space-y-6" method="POST"
                     action="{{ route('checkout.store') }}">
                     @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    <input type="hidden" name="variant_id" value="{{ $variant->id ?? '' }}">
-                    <input type="hidden" name="quantity" id="hidden_quantity" value="{{ $quantity }}">
+                    
+                    <!-- Hidden: Mode (direct or cart) -->
+                    <input type="hidden" name="mode" id="checkout-mode" value="{{ $mode }}">
+                    
+                    @if ($mode === 'direct')
+                        <!-- DIRECT MODE: Single Product Hidden Inputs -->
+                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                        <input type="hidden" name="variant_id" value="{{ $variant->id ?? '' }}">
+                        <input type="hidden" name="quantity" id="hidden_quantity" value="{{ $quantity }}">
+                    @else
+                        <!-- CART MODE: Cart Items JSON -->
+                        <input type="hidden" name="cart_items" id="cart_items_input" value="">
+                    @endif
+                    
+                    <!-- Common Hidden Inputs -->
                     <input type="hidden" name="voucher_id" id="hidden_voucher_id" value="">
                     <input type="hidden" name="voucher_code" id="hidden_voucher_code" value="">
                     <input type="hidden" name="discount_amount" id="hidden_discount_amount" value="0">
-                    <input type="hidden" name="origin_id" id="origin_id"
-                        value="{{ isset($originId) ? $originId : 17473 }}">
+                    <input type="hidden" name="origin_id" id="origin_id" value="{{ $originId }}">
                     <input type="hidden" name="destination_id" id="destination_id" value="">
                     <!-- Full Name -->
                     <div>
@@ -166,63 +182,38 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">Ringkasan Pesanan</h2>
 
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 md:p-6">
-                    <!-- Product Item -->
-                    <div class=" mb-4 md:mb-6">
-                        <!-- Mobile Layout -->
-                        <div class="block md:hidden">
-                            <div class="flex items-start space-x-3 mb-3">
-                                <img src="{{ asset('storage/' . $product->main_image) }}" alt="{{ $product->name }}"
-                                    class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
-                                <div class="flex-1 min-w-0">
-                                    <h3 class="font-semibold text-sm text-gray-800 line-clamp-2 mb-1">{{ $product->name }}
-                                    </h3>
+                    <!-- CONDITIONAL: Direct vs Cart Items -->
+                    @if ($mode === 'direct')
+                        <!-- DIRECT MODE: Show Single Product -->
+                        <div id="direct-product-display" class="mb-4 md:mb-6">
+                            <div class="flex items-start gap-4 pb-4 border-b border-gray-200">
+                                <img src="{{ $product->main_image_url }}" 
+                                     alt="{{ $product->name }}"
+                                     class="w-20 h-20 object-cover rounded-lg"
+                                     onerror="this.src='/images/default-product.jpg'">
+                                <div class="flex-1">
+                                    <h3 class="font-semibold text-gray-800">{{ $product->name }}</h3>
                                     @if ($variant)
-                                        <p class="text-xs text-pink-600 font-medium mb-1">Variant: {{ $variant->name }}</p>
+                                        <p class="text-sm text-pink-600 mt-1">Variant: {{ $variant->name }}</p>
                                     @endif
-                                    <p class="text-xs text-gray-600 line-clamp-1 mb-2">{{ $product->short_description }}
-                                    </p>
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex flex-col gap-1">
-                                            <p class="text-xs text-gray-500">Jumlah: {{ $quantity }} unit</p>
-                                            @if ($product->weight)
-                                                <p class="text-xs text-gray-500">Berat: {{ $product->formatted_weight }}
-                                                </p>
-                                            @endif
-                                        </div>
-                                        <div class="text-right">
-                                            <div id="product-price-mobile">
-                                                <!-- Price will be dynamically updated -->
-                                            </div>
-                                        </div>
+                                    <div class="flex items-center justify-between mt-2">
+                                        <span class="text-sm text-gray-600">{{ $quantity }}x</span>
+                                        <span class="font-semibold text-gray-800" id="product-price-display">
+                                            Rp {{ number_format($checkoutPrice, 0, ',', '.') }}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Desktop Layout -->
-                        <div class="hidden md:flex items-start space-x-4">
-                            <img src="{{ asset('storage/' . $product->main_image) }}" alt="{{ $product->name }}"
-                                class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
-                            <div class="flex-1 min-w-0">
-                                <h3 class="font-semibold text-base text-gray-800 truncate">{{ $product->name }}</h3>
-                                @if ($variant)
-                                    <p class="text-sm text-pink-600 font-medium">Variant: {{ $variant->name }}</p>
-                                @endif
-                                <p class="text-sm text-gray-600 line-clamp-2">{{ $product->short_description }}</p>
-                                <div class="flex items-center gap-4 mt-1">
-                                    <p class="text-xs text-gray-500">Jumlah: {{ $quantity }} unit</p>
-                                    @if ($product->weight)
-                                        <p class="text-xs text-gray-500">Berat: {{ $product->formatted_weight }}</p>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="text-right flex-shrink-0">
-                                <div id="product-price-desktop">
-                                    <!-- Price will be dynamically updated -->
-                                </div>
+                    @else
+                        <!-- CART MODE: Show Multiple Products (populated by JavaScript) -->
+                        <div id="checkout-cart-items" class="mb-4 md:mb-6">
+                            <div class="text-center py-8 text-gray-500">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600 mx-auto mb-2"></div>
+                                <p>Memuat keranjang...</p>
                             </div>
                         </div>
-                    </div>
+                    @endif
 
                     <!-- Voucher Section -->
                     <div class="mb-4 md:mb-6">
@@ -285,7 +276,7 @@
                             <span class="discount-amount"></span>
                         </div>
                         <div class="flex justify-between text-sm md:text-base text-gray-600">
-                            <span>Subtotal</span>
+                            <span>Subtotal <span id="items-count-display"></span></span>
                             <span id="subtotal"></span>
                         </div>
                         <div id="voucher-discount-row"
@@ -300,7 +291,7 @@
                         <div class="border-t border-gray-200 pt-2 md:pt-3">
                             <div class="flex justify-between text-base md:text-lg font-bold text-gray-800">
                                 <span>Total Pembayaran</span>
-                                <span id="total-amount">Rp {{ number_format($product->final_price, 0, ',', '.') }}</span>
+                                <span id="total-amount">Rp 0</span>
                             </div>
                         </div>
                     </div>
@@ -336,21 +327,39 @@
 
 
     <script>
-        // Product data from backend (use variant data if available)
-        const productData = {
-            price: {{ $checkoutPrice ?? $product->final_price }},
-            finalPrice: {{ $checkoutPrice ?? $product->final_price }},
-            originalPrice: {{ $variant->price ?? $product->price }},
-            discountPrice: {{ $variant->discount_price ?? $product->discount_price ?? 'null' }},
-            hasDiscount: {{ ($variant ? $variant->hasDiscount() : $product->hasDiscount()) ? 'true' : 'false' }},
-            discountPercentage: {{ $variant->discount_percentage ?? $product->discount_percentage ?? 'null' }},
-            stock: {{ $checkoutStock ?? $product->stock }},
-            weight: {{ $product->weight ?? 500 }} // Default 500g if weight not set
-        };
+        // ========================================
+        // CHECKOUT MODE DETECTION
+        // ========================================
+        const checkoutMode = '{{ $mode }}';
+        
+        // ========================================
+        // MODE-SPECIFIC DATA
+        // ========================================
+        @if ($mode === 'direct')
+            // DIRECT MODE: Single product data
+            const productData = {
+                price: {{ $checkoutPrice }},
+                finalPrice: {{ $checkoutPrice }},
+                originalPrice: {{ $variant->price ?? $product->price }},
+                discountPrice: {{ $variant->discount_price ?? $product->discount_price ?? 'null' }},
+                hasDiscount: {{ ($variant ? $variant->hasDiscount() : $product->hasDiscount()) ? 'true' : 'false' }},
+                discountPercentage: {{ $variant->discount_percentage ?? $product->discount_percentage ?? 'null' }},
+                stock: {{ $checkoutStock }},
+                weight: {{ $product->weight ?? 500 }},
+                quantity: {{ $quantity }}
+            };
+        @else
+            // CART MODE: Will load from localStorage
+            let checkoutCart = [];
+            let totalWeight = 0;
+        @endif
 
+        // Common variables
+        const originId = {{ $originId }};
         let selectedLocationId = null;
         let lastQuery = '';
         let currentController = null;
+        let currentVoucher = null;
 
         // ANCHOR: Debounce function for search optimization
         function debounce(func, wait) {
@@ -561,15 +570,22 @@
 
         async function calculateShippingCost() {
             const destinationId = document.getElementById('destination_id').value;
-            const originId = document.getElementById('origin_id').value;
-            const quantity = parseInt(document.getElementById('hidden_quantity').value) || 1;
+            const originIdValue = document.getElementById('origin_id').value;
+            
             if (!destinationId) {
                 showShippingError('Pilih alamat tujuan terlebih dahulu');
                 return;
             }
             showShippingLoading();
             try {
-                const weight = quantity * productData.weight;
+                // Calculate weight based on mode
+                let weight;
+                if (checkoutMode === 'cart') {
+                    weight = totalWeight;
+                } else {
+                    const quantity = parseInt(document.getElementById('hidden_quantity').value) || 1;
+                    weight = quantity * productData.weight;
+                }
                 // const couriers = ['jne', 'pos', 'tiki'];
                 const couriers = ['jne'];
                 const shippingPromises = couriers.map(courier =>
@@ -582,7 +598,7 @@
                                 'content')
                         },
                         body: JSON.stringify({
-                            origin: parseInt(originId),
+                            origin: parseInt(originIdValue),
                             destination: parseInt(destinationId),
                             weight: weight,
                             courier: courier
@@ -718,8 +734,16 @@
             if (currentVoucher) {
                 updatePricingWithVoucher();
             } else {
-                const quantity = getQuantity();
-                const subtotal = productData.finalPrice * quantity;
+                let subtotal;
+                if (checkoutMode === 'cart') {
+                    // Cart mode: calculate from cart items
+                    subtotal = checkoutCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                } else {
+                    // Direct mode: calculate from single product
+                    const quantity = getQuantity();
+                    subtotal = productData.finalPrice * quantity;
+                }
+                
                 const total = subtotal + shippingCost;
 
                 // Update pricing display
@@ -799,14 +823,24 @@
             updatePricingDisplay(subtotal, shippingCost, total);
         }
 
-        // Voucher management
-        let currentVoucher = null;
+        // ============================================
+        // VOUCHER MANAGEMENT
+        // ============================================
 
         function applyVoucher() {
             const voucherCode = document.getElementById('voucher-code').value.trim().toUpperCase();
-            const quantity = getQuantity();
-            const cartTotal = productData.finalPrice * quantity;
             const customerEmail = document.getElementById('email').value;
+
+            // Calculate cart total based on mode
+            let cartTotal;
+            if (checkoutMode === 'cart') {
+                // Cart mode: sum all items
+                cartTotal = checkoutCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            } else {
+                // Direct mode: single product
+                const quantity = getQuantity();
+                cartTotal = productData.finalPrice * quantity;
+            }
 
             if (!voucherCode) {
                 showVoucherMessage('Masukkan kode voucher', 'error');
@@ -921,8 +955,16 @@
         }
 
         function updatePricingWithVoucher() {
-            const quantity = getQuantity();
-            const subtotal = productData.finalPrice * quantity;
+            // Calculate subtotal based on mode
+            let subtotal;
+            if (checkoutMode === 'cart') {
+                // Cart mode: sum all items
+                subtotal = checkoutCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            } else {
+                // Direct mode: single product
+                const quantity = getQuantity();
+                subtotal = productData.finalPrice * quantity;
+            }
 
             // Calculate voucher discount based on current subtotal
             let voucherDiscountAmount = 0;
@@ -956,30 +998,33 @@
             // Update subtotal display
             document.getElementById('subtotal').textContent = 'Rp ' + formatNumber(subtotal);
 
-            // Update product discount info if exists
-            const originalPriceRow = document.querySelector('.original-price-row');
-            const discountRow = document.querySelector('.product-discount-row');
+            // Update product discount info (DIRECT MODE ONLY)
+            if (checkoutMode === 'direct') {
+                const originalPriceRow = document.querySelector('.original-price-row');
+                const discountRow = document.querySelector('.product-discount-row');
+                const quantity = getQuantity();
 
-            if (productData.hasDiscount && productData.discountPrice) {
-                const originalSubtotal = productData.originalPrice * quantity;
-                const productDiscountAmount = (productData.originalPrice - productData.discountPrice) * quantity;
+                if (productData.hasDiscount && productData.discountPrice) {
+                    const originalSubtotal = productData.originalPrice * quantity;
+                    const productDiscountAmount = (productData.originalPrice - productData.discountPrice) * quantity;
 
-                // Show and update original price display
-                if (originalPriceRow) {
-                    originalPriceRow.style.display = 'flex';
-                    originalPriceRow.querySelector('.original-price').textContent = 'Rp ' + formatNumber(originalSubtotal);
+                    // Show and update original price display
+                    if (originalPriceRow) {
+                        originalPriceRow.style.display = 'flex';
+                        originalPriceRow.querySelector('.original-price').textContent = 'Rp ' + formatNumber(originalSubtotal);
+                    }
+
+                    // Show and update discount display
+                    if (discountRow) {
+                        discountRow.style.display = 'flex';
+                        discountRow.querySelector('.discount-label').textContent = `Diskon Produk (${productData.discountPercentage}%)`;
+                        discountRow.querySelector('.discount-amount').textContent = '-Rp ' + formatNumber(productDiscountAmount);
+                    }
+                } else {
+                    // Hide discount rows if no discount
+                    if (originalPriceRow) originalPriceRow.style.display = 'none';
+                    if (discountRow) discountRow.style.display = 'none';
                 }
-
-                // Show and update discount display
-                if (discountRow) {
-                    discountRow.style.display = 'flex';
-                    discountRow.querySelector('.discount-label').textContent = `Diskon Produk (${productData.discountPercentage}%)`;
-                    discountRow.querySelector('.discount-amount').textContent = '-Rp ' + formatNumber(productDiscountAmount);
-                }
-            } else {
-                // Hide discount rows if no discount
-                if (originalPriceRow) originalPriceRow.style.display = 'none';
-                if (discountRow) discountRow.style.display = 'none';
             }
 
             // Get shipping cost
@@ -1048,11 +1093,149 @@
             desktopPriceEl.innerHTML = priceHTML.replace('font-semibold', 'font-semibold text-base').replace('text-gray-400', 'text-sm text-gray-400');
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Update product price display with variant data
-            updateProductPriceDisplay();
+        // ============================================
+        // CART MODE FUNCTIONS
+        // ============================================
+        
+        function initCheckoutCart() {
+            // Load cart dari localStorage
+            checkoutCart = CartManager.getCartItems();
+            
+            // Validate cart tidak kosong
+            if (!checkoutCart || checkoutCart.length === 0) {
+                alert('Keranjang kosong! Silakan tambahkan produk terlebih dahulu.');
+                window.location.href = '{{ route("cart") }}';
+                return;
+            }
+            
+            // Render cart items
+            renderCheckoutCartItems();
+            
+            // Calculate total weight
+            calculateTotalWeight();
+            
+            // Update pricing
+            updateCheckoutPricing();
+        }
 
-            updatePricing();
+        function renderCheckoutCartItems() {
+            const container = document.getElementById('checkout-cart-items');
+            
+            const itemsHTML = checkoutCart.map(item => `
+                <div class="flex items-start gap-3 pb-4 border-b border-gray-200 last:border-b-0 mb-3">
+                    <img src="${item.image}" 
+                         alt="${item.name}" 
+                         class="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                         onerror="this.src='/images/default-product.jpg'">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-medium text-sm text-gray-800 line-clamp-2">${item.name}</h4>
+                        ${item.variantName ? `<p class="text-xs text-pink-600 mt-1">Variant: ${item.variantName}</p>` : ''}
+                        <div class="flex items-center justify-between mt-2">
+                            <span class="text-xs text-gray-600">${item.quantity}x ${CartManager.formatPrice(item.price)}</span>
+                            <span class="font-semibold text-sm text-gray-800">${CartManager.formatPrice(item.price * item.quantity)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = itemsHTML;
+            
+            // Update items count display
+            const totalItems = checkoutCart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('items-count-display').textContent = `(${totalItems} item)`;
+        }
+
+        function calculateTotalWeight() {
+            // Default weight 500g per product (TODO: ambil dari product data)
+            totalWeight = checkoutCart.reduce((total, item) => {
+                const itemWeight = 500; // Default
+                return total + (itemWeight * item.quantity);
+            }, 0);
+            return totalWeight;
+        }
+
+        function updateCheckoutPricing() {
+            // Calculate subtotal
+            const subtotal = checkoutCart.reduce((sum, item) => {
+                return sum + (item.price * item.quantity);
+            }, 0);
+            
+            document.getElementById('subtotal').textContent = CartManager.formatPrice(subtotal);
+            
+            // Get shipping cost
+            const shippingMethodInput = document.querySelector('input[name="shipping"]:checked');
+            let shippingCost = 0;
+            if (shippingMethodInput) {
+                const shippingData = shippingMethodInput.value.split('_');
+                shippingCost = parseInt(shippingData[2] || 0);
+                document.getElementById('shipping-cost').textContent = CartManager.formatPrice(shippingCost);
+            }
+            
+            // Get voucher discount
+            let voucherDiscount = 0;
+            const voucherDiscountEl = document.getElementById('voucher-discount-amount');
+            if (voucherDiscountEl && !document.getElementById('voucher-discount-row').classList.contains('hidden')) {
+                const discountText = voucherDiscountEl.textContent.replace(/[^0-9]/g, '');
+                voucherDiscount = parseInt(discountText) || 0;
+            }
+            
+            // Calculate total
+            const total = subtotal + shippingCost - voucherDiscount;
+            document.getElementById('total-amount').textContent = CartManager.formatPrice(total);
+        }
+
+        function prepareCartDataForSubmit() {
+            // Format cart untuk backend
+            const cartData = checkoutCart.map(item => ({
+                product_id: item.id,
+                variant_id: item.variantId || null,
+                quantity: item.quantity,
+                price: item.price
+            }));
+            
+            document.getElementById('cart_items_input').value = JSON.stringify(cartData);
+        }
+
+        // ============================================
+        // DIRECT MODE FUNCTIONS
+        // ============================================
+        
+        function updateDirectPricing() {
+            const subtotal = productData.finalPrice * productData.quantity;
+            document.getElementById('subtotal').textContent = 'Rp ' + formatNumber(subtotal);
+            document.getElementById('items-count-display').textContent = '(' + productData.quantity + ' item)';
+            
+            const shippingMethodInput = document.querySelector('input[name="shipping"]:checked');
+            let shippingCost = 0;
+            if (shippingMethodInput) {
+                const shippingData = shippingMethodInput.value.split('_');
+                shippingCost = parseInt(shippingData[2] || 0);
+                document.getElementById('shipping-cost').textContent = 'Rp ' + formatNumber(shippingCost);
+            }
+            
+            // Get voucher discount
+            let voucherDiscount = 0;
+            const voucherDiscountEl = document.getElementById('voucher-discount-amount');
+            if (voucherDiscountEl && !document.getElementById('voucher-discount-row').classList.contains('hidden')) {
+                const discountText = voucherDiscountEl.textContent.replace(/[^0-9]/g, '');
+                voucherDiscount = parseInt(discountText) || 0;
+            }
+            
+            const total = subtotal + shippingCost - voucherDiscount;
+            document.getElementById('total-amount').textContent = 'Rp ' + formatNumber(total);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize based on mode
+            if (checkoutMode === 'cart') {
+                // CART MODE: Load cart from localStorage
+                initCheckoutCart();
+            } else {
+                // DIRECT MODE: Initialize single product
+                updateProductPriceDisplay();
+                updateDirectPricing();
+            }
+
             initRajaOngkirAutocomplete();
 
             // Voucher event listeners
@@ -1083,6 +1266,23 @@
                         updatePricingWithShipping(shippingCost);
                     }
                 }
+            });
+
+            // Form submit handler
+            document.getElementById('checkout-form').addEventListener('submit', function(e) {
+                if (checkoutMode === 'cart') {
+                    // Prepare cart data untuk submit
+                    prepareCartDataForSubmit();
+                    
+                    // Validate cart
+                    if (!checkoutCart || checkoutCart.length === 0) {
+                        e.preventDefault();
+                        alert('Keranjang kosong!');
+                        return false;
+                    }
+                }
+                
+                // Let form submit
             });
         });
     </script>
