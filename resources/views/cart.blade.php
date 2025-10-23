@@ -87,7 +87,7 @@
                     <div class="cart-item-row flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b border-gray-300 ${isLastItem ? 'last:border-b-0' : ''}" data-cart-item-id="${item.cartItemId}">
                         <a href="/product/${item.slug}" class="flex-shrink-0">
                             <img src="${item.image}" alt="${item.name}" 
-                                class="w-20 h-20 object-cover rounded-md" 
+                                class="w-20 h-20 aspect-square object-cover rounded-md" 
                                 onerror="this.src='/images/default-product.jpg'">
                         </a>
 
