@@ -551,7 +551,7 @@
                         console.log(`   - ${itemCount} items removed from cart`);
                     } else {
                         // Method 2: Fallback - langsung clear localStorage
-                        localStorage.removeItem('cart');
+                        localStorage.removeItem('womantoys_cart');
                         console.log('✓ Cart cleared successfully using localStorage');
                     }
                     
