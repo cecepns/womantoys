@@ -582,7 +582,8 @@
                 name: '{{ addslashes($product->name) }}',
                 slug: '{{ $product->slug }}',
                 image: '{{ $product->main_image_url ?? '/images/default-product.jpg' }}',
-                quantity: quantity
+                quantity: quantity,
+                weight: {{ $product->weight ?? 500 }}
             };
 
             // Jika ada variant yang dipilih

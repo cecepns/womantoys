@@ -608,8 +608,8 @@
                 const results = await Promise.all(shippingPromises);
                 displayShippingOptions(results, weight);
             } catch (error) {
-                console.log(error);
-                // showShippingError('Gagal menghitung ongkos kirim. Silakan coba lagi.');
+                console.error('Shipping calculation error:', error);
+                showShippingError('Gagal menghitung ongkos kirim. Silakan coba lagi.');
             }
         }
 
@@ -757,31 +757,33 @@
             document.getElementById('shipping-cost').textContent = 'Rp ' + formatNumber(shippingCost);
             document.getElementById('total-amount').textContent = 'Rp ' + formatNumber(total);
 
-            // Update product discount info if exists
-            const originalPriceRow = document.querySelector('.original-price-row');
-            const discountRow = document.querySelector('.product-discount-row');
+            // Update product discount info ONLY in DIRECT MODE
+            if (checkoutMode === 'direct') {
+                const originalPriceRow = document.querySelector('.original-price-row');
+                const discountRow = document.querySelector('.product-discount-row');
 
-            if (productData.hasDiscount && productData.discountPrice) {
-                const quantity = getQuantity();
-                const originalSubtotal = productData.originalPrice * quantity;
-                const discountAmount = (productData.originalPrice - productData.discountPrice) * quantity;
+                if (productData.hasDiscount && productData.discountPrice) {
+                    const quantity = getQuantity();
+                    const originalSubtotal = productData.originalPrice * quantity;
+                    const discountAmount = (productData.originalPrice - productData.discountPrice) * quantity;
 
-                // Show and update original price display
-                if (originalPriceRow) {
-                    originalPriceRow.style.display = 'flex';
-                    originalPriceRow.querySelector('.original-price').textContent = 'Rp ' + formatNumber(originalSubtotal);
+                    // Show and update original price display
+                    if (originalPriceRow) {
+                        originalPriceRow.style.display = 'flex';
+                        originalPriceRow.querySelector('.original-price').textContent = 'Rp ' + formatNumber(originalSubtotal);
+                    }
+
+                    // Show and update discount display
+                    if (discountRow) {
+                        discountRow.style.display = 'flex';
+                        discountRow.querySelector('.discount-label').textContent = `Diskon Produk (${productData.discountPercentage}%)`;
+                        discountRow.querySelector('.discount-amount').textContent = '-Rp ' + formatNumber(discountAmount);
+                    }
+                } else {
+                    // Hide discount rows if no discount
+                    if (originalPriceRow) originalPriceRow.style.display = 'none';
+                    if (discountRow) discountRow.style.display = 'none';
                 }
-
-                // Show and update discount display
-                if (discountRow) {
-                    discountRow.style.display = 'flex';
-                    discountRow.querySelector('.discount-label').textContent = `Diskon Produk (${productData.discountPercentage}%)`;
-                    discountRow.querySelector('.discount-amount').textContent = '-Rp ' + formatNumber(discountAmount);
-                }
-            } else {
-                // Hide discount rows if no discount
-                if (originalPriceRow) originalPriceRow.style.display = 'none';
-                if (discountRow) discountRow.style.display = 'none';
             }
         }
 
@@ -810,6 +812,9 @@
         }
 
         function updatePricing() {
+            // DIRECT MODE ONLY function
+            if (checkoutMode !== 'direct') return;
+            
             const quantity = getQuantity();
             const shippingMethodInput = document.querySelector('input[name="shipping"]:checked');
             let shippingCost = 0;
@@ -1146,9 +1151,9 @@
         }
 
         function calculateTotalWeight() {
-            // Default weight 500g per product (TODO: ambil dari product data)
+            // Calculate weight from actual product data
             totalWeight = checkoutCart.reduce((total, item) => {
-                const itemWeight = 500; // Default
+                const itemWeight = item.weight || 500; // Use item weight or fallback to 500g
                 return total + (itemWeight * item.quantity);
             }, 0);
             return totalWeight;

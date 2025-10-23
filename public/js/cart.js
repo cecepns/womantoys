@@ -76,7 +76,8 @@ const CartManager = {
                     slug: product.slug || '',
                     stock: product.stock || 0,
                     hasDiscount: product.hasDiscount || false,
-                    discountPercentage: product.discountPercentage || 0
+                    discountPercentage: product.discountPercentage || 0,
+                    weight: product.weight || 500
                 };
                 
                 cart.push(cartItem);
