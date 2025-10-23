@@ -92,7 +92,7 @@
                         </a>
 
                         <div class="flex-1 min-w-0">
-                            <a href="/product/${item.slug}" class="text-gray-900 font-medium hover:text-pink-600 block truncate">
+                            <a href="/product/${item.slug}" class="text-gray-900 font-medium hover:text-pink-600 block break-words">
                                 ${item.name}
                             </a>
                             ${item.variantName ? `<div class="text-sm text-gray-600 mt-1">Variant: ${item.variantName}</div>` : ''}
