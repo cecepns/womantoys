@@ -334,7 +334,14 @@
         let maxStock = {{ $product->stock }};
 
         function updateQuantityForInput(input, triggerRecalc = false) {
-            const qty = Math.max(1, parseInt(input.value) || 1);
+            let value = input.value;
+            
+            // Allow empty input while typing
+            if (value === '') {
+                return;
+            }
+            
+            const qty = Math.max(1, parseInt(value) || 1);
             const max = parseInt(input.getAttribute('max')) || Infinity;
             input.value = Math.min(qty, max);
         }
@@ -680,6 +687,10 @@
 
                 // loss of focus: ensure min applied
                 quantityInput.addEventListener('blur', function() {
+                    // Force value to 1 if empty on blur
+                    if (this.value === '') {
+                        this.value = 1;
+                    }
                     updateQuantityForInput(this);
                 });
             }
