@@ -78,6 +78,14 @@
                             </a>
                         </li>
                         <li>
+                            <a href="{{ route('admin.promotions.index') }}" class="flex items-center px-4 md:px-6 py-2 md:py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 rounded-md mx-2 md:mx-0">
+                                <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"></path>
+                                </svg>
+                                <span class="text-sm md:text-base">Manajemen Promotion</span>
+                            </a>
+                        </li>
+                        <li>
                             <a href="{{ route('admin.products.index') }}" class="flex items-center px-4 md:px-6 py-2 md:py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200 rounded-md mx-2 md:mx-0">
                                 <svg class="w-4 h-4 md:w-5 md:h-5 mr-2 md:mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>

@@ -101,50 +101,116 @@
     @endif
     <!-- !SECTION: Hero Carousel Section -->
 
-    <!-- SECTION: Trust & Guarantee Section -->
-    <div class="bg-white py-16">
-        <div class="container mx-auto px-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- 100% Kemasan Rahasia -->
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
-                            </path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">100% Kemasan Rahasia</h3>
-                    <p class="text-gray-600">Kemasan yang sepenuhnya pribadi untuk ketenangan pikiran Anda</p>
-                </div>
-
-                <!-- Transaksi Aman & Privat -->
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
-                            </path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Transaksi Aman & Privat</h3>
-                    <p class="text-gray-600">Privasi dan keamanan Anda adalah prioritas utama kami</p>
-                </div>
-
-                <!-- Produk Terkurasi & Aman -->
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Produk Terkurasi & Aman</h3>
-                    <p class="text-gray-600">Produk berkualitas premium yang diuji untuk keamanan dan kepuasan</p>
+    <!-- SECTION: Promotion Section -->
+    @if ($promotions && $promotions->count() > 0)
+        <div class="bg-white py-16">
+            <div class="container mx-auto px-4">
+                @php
+                    $promotionCount = $promotions->count();
+                    $gridClass = 'grid grid-cols-1 gap-8';
+                    
+                    // Selalu gunakan grid 4 kolom untuk desktop jika lebih dari 4 items
+                    if ($promotionCount <= 4) {
+                        if ($promotionCount == 1) {
+                            $gridClass .= '';
+                        } elseif ($promotionCount == 2) {
+                            $gridClass .= ' md:grid-cols-2';
+                        } elseif ($promotionCount == 3) {
+                            $gridClass .= ' md:grid-cols-3';
+                        } else {
+                            $gridClass .= ' md:grid-cols-4';
+                        }
+                    } else {
+                        $gridClass .= ' md:grid-cols-4';
+                    }
+                @endphp
+                
+                <div class="{{ $gridClass }}">
+                    @foreach ($promotions as $index => $promotion)
+                        @php
+                            $itemClass = '';
+                            
+                            // Jika lebih dari 4 items, hitung col-span untuk baris berikutnya
+                            if ($promotionCount > 4) {
+                                $itemsPerRow = 4;
+                                $currentRow = intval($index / $itemsPerRow);
+                                $positionInRow = $index % $itemsPerRow;
+                                
+                                // Baris pertama: normal (tidak perlu col-span)
+                                if ($currentRow == 0) {
+                                    $itemClass = '';
+                                } else {
+                                    // Baris berikutnya: hitung sisa items di baris ini
+                                    $itemsInCurrentRow = min($itemsPerRow, $promotionCount - ($currentRow * $itemsPerRow));
+                                    
+                                    if ($itemsInCurrentRow == 1) {
+                                        // 1 item: col-span-4 (full width)
+                                        $itemClass = 'md:col-span-4';
+                                    } elseif ($itemsInCurrentRow == 2) {
+                                        // 2 items: masing-masing col-span-2
+                                        $itemClass = 'md:col-span-2';
+                                    } elseif ($itemsInCurrentRow == 3) {
+                                        // 3 items: distribusi merata (1, 1, 2) - total 4 kolom
+                                        if ($positionInRow == 0 || $positionInRow == 1) {
+                                            $itemClass = 'md:col-span-1';
+                                        } else {
+                                            $itemClass = 'md:col-span-2';
+                                        }
+                                    } else {
+                                        // 4 items: normal (tidak perlu col-span)
+                                        $itemClass = '';
+                                    }
+                                }
+                            }
+                        @endphp
+                        
+                        <div class="{{ $itemClass }}">
+                            @if ($promotion->cta_link)
+                                <a href="{{ $promotion->cta_link }}" class="block">
+                            @endif
+                            
+                            <div class="relative overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+                                @if ($promotion->isVideo())
+                                    <video 
+                                        src="{{ $promotion->file_url }}" 
+                                        class="w-full h-auto object-cover"
+                                        autoplay 
+                                        loop 
+                                        muted 
+                                        playsinline
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                    ></video>
+                                    <!-- ANCHOR: Fallback Background -->
+                                    <div class="w-full min-h-[300px] bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center" style="display: none;">
+                                        <svg class="w-24 h-24 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                @else
+                                    <img 
+                                        src="{{ $promotion->file_url }}" 
+                                        alt="Promotion {{ $index + 1 }}"
+                                        class="w-full h-auto object-cover"
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                    >
+                                    <!-- ANCHOR: Fallback Background -->
+                                    <div class="w-full min-h-[300px] bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center" style="display: none;">
+                                        <svg class="w-24 h-24 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            @if ($promotion->cta_link)
+                                </a>
+                            @endif
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
-    </div>
+    @endif
 
     <!-- Featured Products Section -->
     <div class="bg-gray-50 py-16">

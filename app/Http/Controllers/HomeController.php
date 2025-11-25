@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CarouselSlide;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Promotion;
 use App\Helpers\SettingHelper;
 use Illuminate\Http\Request;
 
@@ -33,12 +34,16 @@ class HomeController extends Controller
         // Get store name for title
         $storeName = SettingHelper::getStoreName();
 
+        // Get active promotions
+        $promotions = Promotion::active()->ordered()->get();
+
         return view('home', compact(
             'carouselSlides',
             'featuredProducts',
             'categories',
             'aboutUsImage',
-            'storeName'
+            'storeName',
+            'promotions'
         ));
     }
 
