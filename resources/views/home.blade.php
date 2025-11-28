@@ -10,14 +10,14 @@
                 @foreach ($carouselSlides as $slide)
                     <div class="item relative">
                         <!-- ANCHOR: Background Image -->
-                        <div class="relative">
+                        <div class="absolute inset-0 bg-black">
 
                             @if ($slide->image_path)
                                 <img src="{{ $slide->image_url }}" alt="{{ $slide->title ?: 'Slide Carousel' }}"
-                                    class="w-full h-auto"
+                                    class="w-full h-full object-cover"
                                     onerror="console.log('Image failed to load:', this.src); this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                 <!-- ANCHOR: Fallback Background -->
-                                <div class="w-full min-h-[400px] bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center"
+                                <div class="w-full h-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center"
                                     style="display: none;">
                                     <svg class="w-24 h-24 text-white opacity-50" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
@@ -28,7 +28,7 @@
                                 </div>
                             @else
                                 <div
-                                    class="w-full min-h-[400px] bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center">
+                                    class="w-full h-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center">
                                     <svg class="w-24 h-24 text-white opacity-50" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -42,7 +42,7 @@
                         </div>
 
                         <!-- ANCHOR: Slide Content -->
-                        <div class="absolute inset-0 z-10 flex items-center justify-center text-center text-white px-4">
+                        <div class="relative z-10 text-white px-4 py-24 md:py-32 lg:py-40 flex items-center justify-center text-center">
                             <div class="max-w-4xl">
                                 @if ($slide->title)
                                     <h1 class="text-4xl md:text-6xl font-bold mb-6">
@@ -512,6 +512,7 @@
                     margin: 0,
                     nav: true,
                     dots: false,
+                    autoHeight: true,
                     autoplay: false,
                     autoplayTimeout: 5000,
                     autoplayHoverPause: true,
