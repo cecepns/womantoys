@@ -14,6 +14,7 @@ class CarouselSlide extends Model
      */
     protected $fillable = [
         'image_path',
+        'image_mobile_path',
         'title',
         'description',
         'cta_text',
@@ -57,6 +58,23 @@ class CarouselSlide extends Model
     }
 
     /**
+     * URL gambar mobile (opsional). Jika path kosong, kembalikan null.
+     * Digunakan untuk perangkat mobile, dengan fallback ke gambar desktop.
+     */
+    public function getImageMobileUrlAttribute()
+    {
+        if (empty($this->image_mobile_path)) {
+            return null;
+        }
+
+        if (filter_var($this->image_mobile_path, FILTER_VALIDATE_URL)) {
+            return $this->image_mobile_path;
+        }
+
+        return asset('storage/' . $this->image_mobile_path);
+    }
+
+    /**
      * Check if the image exists and is accessible.
      *
      * @return bool
@@ -74,6 +92,23 @@ class CarouselSlide extends Model
 
         // Check if file exists in storage
         return Storage::disk('public')->exists($this->image_path);
+    }
+
+    /**
+     * Cek ketersediaan file gambar mobile (opsional).
+     * Jika path berupa URL penuh, asumsikan valid.
+     */
+    public function hasValidMobileImage()
+    {
+        if (empty($this->image_mobile_path)) {
+            return false;
+        }
+
+        if (filter_var($this->image_mobile_path, FILTER_VALIDATE_URL)) {
+            return true;
+        }
+
+        return Storage::disk('public')->exists($this->image_mobile_path);
     }
 
     /**

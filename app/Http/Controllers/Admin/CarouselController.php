@@ -32,16 +32,23 @@ class CarouselController extends Controller
      */
     public function store(Request $request)
     {
+        // Validasi upload dua versi gambar: desktop (wajib) dan mobile (opsional)
+        // Batasan: hanya JPEG, PNG, WebP; maksimum 5MB per file
         $request->validate([
-            'image_path' => 'required|image|mimes:jpeg,png,jpg',
+            'image_path' => 'required|image|mimes:jpeg,png,webp|max:5120',
+            'image_mobile_path' => 'nullable|image|mimes:jpeg,png,webp|max:5120',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'cta_text' => 'nullable|string|max:255',
             'cta_link' => 'nullable|string|max:255',
         ], [
-            'image_path.required' => 'Gambar slide wajib diupload.',
+            'image_path.required' => 'Gambar desktop wajib diupload.',
             'image_path.image' => 'File harus berupa gambar.',
-            'image_path.mimes' => 'Format gambar harus JPEG, PNG, atau JPG.',
+            'image_path.mimes' => 'Format gambar harus JPEG, PNG, atau WebP.',
+            'image_path.max' => 'Ukuran gambar maksimal 5MB.',
+            'image_mobile_path.image' => 'File harus berupa gambar.',
+            'image_mobile_path.mimes' => 'Format gambar harus JPEG, PNG, atau WebP.',
+            'image_mobile_path.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
 
         // Validate CTA consistency
@@ -53,9 +60,14 @@ class CarouselController extends Controller
             return back()->withErrors(['cta_text' => 'Jika mengisi link CTA, teks tombol juga harus diisi.'])->withInput();
         }
 
-        // Handle image upload
+        // Upload gambar desktop (wajib) dan mobile (opsional)
+        // Prioritas penggunaan: desktop sebagai default, mobile untuk perangkat mobile bila tersedia
         if ($request->hasFile('image_path')) {
             $imagePath = $request->file('image_path')->store('carousel', 'public');
+        }
+        $imageMobilePath = null;
+        if ($request->hasFile('image_mobile_path')) {
+            $imageMobilePath = $request->file('image_mobile_path')->store('carousel', 'public');
         }
 
         // Calculate next order number
@@ -64,6 +76,7 @@ class CarouselController extends Controller
         // Create carousel slide
         CarouselSlide::create([
             'image_path' => $imagePath,
+            'image_mobile_path' => $imageMobilePath,
             'title' => $request->title,
             'description' => $request->description,
             'cta_text' => $request->cta_text,
@@ -96,21 +109,27 @@ class CarouselController extends Controller
      */
     public function update(Request $request, CarouselSlide $carousel)
     {
+        // Validasi update: desktop dan mobile, format JPEG/PNG/WebP, maksimum 5MB
         $request->validate([
-            'image_path' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+            'image_path' => 'nullable|image|mimes:jpeg,png,webp|max:5120',
+            'image_mobile_path' => 'nullable|image|mimes:jpeg,png,webp|max:5120',
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'cta_text' => 'nullable|string|max:255',
             'cta_link' => 'nullable|string|max:255',
         ], [
             'image_path.image' => 'File harus berupa gambar.',
-            'image_path.mimes' => 'Format gambar harus JPEG, PNG, atau JPG.',
+            'image_path.mimes' => 'Format gambar harus JPEG, PNG, atau WebP.',
             'image_path.max' => 'Ukuran gambar maksimal 5MB.',
+            'image_mobile_path.image' => 'File harus berupa gambar.',
+            'image_mobile_path.mimes' => 'Format gambar harus JPEG, PNG, atau WebP.',
+            'image_mobile_path.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
 
         // Ensure carousel has an image (either existing or new)
+        // Pastikan slide tetap memiliki gambar desktop (default) setelah update
         if (!$request->hasFile('image_path') && !$carousel->image_path) {
-            return back()->withErrors(['image_path' => 'Carousel slide harus memiliki gambar.'])->withInput();
+            return back()->withErrors(['image_path' => 'Carousel slide harus memiliki gambar desktop.']).withInput();
         }
 
         // Validate CTA consistency
@@ -131,7 +150,7 @@ class CarouselController extends Controller
 
 
 
-        // Handle image upload if new image is provided
+        // Update gambar desktop bila ada file baru
         if ($request->hasFile('image_path')) {
             // Delete old image if it exists
             if ($carousel->image_path) {
@@ -152,6 +171,23 @@ class CarouselController extends Controller
             $data['image_path'] = $request->file('image_path')->store('carousel', 'public');
         }
 
+        // Update gambar mobile bila ada file baru (opsional)
+        if ($request->hasFile('image_mobile_path')) {
+            if ($carousel->image_mobile_path) {
+                try {
+                    if (Storage::disk('public')->exists($carousel->image_mobile_path)) {
+                        Storage::disk('public')->delete($carousel->image_mobile_path);
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Failed to delete old mobile carousel image: ' . $carousel->image_mobile_path, [
+                        'error' => $e->getMessage(),
+                        'slide_id' => $carousel->id
+                    ]);
+                }
+            }
+            $data['image_mobile_path'] = $request->file('image_mobile_path')->store('carousel', 'public');
+        }
+
         $carousel->update($data);
 
         notify()->success('Slide carousel berhasil diupdate!', 'Berhasil');
@@ -163,7 +199,7 @@ class CarouselController extends Controller
      */
     public function destroy(CarouselSlide $carousel)
     {
-        // Delete image file if it exists
+        // Hapus file gambar desktop jika ada
         if ($carousel->image_path) {
             try {
                 if (Storage::disk('public')->exists($carousel->image_path)) {
@@ -172,6 +208,20 @@ class CarouselController extends Controller
             } catch (\Exception $e) {
                 // Log error but continue with deletion
                 Log::warning('Failed to delete carousel image during slide deletion: ' . $carousel->image_path, [
+                    'error' => $e->getMessage(),
+                    'slide_id' => $carousel->id
+                ]);
+            }
+        }
+
+        // Hapus file gambar mobile jika ada
+        if ($carousel->image_mobile_path) {
+            try {
+                if (Storage::disk('public')->exists($carousel->image_mobile_path)) {
+                    Storage::disk('public')->delete($carousel->image_mobile_path);
+                }
+            } catch (\Exception $e) {
+                Log::warning('Failed to delete mobile carousel image during slide deletion: ' . $carousel->image_mobile_path, [
                     'error' => $e->getMessage(),
                     'slide_id' => $carousel->id
                 ]);

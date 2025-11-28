@@ -13,9 +13,18 @@
                         <div class="absolute inset-0 bg-black">
 
                             @if ($slide->image_path)
-                                <img src="{{ $slide->image_url }}" alt="{{ $slide->title ?: 'Slide Carousel' }}"
-                                    class="w-full h-full object-cover"
-                                    onerror="console.log('Image failed to load:', this.src); this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <!-- PRIORITAS GAMBAR: gunakan <picture> untuk memilih versi sesuai perangkat
+                                     - Mobile: gunakan image_mobile jika tersedia
+                                     - Desktop: gunakan image desktop
+                                     Fallback: jika load gagal, sembunyikan img dan tampilkan background gradien -->
+                                <picture>
+                                    @if (!empty($slide->image_mobile_path))
+                                        <source media="(max-width: 480px)" srcset="{{ $slide->image_mobile_url }}">
+                                    @endif
+                                    <img src="{{ $slide->image_url }}" alt="{{ $slide->title ?: 'Slide Carousel' }}"
+                                        class="w-full h-full object-cover" loading="lazy" decoding="async"
+                                        onerror="console.log('Image failed to load:', this.src); this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                </picture>
                                 <!-- ANCHOR: Fallback Background -->
                                 <div class="w-full h-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center"
                                     style="display: none;">
@@ -190,7 +199,7 @@
                                     <img 
                                         src="{{ $promotion->file_url }}" 
                                         alt="Promotion {{ $index + 1 }}"
-                                        class="w-full h-auto object-cover"
+                                        class="w-full h-auto object-cover" loading="lazy" decoding="async"
                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                                     >
                                     <!-- ANCHOR: Fallback Background -->
@@ -268,7 +277,7 @@
                         <a href="{{ route('catalog') }}?category={{ $category->slug }}" class="group cursor-pointer">
                             <div class="relative overflow-hidden rounded-lg shadow-lg">
                                 <img src="{{ $category->cover_image_url }}" alt="{{ $category->name }}"
-                                    class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300">
+                                    class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                                 <div class="absolute bottom-4 left-4 text-white">
                                     <h3 class="text-2xl font-bold mb-2">{{ $category->name }}</h3>
