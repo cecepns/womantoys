@@ -272,7 +272,7 @@
 
         <!-- SECTION: CATEGORIES (SUB HEADER) -->
         <!-- ANCHOR: Menu Kategori & Sub Kategori -->
-        <div class="bg-white border-b border-gray-200 shadow">
+        <div class="bg-white border-t border-gray-200 shadow">
             <div class="container mx-auto px-4 py-2 md:py-3">
                 <div class="lg:hidden py-1">
                     <button id="mobile-menu-btn" type="button" aria-label="Toggle categories menu"
